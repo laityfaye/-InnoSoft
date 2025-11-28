@@ -1,0 +1,221 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root[data-theme="dark"] {
+    --bg-primary: #0A0E27;
+    --bg-secondary: #080B1F;
+    --text-primary: #FFFFFF;
+    --text-secondary: #E5E7EB;
+    --text-muted: #9CA3AF;
+    --border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :root[data-theme="light"] {
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F9FAFB;
+    --text-primary: #0A0E27;
+    --text-secondary: #374151;
+    --text-muted: #6B7280;
+    --border-color: rgba(0, 0, 0, 0.1);
+  }
+
+  * {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  }
+
+  body {
+    @apply font-sans antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  [data-theme="dark"] body {
+    @apply bg-dark-500 text-white;
+  }
+
+  [data-theme="light"] body {
+    @apply bg-white text-dark-500;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: var(--bg-secondary);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary-500 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary-400;
+  }
+}
+
+@layer components {
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-primary bg-clip-text text-transparent;
+  }
+
+  [data-theme="light"] .gradient-text {
+    @apply bg-gradient-primary bg-clip-text text-transparent;
+  }
+
+  .glass-effect {
+    @apply backdrop-blur-xl border;
+  }
+
+  [data-theme="dark"] .glass-effect {
+    background-color: rgba(10, 14, 39, 0.9);
+    border-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(16px);
+  }
+
+  [data-theme="light"] .glass-effect {
+    background-color: rgba(255, 255, 255, 1);
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(16px);
+  }
+
+  .btn-primary {
+    @apply px-8 py-4 bg-gradient-primary text-white font-semibold rounded-lg 
+           shadow-glow hover:shadow-glow-lg transition-all duration-300 
+           transform hover:scale-105 active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply px-8 py-4 bg-transparent border-2 border-primary-500 font-semibold rounded-lg 
+           transition-all duration-300 transform hover:scale-105 active:scale-95;
+    color: var(--text-primary);
+    border-color: #0066FF;
+  }
+
+  [data-theme="light"] .btn-secondary {
+    color: #0066FF;
+  }
+
+  [data-theme="light"] .btn-secondary:hover {
+    background-color: rgba(0, 102, 255, 0.1);
+  }
+
+  .section-padding {
+    @apply py-20 md:py-32;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:transform hover:scale-105 
+           hover:shadow-glow-lg;
+  }
+
+  /* Dark mode - ensure proper colors */
+  [data-theme="dark"] .bg-dark-600,
+  [data-theme="dark"] .bg-dark-600\/50,
+  [data-theme="dark"] .bg-dark-600\/30 {
+    background-color: #080B1F;
+  }
+
+  [data-theme="dark"] .bg-dark-600\/50 {
+    background-color: rgba(8, 11, 31, 0.5);
+  }
+
+  [data-theme="dark"] .bg-dark-600\/30 {
+    background-color: rgba(8, 11, 31, 0.3);
+  }
+
+  [data-theme="dark"] .text-gray-300 {
+    color: #D1D5DB;
+  }
+
+  [data-theme="dark"] .text-gray-400 {
+    color: #9CA3AF;
+  }
+
+  [data-theme="dark"] .text-gray-500 {
+    color: #6B7280;
+  }
+
+  [data-theme="dark"] .text-white {
+    color: #FFFFFF;
+  }
+
+  [data-theme="dark"] .text-dark-500 {
+    color: #FFFFFF;
+  }
+
+  /* Light mode adjustments */
+  [data-theme="light"] .bg-dark-600,
+  [data-theme="light"] .bg-dark-600\/50,
+  [data-theme="light"] .bg-dark-600\/30 {
+    background-color: #F9FAFB;
+  }
+
+  [data-theme="light"] .bg-dark-600\/50 {
+    background-color: rgba(249, 250, 251, 0.5);
+  }
+
+  [data-theme="light"] .bg-dark-600\/30 {
+    background-color: rgba(249, 250, 251, 0.3);
+  }
+
+  [data-theme="light"] .text-gray-300 {
+    color: #374151;
+  }
+
+  [data-theme="light"] .text-gray-400 {
+    color: #4B5563;
+  }
+
+  [data-theme="light"] .text-gray-500 {
+    color: #6B7280;
+  }
+
+  [data-theme="light"] .text-white {
+    color: #0A0E27;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Shooting Stars Animation */
+@keyframes shootingStar {
+  0% {
+    transform: translateY(-200vh) translateX(-200vh) rotate(-45deg);
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(200vh) translateX(200vh) rotate(-45deg);
+    opacity: 0;
+  }
+}
+
+[data-theme='light'] .shooting-star > div:first-child {
+  box-shadow: 0 0 8px 4px rgba(0, 102, 255, 0.6) !important;
+}
+
+[data-theme='light'] .shooting-star > div:last-child {
+  box-shadow: 0 0 12px 6px rgba(0, 102, 255, 0.8), 0 0 20px 10px rgba(0, 102, 255, 0.4) !important;
+}
+
