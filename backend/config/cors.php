@@ -2,7 +2,13 @@
 
 $allowedOrigins = env('CORS_ALLOWED_ORIGINS')
     ? explode(',', env('CORS_ALLOWED_ORIGINS'))
-    : ['http://localhost:3000', 'http://localhost:5173'];
+    : [
+        'http://localhost:3000',
+        'http://localhost:5173',
+        'https://www.innosft.com',
+        'https://innosft.com',
+        'https://api.innosft.com',
+    ];
 
 // Add frontend URL from environment if set
 $frontendUrl = env('FRONTEND_URL');
@@ -17,7 +23,9 @@ return [
 
     'allowed_origins' => $allowedOrigins,
 
-    'allowed_origins_patterns' => [],
+    'allowed_origins_patterns' => [
+        '/^https?:\/\/.*\.innosft\.com$/',
+    ],
 
     'allowed_headers' => ['*'],
 
