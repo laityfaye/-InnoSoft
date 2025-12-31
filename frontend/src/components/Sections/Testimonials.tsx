@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { Quote, Star, MessageSquare, X } from 'lucide-react'
 import { testimonialsApi } from '../../services/api'
-import { useTheme } from '../../hooks/useTheme'
 
 interface Testimonial {
   id: number
