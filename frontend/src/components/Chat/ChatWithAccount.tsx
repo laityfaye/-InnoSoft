@@ -23,7 +23,7 @@ interface Conversation {
 
 const ChatWithAccount = () => {
   const { isDark } = useTheme()
-  const { user, isAuthenticated } = useAuth()
+  const { isAuthenticated } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
   const [conversation, setConversation] = useState<Conversation | null>(null)

@@ -78,7 +78,7 @@ const Portfolio = () => {
   const [loading, setLoading] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
-  const autoPlayInterval = useRef<NodeJS.Timeout | null>(null)
+  const autoPlayInterval = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Fonction pour mapper la catégorie à l'icône et la couleur
   const getCategoryIconAndColor = (category: string): { icon: typeof Code; color: 'primary' | 'secondary' | 'accent' } => {

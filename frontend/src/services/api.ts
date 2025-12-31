@@ -88,7 +88,7 @@ export const newsApi = {
     if (limit) params.limit = limit
     return api.get('/news', { params })
   },
-  getById: (id: number) => api.get(`/news/${id}`),
+  getById: (id: number | string) => api.get(`/news/${id}`),
 }
 
 // Team

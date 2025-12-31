@@ -56,7 +56,7 @@ const Blog = () => {
       setNews(allNews)
 
       // Extraire les catégories uniques
-      const uniqueCategories = ['all', ...new Set(allNews.map((item: NewsPost) => item.category))]
+      const uniqueCategories: string[] = ['all', ...new Set(allNews.map((item: NewsPost) => item.category as string))]
       setCategories(uniqueCategories)
     } catch (error) {
       console.error('Error loading news:', error)

@@ -14,7 +14,6 @@ interface Testimonial {
 }
 
 const Testimonials = () => {
-  const { isDark } = useTheme()
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
