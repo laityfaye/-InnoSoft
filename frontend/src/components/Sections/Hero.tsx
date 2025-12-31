@@ -121,44 +121,44 @@ const Hero = () => {
           className="text-center max-w-6xl mx-auto"
         >
           {/* Enhanced Badge */}
-          <motion.div variants={itemVariants} className="mb-6 sm:mb-8 md:mb-10">
+          <motion.div variants={itemVariants} className="mb-4 sm:mb-6 md:mb-8 lg:mb-10 px-2">
             <motion.span
               whileHover={{ scale: 1.05, y: -2 }}
-              className="inline-flex items-center space-x-2 sm:space-x-3 px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-full glass-effect text-xs sm:text-sm font-semibold text-primary-300 [data-theme='light']:text-primary-600 shadow-xl [data-theme='dark']:shadow-primary-500/30 [data-theme='light']:shadow-primary-500/20 border-primary-500/20"
+              className="inline-flex items-center space-x-1.5 sm:space-x-2 md:space-x-3 px-3 sm:px-4 md:px-5 lg:px-6 py-1.5 sm:py-2 md:py-2.5 lg:py-3 rounded-full glass-effect text-[10px] xs:text-xs sm:text-sm font-semibold text-primary-300 [data-theme='light']:text-primary-600 shadow-xl [data-theme='dark']:shadow-primary-500/30 [data-theme='light']:shadow-primary-500/20 border-primary-500/20"
             >
               <motion.div
                 animate={{ rotate: [0, 360] }}
                 transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
               >
-                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-primary-400" />
+                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary-400" />
               </motion.div>
-              <span className="tracking-wide text-center">Innovation & Excellence Technologique</span>
+              <span className="tracking-wide text-center whitespace-nowrap">Innovation & Excellence</span>
             </motion.span>
           </motion.div>
 
           {/* Enhanced Main Heading */}
           <motion.h1
             variants={itemVariants}
-            className="text-4xl xs:text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-display font-black mb-6 sm:mb-8 md:mb-10 leading-[1.1] sm:leading-[1.08] md:leading-[1.05] tracking-tighter px-2 sm:px-0"
+            className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-9xl font-display font-black mb-4 sm:mb-6 md:mb-8 lg:mb-10 leading-[1.15] sm:leading-[1.12] md:leading-[1.08] lg:leading-[1.05] tracking-tighter px-3 sm:px-4 md:px-2 lg:px-0"
           >
             <motion.div
-              className="block mb-2 sm:mb-3"
+              className="block mb-1.5 sm:mb-2 md:mb-3"
               initial={{ opacity: 0, y: 30 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.3, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
             >
-              <span className="text-white [data-theme='light']:text-dark-500">Créons </span>
-              <span className="gradient-text bg-gradient-to-r from-primary-400 via-primary-500 via-primary-600 to-primary-700 bg-clip-text text-transparent relative">
+              <span className="text-white [data-theme='light']:text-dark-500 break-words">Créons </span>
+              <span className="gradient-text bg-gradient-to-r from-primary-400 via-primary-500 via-primary-600 to-primary-700 bg-clip-text text-transparent relative break-words">
               L'Innovation
               <motion.span
-                className="absolute -inset-2 sm:-inset-3 md:-inset-4 bg-gradient-to-r from-primary-500/20 via-primary-600/20 to-primary-700/20 blur-xl sm:blur-2xl -z-10"
+                className="absolute -inset-1 sm:-inset-2 md:-inset-3 lg:-inset-4 bg-gradient-to-r from-primary-500/20 via-primary-600/20 to-primary-700/20 blur-lg sm:blur-xl md:blur-2xl -z-10"
                 animate={{ opacity: [0.3, 0.6, 0.3] }}
                 transition={{ duration: 3, repeat: Infinity }}
               />
               </span>
             </motion.div>
             <motion.span
-              className="block text-white [data-theme='light']:text-dark-500"
+              className="block text-white [data-theme='light']:text-dark-500 break-words"
               initial={{ opacity: 0, x: 80 }}
               animate={inView ? { opacity: 1, x: 0 } : {}}
               transition={{ delay: 0.7, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
@@ -177,14 +177,14 @@ const Hero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.9, duration: 0.6 }}
-              className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-white/80 mb-8 sm:mb-10 md:mb-12 text-center leading-relaxed font-light px-4 sm:px-6 md:px-0"
+              className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl text-white/80 mb-6 sm:mb-8 md:mb-10 lg:mb-12 text-center leading-relaxed font-light px-3 sm:px-4 md:px-6 lg:px-0"
             >
               Nous créons des solutions innovantes qui transforment votre vision en réalité
           </motion.p>
             
             {/* Clean Animated Scrolling Words */}
-            <div className="relative h-16 sm:h-20 md:h-24 lg:h-28 flex items-center justify-center my-8 sm:my-10 md:my-12">
-              <div className="absolute inset-0 flex items-center justify-center px-4">
+            <div className="relative h-12 sm:h-16 md:h-20 lg:h-24 xl:h-28 flex items-center justify-center my-6 sm:my-8 md:my-10 lg:my-12">
+              <div className="absolute inset-0 flex items-center justify-center px-3 sm:px-4">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentWordIndex}
@@ -195,9 +195,9 @@ const Hero = () => {
                       duration: 0.6,
                       ease: [0.22, 1, 0.36, 1],
                     }}
-                    className="text-center"
+                    className="text-center px-2"
                   >
-                    <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl font-bold tracking-tight">
+                    <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl 2xl:text-4xl font-bold tracking-tight break-words">
                       <span className="bg-gradient-to-r from-primary-400 via-primary-500 to-primary-600 bg-clip-text text-transparent">
                         {scrollingWords[currentWordIndex]}
                       </span>
@@ -269,31 +269,31 @@ const Hero = () => {
           {/* Enhanced CTA Buttons */}
           <motion.div
             variants={itemVariants}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5 md:gap-6 mb-16 sm:mb-20 md:mb-24 px-4 sm:px-0"
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 md:gap-5 lg:gap-6 mb-12 sm:mb-16 md:mb-20 lg:mb-24 px-3 sm:px-4 md:px-0"
           >
             <motion.div 
               whileHover={{ y: -4 }} 
               whileTap={{ y: 0 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto max-w-xs sm:max-w-none"
             >
               <Link
                 to="/contact"
-                className="btn-primary group flex items-center justify-center space-x-2 sm:space-x-3 text-base sm:text-lg px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 font-semibold relative z-10 w-full sm:w-auto"
+                className="btn-primary group flex items-center justify-center space-x-2 sm:space-x-3 text-sm sm:text-base md:text-lg px-6 sm:px-8 md:px-10 lg:px-12 py-3 sm:py-4 md:py-5 lg:py-6 font-semibold relative z-10 w-full sm:w-auto"
               >
-                <span>Démarrer un projet</span>
-                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                <span className="whitespace-nowrap">Démarrer un projet</span>
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 group-hover:translate-x-1 transition-transform duration-300" />
               </Link>
             </motion.div>
             <motion.div 
               whileHover={{ y: -4 }} 
               whileTap={{ y: 0 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto max-w-xs sm:max-w-none"
             >
               <Link
                 to="/services"
-                className="btn-secondary text-base sm:text-lg px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 font-semibold relative z-10 w-full sm:w-auto text-center block"
+                className="btn-secondary text-sm sm:text-base md:text-lg px-6 sm:px-8 md:px-10 lg:px-12 py-3 sm:py-4 md:py-5 lg:py-6 font-semibold relative z-10 w-full sm:w-auto text-center block whitespace-nowrap"
               >
                 Découvrir nos services
               </Link>
@@ -303,7 +303,7 @@ const Hero = () => {
           {/* Enhanced Features Cards */}
           <motion.div
             variants={itemVariants}
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mt-12 sm:mt-16 md:mt-20 lg:mt-24 px-4 sm:px-0"
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6 mt-8 sm:mt-12 md:mt-16 lg:mt-20 xl:mt-24 px-3 sm:px-4 md:px-0"
           >
             {[
               { 
@@ -345,32 +345,32 @@ const Hero = () => {
                   animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
                   transition={{ delay: 1 + index * 0.15, duration: 0.6 }}
                   whileHover={{ y: -12, scale: 1.03 }}
-                  className="group relative p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl glass-effect card-hover overflow-hidden border-primary-500/10 group-hover:border-primary-500/30 transition-all duration-500"
+                  className="group relative p-4 sm:p-6 md:p-8 lg:p-10 rounded-xl sm:rounded-2xl md:rounded-3xl glass-effect card-hover overflow-hidden border-primary-500/10 group-hover:border-primary-500/30 transition-all duration-500"
                 >
                   {/* Animated Gradient Border */}
-                  <div className={`absolute inset-0 rounded-2xl sm:rounded-3xl bg-gradient-to-br ${feature.borderGradient} to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-500`} />
+                  <div className={`absolute inset-0 rounded-xl sm:rounded-2xl md:rounded-3xl bg-gradient-to-br ${feature.borderGradient} to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-500`} />
                   
                   {/* Background Glow on Hover */}
-                  <div className={`absolute -inset-2 sm:-inset-3 md:-inset-4 ${feature.glowColor} rounded-2xl sm:rounded-3xl blur-xl sm:blur-2xl opacity-0 group-hover:opacity-40 transition-opacity duration-700 -z-10`} />
+                  <div className={`absolute -inset-1 sm:-inset-2 md:-inset-3 lg:-inset-4 ${feature.glowColor} rounded-xl sm:rounded-2xl md:rounded-3xl blur-lg sm:blur-xl md:blur-2xl opacity-0 group-hover:opacity-40 transition-opacity duration-700 -z-10`} />
                   
                   {/* Icon Container */}
                   <motion.div
                     whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
                     transition={{ duration: 0.5, type: "spring" }}
-                    className={`relative w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 rounded-xl sm:rounded-2xl bg-gradient-to-br ${feature.gradientFrom} ${feature.gradientTo} flex items-center justify-center mb-4 sm:mb-6 md:mb-8 mx-auto shadow-2xl ${feature.shadowColor} group-hover:shadow-2xl transition-all duration-500`}
+                    className={`relative w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-lg sm:rounded-xl md:rounded-2xl bg-gradient-to-br ${feature.gradientFrom} ${feature.gradientTo} flex items-center justify-center mb-3 sm:mb-4 md:mb-6 lg:mb-8 mx-auto shadow-2xl ${feature.shadowColor} group-hover:shadow-2xl transition-all duration-500`}
                   >
-                    <Icon className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-white relative z-10" />
+                    <Icon className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-10 lg:h-10 text-white relative z-10" />
                     <motion.div
                       animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
                       transition={{ duration: 2, repeat: Infinity }}
-                      className={`absolute inset-0 rounded-xl sm:rounded-2xl ${feature.glowColor} blur-lg sm:blur-xl`}
+                      className={`absolute inset-0 rounded-lg sm:rounded-xl md:rounded-2xl ${feature.glowColor} blur-md sm:blur-lg md:blur-xl`}
                     />
                   </motion.div>
                   
-                  <h3 className="text-white [data-theme='light']:text-dark-500 font-bold text-xl sm:text-xl md:text-2xl mb-2 sm:mb-3 md:mb-4 relative z-10 tracking-tight">
+                  <h3 className="text-white [data-theme='light']:text-dark-500 font-bold text-lg sm:text-xl md:text-2xl mb-1.5 sm:mb-2 md:mb-3 lg:mb-4 relative z-10 tracking-tight text-center">
                     {feature.title}
                   </h3>
-                  <p className="text-secondary-400 [data-theme='light']:text-secondary-600 text-sm sm:text-base leading-relaxed relative z-10">
+                  <p className="text-secondary-400 [data-theme='light']:text-secondary-600 text-xs sm:text-sm md:text-base leading-relaxed relative z-10 text-center">
                     {feature.desc}
                   </p>
                   
