@@ -42,7 +42,7 @@ const Features = () => {
   ]
 
   return (
-    <section ref={ref} className="section-padding bg-dark-600/30 [data-theme='light']:bg-gray-50/50 transition-colors duration-300">
+    <section ref={ref} className="section-padding bg-dark-600/30 [data-theme='light']:bg-secondary-50/50 transition-colors duration-300">
       <div className="container-custom">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -50,10 +50,10 @@ const Features = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-display font-bold mb-4">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-black mb-6 tracking-tight">
             Pourquoi Choisir <span className="gradient-text">InnoSoft</span> ?
           </h2>
-          <p className="text-xl text-gray-400 [data-theme='light']:text-gray-600 max-w-2xl mx-auto transition-colors">
+          <p className="text-xl text-secondary-400 [data-theme='light']:text-secondary-600 max-w-2xl mx-auto transition-colors">
             Des avantages qui font la différence
           </p>
         </motion.div>
@@ -64,16 +64,23 @@ const Features = () => {
             return (
               <motion.div
                 key={feature.title}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 40 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ delay: index * 0.1 }}
-                className="p-6 rounded-xl glass-effect card-hover"
+                transition={{ delay: index * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                whileHover={{ y: -8, scale: 1.02 }}
+                className="group relative p-8 rounded-2xl glass-effect card-hover overflow-hidden border-primary-500/0 group-hover:border-primary-500/20 transition-all duration-500"
               >
-                <div className="w-12 h-12 rounded-lg bg-gradient-primary flex items-center justify-center mb-4">
-                  <Icon className="w-6 h-6 text-white" />
+                {/* Hover Glow Effect */}
+                <div className="absolute -inset-4 bg-gradient-primary opacity-0 group-hover:opacity-10 blur-2xl transition-opacity duration-700 -z-10" />
+                
+                <div className="relative w-16 h-16 rounded-xl bg-gradient-primary flex items-center justify-center mb-6 shadow-lg group-hover:shadow-xl transition-all duration-500 group-hover:scale-110">
+                  <Icon className="w-8 h-8 text-white relative z-10" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2 text-white [data-theme='light']:text-dark-500 transition-colors">{feature.title}</h3>
-                <p className="text-gray-400 [data-theme='light']:text-gray-600 leading-relaxed transition-colors">{feature.description}</p>
+                <h3 className="text-xl font-bold mb-3 text-white [data-theme='light']:text-dark-500 transition-colors tracking-tight">{feature.title}</h3>
+                <p className="text-secondary-400 [data-theme='light']:text-secondary-600 leading-relaxed transition-colors text-[15px]">{feature.description}</p>
+                
+                {/* Bottom Accent */}
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-primary transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
               </motion.div>
             )
           })}

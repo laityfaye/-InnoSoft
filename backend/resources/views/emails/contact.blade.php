@@ -13,7 +13,7 @@
     <p><strong>Sujet:</strong> {{ $subject }}</p>
     
     <h3>Message:</h3>
-    <p>{{ $message }}</p>
+    <p>{{ $messageContent }}</p>
 </body>
 </html>
 

@@ -31,6 +31,13 @@ php artisan migrate
 php artisan serve
 ```
 
+7. **Démarrer le worker de queue** (nécessaire pour l'envoi d'emails) :
+```bash
+php artisan queue:work
+```
+
+> **Important** : Le worker de queue doit être démarré pour que les emails soient envoyés. Les emails sont traités de manière asynchrone pour ne pas ralentir la plateforme. Voir `MAIL_CONFIGURATION.md` pour plus de détails.
+
 ## API Endpoints
 
 ### Services

@@ -25,7 +25,7 @@ const Footer = () => {
   ]
 
   return (
-    <footer className="bg-dark-600 [data-theme='light']:bg-gray-50 border-t border-white/10 [data-theme='light']:border-gray-200 transition-colors duration-300">
+    <footer className="bg-dark-600 [data-theme='light']:bg-secondary-50 border-t border-white/10 [data-theme='light']:border-secondary-200 transition-colors duration-300">
       <div className="container-custom py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
@@ -36,7 +36,7 @@ const Footer = () => {
                 InnoSoft Creation
               </span>
             </Link>
-            <p className="text-gray-400 [data-theme='light']:text-gray-600 text-sm leading-relaxed transition-colors">
+            <p className="text-secondary-400 [data-theme='light']:text-secondary-600 text-sm leading-relaxed transition-colors">
               Solutions technologiques innovantes pour accompagner votre transformation numérique.
             </p>
             <div className="flex space-x-4">
@@ -51,7 +51,7 @@ const Footer = () => {
                     className="w-10 h-10 flex items-center justify-center rounded-lg glass-effect hover:bg-primary-500/20 transition-all group"
                     aria-label={social.label}
                   >
-                    <Icon className="w-5 h-5 text-gray-400 [data-theme='light']:text-gray-600 group-hover:text-primary-400 transition-colors" />
+                    <Icon className="w-5 h-5 text-secondary-400 [data-theme='light']:text-secondary-600 group-hover:text-primary-400 transition-colors" />
                   </a>
                 )
               })}
@@ -66,7 +66,7 @@ const Footer = () => {
                 <li key={service.name}>
                   <Link
                     to={service.path}
-                    className="text-gray-400 hover:text-primary-400 transition-colors text-sm"
+                    className="text-secondary-400 hover:text-primary-400 transition-colors text-sm"
                   >
                     {service.name}
                   </Link>
@@ -83,7 +83,7 @@ const Footer = () => {
                 <li key={item.name}>
                   <Link
                     to={item.path}
-                    className="text-gray-400 [data-theme='light']:text-gray-600 hover:text-primary-400 transition-colors text-sm"
+                    className="text-secondary-400 [data-theme='light']:text-secondary-600 hover:text-primary-400 transition-colors text-sm"
                   >
                     {item.name}
                   </Link>
@@ -99,25 +99,25 @@ const Footer = () => {
               <li className="flex items-start space-x-3">
                 <Mail className="w-5 h-5 text-primary-400 mt-0.5 flex-shrink-0" />
                 <a
-                  href="mailto:contact@innosoft-creation.com"
-                  className="text-gray-400 [data-theme='light']:text-gray-600 hover:text-primary-400 transition-colors text-sm"
+                  href="mailto:innosoftcreation@gmail.com"
+                  className="text-secondary-400 [data-theme='light']:text-secondary-600 hover:text-primary-400 transition-colors text-sm"
                 >
-                  contact@innosoft-creation.com
+                  innosoftcreation@gmail.com
                 </a>
               </li>
               <li className="flex items-start space-x-3">
                 <Phone className="w-5 h-5 text-primary-400 mt-0.5 flex-shrink-0" />
                 <a
                   href="tel:+221000000000"
-                  className="text-gray-400 hover:text-primary-400 transition-colors text-sm"
+                  className="text-secondary-400 hover:text-primary-400 transition-colors text-sm"
                 >
-                  +221 00 000 00 00
+                  +221 78 018 62 29
                 </a>
               </li>
               <li className="flex items-start space-x-3">
                 <MapPin className="w-5 h-5 text-primary-400 mt-0.5 flex-shrink-0" />
-                <span className="text-gray-400 text-sm">
-                  Dakar, Sénégal
+                <span className="text-secondary-400 text-sm">
+                  Ville verte, Thiès, Sénégal
                 </span>
               </li>
             </ul>
@@ -126,19 +126,19 @@ const Footer = () => {
 
         <div className="mt-12 pt-8 border-t border-white/10">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-gray-500 [data-theme='light']:text-gray-600 text-sm transition-colors">
+            <p className="text-secondary-500 [data-theme='light']:text-secondary-600 text-sm transition-colors">
               © {currentYear} InnoSoft Creation. Tous droits réservés.
             </p>
             <div className="flex space-x-6 text-sm">
               <Link
                 to="/privacy"
-                className="text-gray-500 [data-theme='light']:text-gray-600 hover:text-primary-400 transition-colors"
+                className="text-secondary-500 [data-theme='light']:text-secondary-600 hover:text-primary-400 transition-colors"
               >
                 Confidentialité
               </Link>
               <Link
                 to="/terms"
-                className="text-gray-500 [data-theme='light']:text-gray-600 hover:text-primary-400 transition-colors"
+                className="text-secondary-500 [data-theme='light']:text-secondary-600 hover:text-primary-400 transition-colors"
               >
                 Conditions
               </Link>

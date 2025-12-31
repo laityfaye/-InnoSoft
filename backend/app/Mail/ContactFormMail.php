@@ -32,7 +32,7 @@ class ContactFormMail extends Mailable
                         'email' => $this->data['email'],
                         'phone' => $this->data['phone'] ?? 'Non renseigné',
                         'subject' => $this->data['subject'],
-                        'message' => $this->data['message'],
+                        'messageContent' => $this->data['message'],
                     ]);
     }
 }

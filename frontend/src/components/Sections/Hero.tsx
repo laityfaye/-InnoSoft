@@ -1,14 +1,34 @@
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Sparkles, Code, Smartphone } from 'lucide-react'
 import { useInView } from 'react-intersection-observer'
-import ShootingStars from './ShootingStars'
+import BackgroundStars from './BackgroundStars'
+import SmallShootingStars from './SmallShootingStars'
 
 const Hero = () => {
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   })
+
+  const scrollingWords = [
+    'Des solutions web modernes',
+    'Des applications mobiles innovantes',
+    'Des expériences utilisateur exceptionnelles',
+    'Des designs sur mesure',
+    'Des technologies de pointe',
+  ]
+
+  const [currentWordIndex, setCurrentWordIndex] = useState(0)
+
+  useEffect(() => {
+    if (!inView) return
+    const interval = setInterval(() => {
+      setCurrentWordIndex((prev) => (prev + 1) % scrollingWords.length)
+    }, 3000)
+    return () => clearInterval(interval)
+  }, [inView, scrollingWords.length])
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -36,12 +56,18 @@ const Hero = () => {
   return (
     <section
       ref={ref}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32"
     >
       {/* Enhanced Animated Background */}
-      <div className="absolute inset-0 [data-theme='dark']:bg-gradient-to-br [data-theme='dark']:from-dark-500 [data-theme='dark']:via-dark-600 [data-theme='dark']:to-dark-500 [data-theme='light']:bg-gradient-to-br [data-theme='light']:from-white [data-theme='light']:via-blue-50 [data-theme='light']:to-indigo-50">
+      <div className="absolute inset-0 [data-theme='dark']:bg-gradient-to-br [data-theme='dark']:from-dark-500 [data-theme='dark']:via-dark-600 [data-theme='dark']:to-dark-500 [data-theme='light']:bg-gradient-to-br [data-theme='light']:from-white [data-theme='light']:via-secondary-50 [data-theme='light']:to-secondary-100">
         {/* Grid Pattern Overlay */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
+        
+        {/* Background Stars */}
+        <BackgroundStars />
+        
+        {/* Small Shooting Stars */}
+        <SmallShootingStars />
         
         {/* Animated Gradient Orbs */}
         <motion.div
@@ -85,9 +111,6 @@ const Hero = () => {
           }}
           className="absolute top-1/2 left-1/2 w-[400px] h-[400px] [data-theme='dark']:bg-accent-500/20 [data-theme='light']:bg-accent-500/5 rounded-full blur-[90px] opacity-50 -translate-x-1/2 -translate-y-1/2"
         />
-        
-        {/* Shooting Stars */}
-        <ShootingStars />
       </div>
 
       <div className="container-custom relative z-10">
@@ -98,82 +121,177 @@ const Hero = () => {
           className="text-center max-w-6xl mx-auto"
         >
           {/* Enhanced Badge */}
-          <motion.div variants={itemVariants} className="mb-8">
+          <motion.div variants={itemVariants} className="mb-10">
             <motion.span
-              whileHover={{ scale: 1.05 }}
-              className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-full glass-effect text-sm font-semibold text-primary-300 [data-theme='light']:text-primary-600 shadow-lg [data-theme='dark']:shadow-primary-500/20 [data-theme='light']:shadow-primary-500/10"
+              whileHover={{ scale: 1.05, y: -2 }}
+              className="inline-flex items-center space-x-3 px-6 py-3 rounded-full glass-effect text-sm font-semibold text-primary-300 [data-theme='light']:text-primary-600 shadow-xl [data-theme='dark']:shadow-primary-500/30 [data-theme='light']:shadow-primary-500/20 border-primary-500/20"
             >
               <motion.div
                 animate={{ rotate: [0, 360] }}
                 transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
               >
-                <Sparkles className="w-4 h-4" />
+                <Sparkles className="w-5 h-5 text-primary-400" />
               </motion.div>
-              <span>Innovation & Excellence Technologique</span>
+              <span className="tracking-wide">Innovation & Excellence Technologique</span>
             </motion.span>
           </motion.div>
 
           {/* Enhanced Main Heading */}
           <motion.h1
             variants={itemVariants}
-            className="text-6xl md:text-7xl lg:text-9xl font-display font-extrabold mb-8 leading-[1.1] tracking-tight"
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-display font-black mb-10 leading-[1.05] tracking-tighter"
           >
+            <motion.div
+              className="block mb-3"
+              initial={{ opacity: 0, y: 30 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.3, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <span className="text-white [data-theme='light']:text-dark-500">Créons </span>
+              <span className="gradient-text bg-gradient-to-r from-primary-400 via-primary-500 via-primary-600 to-primary-700 bg-clip-text text-transparent relative">
+              L'Innovation
+              <motion.span
+                className="absolute -inset-4 bg-gradient-to-r from-primary-500/20 via-primary-600/20 to-primary-700/20 blur-2xl -z-10"
+                animate={{ opacity: [0.3, 0.6, 0.3] }}
+                transition={{ duration: 3, repeat: Infinity }}
+              />
+              </span>
+            </motion.div>
             <motion.span
-              className="block mb-2"
-              initial={{ opacity: 0, x: -50 }}
+              className="block text-white [data-theme='light']:text-dark-500"
+              initial={{ opacity: 0, x: 80 }}
               animate={inView ? { opacity: 1, x: 0 } : {}}
-              transition={{ delay: 0.3, duration: 0.8 }}
+              transition={{ delay: 0.7, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
             >
-              Solutions
-            </motion.span>
-            <motion.span
-              className="block gradient-text mb-2 bg-gradient-to-r from-primary-400 via-primary-500 to-secondary-500 bg-clip-text text-transparent"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={inView ? { opacity: 1, scale: 1 } : {}}
-              transition={{ delay: 0.5, duration: 0.8 }}
-            >
-              Numériques
-            </motion.span>
-            <motion.span
-              className="block"
-              initial={{ opacity: 0, x: 50 }}
-              animate={inView ? { opacity: 1, x: 0 } : {}}
-              transition={{ delay: 0.7, duration: 0.8 }}
-            >
-              d'Excellence
+              De Demain
             </motion.span>
           </motion.h1>
 
-          {/* Enhanced Subtitle */}
-          <motion.p
+          {/* Clean & Professional Scrolling Text Section */}
+          <motion.div
             variants={itemVariants}
-            className="text-xl md:text-2xl lg:text-3xl text-gray-300 [data-theme='light']:text-gray-700 mb-12 max-w-4xl mx-auto leading-relaxed font-light"
+            className="mb-16 max-w-4xl mx-auto px-4"
           >
-            Accompagnons entreprises et institutions dans leur{' '}
-            <span className="font-semibold text-primary-300 [data-theme='light']:text-primary-600">
-              transformation numérique
-            </span>{' '}
-            avec des solutions innovantes, accessibles et personnalisées.
+            {/* Simple Subtitle */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.9, duration: 0.6 }}
+              className="text-xl sm:text-2xl md:text-3xl text-white/80 mb-12 text-center leading-relaxed font-light"
+            >
+              Nous créons des solutions innovantes qui transforment votre vision en réalité
           </motion.p>
+            
+            {/* Clean Animated Scrolling Words */}
+            <div className="relative h-20 sm:h-24 md:h-28 flex items-center justify-center my-12">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentWordIndex}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -30 }}
+                    transition={{
+                      duration: 0.6,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                    className="text-center"
+                  >
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
+                      <span className="bg-gradient-to-r from-primary-400 via-primary-500 to-primary-600 bg-clip-text text-transparent">
+                        {scrollingWords[currentWordIndex]}
+                      </span>
+                    </h2>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+              
+              {/* Simple Progress indicator */}
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex items-center space-x-2">
+                {scrollingWords.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentWordIndex(idx)}
+                    className="focus:outline-none"
+                  >
+                    <div
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                        idx === currentWordIndex 
+                          ? 'w-8 bg-primary-500' 
+                          : 'w-1.5 bg-white/30 hover:bg-white/50'
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Subtle Horizontal Scroll Banner */}
+          <motion.div
+            variants={itemVariants}
+            className="relative w-full overflow-hidden py-6 mb-12"
+          >
+            {/* Fade edges */}
+            <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-black to-transparent z-10 pointer-events-none" />
+            <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-black to-transparent z-10 pointer-events-none" />
+            
+            {/* Scrolling content */}
+            <motion.div
+              className="flex whitespace-nowrap"
+              animate={{
+                x: [0, -1600],
+              }}
+              transition={{
+                x: {
+                  repeat: Infinity,
+                  repeatType: 'loop',
+                  duration: 35,
+                  ease: 'linear',
+                },
+              }}
+            >
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="flex items-center space-x-16 px-16">
+                  {scrollingWords.map((word, idx) => (
+                    <div key={`${i}-${idx}`} className="flex items-center space-x-16">
+                      <span className="text-base sm:text-lg md:text-xl lg:text-2xl font-medium text-white/12 uppercase tracking-wider whitespace-nowrap">
+                        {word}
+                      </span>
+                      <div className="w-1 h-1 rounded-full bg-primary-500/20" />
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </motion.div>
+          </motion.div>
 
           {/* Enhanced CTA Buttons */}
           <motion.div
             variants={itemVariants}
-            className="flex flex-col sm:flex-row items-center justify-center gap-5 mb-20"
+            className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-24"
           >
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <motion.div 
+              whileHover={{ y: -4 }} 
+              whileTap={{ y: 0 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            >
               <Link
                 to="/contact"
-                className="btn-primary group flex items-center space-x-2 text-lg px-10 py-5 shadow-2xl [data-theme='dark']:shadow-primary-500/30 [data-theme='light']:shadow-primary-500/20"
+                className="btn-primary group flex items-center space-x-3 text-lg px-12 py-6 font-semibold relative z-10"
               >
-                <span className="font-semibold">Démarrer un projet</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <span>Démarrer un projet</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
               </Link>
             </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <motion.div 
+              whileHover={{ y: -4 }} 
+              whileTap={{ y: 0 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            >
               <Link
                 to="/services"
-                className="btn-secondary text-lg px-10 py-5 font-semibold hover:bg-primary-500/10 [data-theme='dark']:hover:bg-primary-500/20"
+                className="btn-secondary text-lg px-12 py-6 font-semibold relative z-10"
               >
                 Découvrir nos services
               </Link>
@@ -224,31 +342,38 @@ const Hero = () => {
                   initial={{ opacity: 0, y: 30, scale: 0.9 }}
                   animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
                   transition={{ delay: 1 + index * 0.15, duration: 0.6 }}
-                  whileHover={{ y: -8, scale: 1.02 }}
-                  className="group relative p-8 rounded-3xl glass-effect card-hover overflow-hidden"
+                  whileHover={{ y: -12, scale: 1.03 }}
+                  className="group relative p-10 rounded-3xl glass-effect card-hover overflow-hidden border-primary-500/10 group-hover:border-primary-500/30 transition-all duration-500"
                 >
-                  {/* Gradient Border Effect */}
-                  <div className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${feature.borderGradient} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                  {/* Animated Gradient Border */}
+                  <div className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${feature.borderGradient} to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-500`} />
+                  
+                  {/* Background Glow on Hover */}
+                  <div className={`absolute -inset-4 ${feature.glowColor} rounded-3xl blur-2xl opacity-0 group-hover:opacity-40 transition-opacity duration-700 -z-10`} />
                   
                   {/* Icon Container */}
                   <motion.div
-                    whileHover={{ rotate: [0, -10, 10, -10, 0] }}
-                    transition={{ duration: 0.5 }}
-                    className={`relative w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradientFrom} ${feature.gradientTo} flex items-center justify-center mb-6 mx-auto shadow-lg ${feature.shadowColor}`}
+                    whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
+                    transition={{ duration: 0.5, type: "spring" }}
+                    className={`relative w-20 h-20 rounded-2xl bg-gradient-to-br ${feature.gradientFrom} ${feature.gradientTo} flex items-center justify-center mb-8 mx-auto shadow-2xl ${feature.shadowColor} group-hover:shadow-2xl transition-all duration-500`}
                   >
-                    <Icon className="w-8 h-8 text-white" />
-                    <div className={`absolute inset-0 rounded-2xl ${feature.glowColor} opacity-0 group-hover:opacity-30 blur-xl transition-opacity`} />
+                    <Icon className="w-10 h-10 text-white relative z-10" />
+                    <motion.div
+                      animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className={`absolute inset-0 rounded-2xl ${feature.glowColor} blur-xl`}
+                    />
                   </motion.div>
                   
-                  <h3 className="text-white [data-theme='light']:text-dark-500 font-bold text-xl mb-3 relative z-10">
+                  <h3 className="text-white [data-theme='light']:text-dark-500 font-bold text-2xl mb-4 relative z-10 tracking-tight">
                     {feature.title}
                   </h3>
-                  <p className="text-gray-400 [data-theme='light']:text-gray-600 text-base relative z-10">
+                  <p className="text-secondary-400 [data-theme='light']:text-secondary-600 text-base leading-relaxed relative z-10">
                     {feature.desc}
                   </p>
                   
-                  {/* Hover Glow Effect */}
-                  <div className={`absolute -bottom-10 -right-10 w-32 h-32 ${feature.glowColor} rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                  {/* Bottom Accent Line */}
+                  <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${feature.gradientFrom} ${feature.gradientTo} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left rounded-b-3xl`} />
                 </motion.div>
               )
             })}
@@ -268,7 +393,7 @@ const Hero = () => {
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
           className="flex flex-col items-center space-y-2 cursor-pointer group"
         >
-          <span className="text-xs text-gray-400 [data-theme='light']:text-gray-600 font-medium uppercase tracking-wider group-hover:text-primary-400 transition-colors">
+          <span className="text-xs text-secondary-400 [data-theme='light']:text-secondary-600 font-medium uppercase tracking-wider group-hover:text-primary-400 transition-colors">
             Scroll
           </span>
           <motion.div

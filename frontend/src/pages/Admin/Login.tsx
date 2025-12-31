@@ -48,24 +48,24 @@ const Login = () => {
             <h1 className="text-3xl font-display font-bold mb-2 text-white [data-theme='light']:text-dark-500">
               Connexion
             </h1>
-            <p className="text-gray-400 [data-theme='light']:text-gray-600">
+            <p className="text-secondary-400 [data-theme='light']:text-secondary-600">
               Accédez au panneau d'administration
             </p>
           </div>
 
           {error && (
-            <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            <div className="mb-6 p-4 rounded-lg bg-primary-500/10 border border-primary-500/20 text-primary-400 text-sm">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300 [data-theme='light']:text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-secondary-300 [data-theme='light']:text-secondary-700 mb-2">
                 Email
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-secondary-400" />
                 <input
                   type="email"
                   id="email"
@@ -73,9 +73,9 @@ const Login = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="w-full pl-10 pr-4 py-3 rounded-lg border
-                    [data-theme='dark']:bg-gray-800 [data-theme='dark']:border-gray-700 [data-theme='dark']:text-white [data-theme='dark']:placeholder-gray-400
-                    [data-theme='dark']:hover:bg-gray-700 [data-theme='dark']:hover:border-gray-600
-                    [data-theme='light']:bg-white [data-theme='light']:border-2 [data-theme='light']:border-gray-300 [data-theme='light']:text-gray-900 [data-theme='light']:placeholder-gray-400
+                    [data-theme='dark']:bg-secondary-800 [data-theme='dark']:border-secondary-700 [data-theme='dark']:text-white [data-theme='dark']:placeholder-secondary-400
+                    [data-theme='dark']:hover:bg-secondary-700 [data-theme='dark']:hover:border-secondary-600
+                    [data-theme='light']:bg-white [data-theme='light']:border-2 [data-theme='light']:border-secondary-300 [data-theme='light']:text-secondary-900 [data-theme='light']:placeholder-secondary-400
                     focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
                   placeholder="admin@innosoft.com"
                   style={{
@@ -88,11 +88,11 @@ const Login = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300 [data-theme='light']:text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-secondary-300 [data-theme='light']:text-secondary-700 mb-2">
                 Mot de passe
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-secondary-400" />
                 <input
                   type="password"
                   id="password"
@@ -100,9 +100,9 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   className="w-full pl-10 pr-4 py-3 rounded-lg border
-                    [data-theme='dark']:bg-gray-800 [data-theme='dark']:border-gray-700 [data-theme='dark']:text-white [data-theme='dark']:placeholder-gray-400
-                    [data-theme='dark']:hover:bg-gray-700 [data-theme='dark']:hover:border-gray-600
-                    [data-theme='light']:bg-white [data-theme='light']:border-2 [data-theme='light']:border-gray-300 [data-theme='light']:text-gray-900 [data-theme='light']:placeholder-gray-400
+                    [data-theme='dark']:bg-secondary-800 [data-theme='dark']:border-secondary-700 [data-theme='dark']:text-white [data-theme='dark']:placeholder-secondary-400
+                    [data-theme='dark']:hover:bg-secondary-700 [data-theme='dark']:hover:border-secondary-600
+                    [data-theme='light']:bg-white [data-theme='light']:border-2 [data-theme='light']:border-secondary-300 [data-theme='light']:text-secondary-900 [data-theme='light']:placeholder-secondary-400
                     focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
                   placeholder="••••••••"
                   style={{

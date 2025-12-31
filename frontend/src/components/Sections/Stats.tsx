@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { Users, Briefcase, Award, TrendingUp } from 'lucide-react'
@@ -9,6 +9,8 @@ const Stats = () => {
     threshold: 0.2,
   })
 
+  const [isHovered, setIsHovered] = useState(false)
+
   const stats = [
     { icon: Users, value: '500+', label: 'Clients satisfaits', color: 'primary' },
     { icon: Briefcase, value: '1000+', label: 'Projets réalisés', color: 'secondary' },
@@ -16,30 +18,58 @@ const Stats = () => {
     { icon: TrendingUp, value: '98%', label: 'Taux de satisfaction', color: 'primary' },
   ]
 
-  const Counter = ({ end, duration = 2 }: { end: number; duration?: number }) => {
-    const [count, setCount] = React.useState(0)
+  const Counter = ({ end, suffix = '', duration = 2 }: { end: number; suffix?: string; duration?: number }) => {
+    const [count, setCount] = useState(0)
+    const [hasAnimated, setHasAnimated] = useState(false)
 
     React.useEffect(() => {
-      if (!inView) return
-      
-      let startTime: number
-      const animate = (currentTime: number) => {
-        if (!startTime) startTime = currentTime
-        const progress = Math.min((currentTime - startTime) / (duration * 1000), 1)
-        setCount(Math.floor(progress * end))
+      // Réinitialiser le compteur et l'animation quand on survole
+      if (isHovered && !hasAnimated) {
+        setCount(0)
+        setHasAnimated(true)
         
-        if (progress < 1) {
-          requestAnimationFrame(animate)
+        let startTime: number
+        const animate = (currentTime: number) => {
+          if (!startTime) startTime = currentTime
+          const progress = Math.min((currentTime - startTime) / (duration * 1000), 1)
+          setCount(Math.floor(progress * end))
+          
+          if (progress < 1) {
+            requestAnimationFrame(animate)
+          }
         }
+        requestAnimationFrame(animate)
       }
-      requestAnimationFrame(animate)
-    }, [inView, end, duration])
+      
+      // Réinitialiser quand on ne survole plus
+      if (!isHovered) {
+        setHasAnimated(false)
+        setCount(end)
+      }
+    }, [isHovered, end, duration, hasAnimated])
 
-    return <span>{count}{end.toString().includes('+') ? '+' : end.toString().includes('%') ? '%' : ''}</span>
+    // Afficher la valeur finale si on n'a pas encore survolé
+    if (!isHovered && !hasAnimated) {
+      return <span>{end}{suffix}</span>
+    }
+
+    return <span>{count}{suffix}</span>
+  }
+
+  // Fonction pour extraire le nombre et le suffixe
+  const parseValue = (value: string): { num: number; suffix: string } => {
+    const num = parseInt(value.replace(/[^0-9]/g, ''))
+    const suffix = value.includes('+') ? '+' : value.includes('%') ? '%' : ''
+    return { num, suffix }
   }
 
   return (
-    <section ref={ref} className="section-padding bg-dark-600/50 [data-theme='light']:bg-gray-50 transition-colors duration-300">
+    <section 
+      ref={ref} 
+      className="section-padding bg-dark-600/50 [data-theme='light']:bg-secondary-50 transition-colors duration-300"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <div className="container-custom">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -58,22 +88,28 @@ const Stats = () => {
             return (
               <motion.div
                 key={stat.label}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={inView ? { opacity: 1, scale: 1 } : {}}
-                transition={{ delay: index * 0.1 }}
-                className="text-center p-6 rounded-2xl glass-effect card-hover"
+                initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                animate={inView ? { opacity: 1, scale: 1, y: 0 } : {}}
+                transition={{ delay: index * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                whileHover={{ y: -8, scale: 1.05 }}
+                className="group relative text-center p-8 rounded-2xl glass-effect card-hover overflow-hidden border-primary-500/0 group-hover:border-primary-500/20 transition-all duration-500"
               >
-                <div className={`w-16 h-16 ${colorClasses[stat.color as keyof typeof colorClasses]} rounded-xl flex items-center justify-center mb-4 mx-auto shadow-glow`}>
-                  <Icon className="w-8 h-8 text-white" />
+                {/* Background Glow */}
+                <div className="absolute -inset-4 bg-gradient-primary opacity-0 group-hover:opacity-10 blur-2xl transition-opacity duration-700 -z-10" />
+                
+                <div className={`w-20 h-20 ${colorClasses[stat.color as keyof typeof colorClasses]} rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-500`}>
+                  <Icon className="w-10 h-10 text-white relative z-10" />
                 </div>
-                <div className="text-4xl md:text-5xl font-display font-bold gradient-text mb-2">
-                  {stat.value.includes('+') || stat.value.includes('%') ? (
-                    stat.value
-                  ) : (
-                    <Counter end={parseInt(stat.value)} />
-                  )}
+                <div className="text-5xl md:text-6xl font-display font-black gradient-text mb-3 tracking-tight">
+                  {(() => {
+                    const { num, suffix } = parseValue(stat.value)
+                    return <Counter end={num} suffix={suffix} />
+                  })()}
                 </div>
-                <p className="text-gray-400 [data-theme='light']:text-gray-600 text-sm font-medium transition-colors">{stat.label}</p>
+                <p className="text-secondary-400 [data-theme='light']:text-secondary-600 text-sm font-semibold transition-colors uppercase tracking-wider">{stat.label}</p>
+                
+                {/* Bottom Accent */}
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-primary transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
               </motion.div>
             )
           })}

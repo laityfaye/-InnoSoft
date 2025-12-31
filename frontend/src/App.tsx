@@ -7,6 +7,9 @@ import Services from './pages/Services'
 import About from './pages/About'
 import Contact from './pages/Contact'
 import Portfolio from './pages/Portfolio'
+import Products from './pages/Products'
+import Blog from './pages/Blog'
+import BlogPost from './pages/BlogPost'
 import AdminLogin from './pages/Admin/Login'
 import AdminDashboard from './pages/Admin/Dashboard'
 
@@ -22,6 +25,9 @@ function App() {
             <Route path="/about" element={<Layout><About /></Layout>} />
             <Route path="/portfolio" element={<Layout><Portfolio /></Layout>} />
             <Route path="/contact" element={<Layout><Contact /></Layout>} />
+            <Route path="/products" element={<Layout><Products /></Layout>} />
+            <Route path="/blog" element={<Layout><Blog /></Layout>} />
+            <Route path="/blog/:slug" element={<Layout><BlogPost /></Layout>} />
             
             {/* Admin routes without layout */}
             <Route path="/admin/login" element={<AdminLogin />} />

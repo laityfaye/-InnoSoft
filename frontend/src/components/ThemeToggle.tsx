@@ -11,8 +11,8 @@ const ThemeToggle = () => {
       onClick={toggleTheme}
       className="relative w-14 h-8 rounded-full border p-1 transition-all duration-300 
         [data-theme='dark']:bg-white/10 [data-theme='dark']:border-white/20 [data-theme='dark']:hover:bg-white/15
-        [data-theme='light']:bg-gray-100 [data-theme='light']:border-2 [data-theme='light']:border-gray-400 
-        [data-theme='light']:hover:bg-gray-200 [data-theme='light']:hover:border-primary-400
+        [data-theme='light']:bg-secondary-100 [data-theme='light']:border-2 [data-theme='light']:border-secondary-400 
+        [data-theme='light']:hover:bg-secondary-200 [data-theme='light']:hover:border-primary-400
         shadow-sm [data-theme='light']:shadow-md
         focus:outline-none focus:ring-2 focus:ring-primary-500/50"
       aria-label={`Basculer vers le mode ${isDark ? 'clair' : 'sombre'}`}

@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { Code, Smartphone, Palette, Server, Cloud, Database, Globe, Zap } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import ServiceImage from '../components/Services/ServiceImage'
 
 const Services = () => {
   const [ref, inView] = useInView({
@@ -115,7 +116,7 @@ const Services = () => {
           <h1 className="text-5xl md:text-6xl font-display font-bold mb-6">
             Nos <span className="gradient-text">Services</span>
           </h1>
-          <p className="text-xl text-gray-400 leading-relaxed">
+          <p className="text-xl text-secondary-400 leading-relaxed">
             Des solutions technologiques complètes pour tous vos besoins numériques
           </p>
         </motion.div>
@@ -144,23 +145,38 @@ const Services = () => {
                   <h2 className="text-4xl font-display font-bold mb-4 text-white">
                     {service.title}
                   </h2>
-                  <p className="text-xl text-gray-400 mb-6 leading-relaxed">
+                  <p className="text-xl text-secondary-400 mb-6 leading-relaxed">
                     {service.description}
                   </p>
                   <ul className="space-y-3">
                     {service.features.map((feature) => (
                       <li key={feature} className="flex items-start space-x-3">
                         <Zap className="w-5 h-5 text-primary-400 mt-1 flex-shrink-0" />
-                        <span className="text-gray-300">{feature}</span>
+                        <span className="text-secondary-300">{feature}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
-                <div className="flex-1">
-                  <div className={`aspect-video rounded-2xl bg-gradient-to-br ${colorClasses[service.color as keyof typeof colorClasses]} opacity-20 flex items-center justify-center`}>
-                    <Icon className="w-32 h-32 text-white/30" />
-                  </div>
-                </div>
+                <motion.div 
+                  className="flex-1 relative group"
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9, x: isEven ? 50 : -50 }}
+                    animate={inView ? { opacity: 1, scale: 1, x: 0 } : {}}
+                    transition={{ delay: index * 0.1 + 0.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    className="aspect-video rounded-3xl overflow-hidden relative shadow-2xl"
+                  >
+                    <ServiceImage serviceId={service.id} className="w-full h-full" />
+                    {/* Overlay gradient */}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${colorClasses[service.color as keyof typeof colorClasses]} opacity-0 group-hover:opacity-15 transition-opacity duration-500`} />
+                    {/* Border glow on hover */}
+                    <div className={`absolute inset-0 rounded-3xl border-2 border-transparent group-hover:border-primary-500/40 transition-all duration-500 shadow-[0_0_40px_rgba(244,67,54,0.3)]`} />
+                    {/* Subtle inner glow */}
+                    <div className="absolute inset-0 rounded-3xl bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
+                  </motion.div>
+                </motion.div>
               </motion.div>
             )
           })}
@@ -178,7 +194,7 @@ const Services = () => {
           <h3 className="text-3xl font-display font-bold mb-4">
             Prêt à Démarrer Votre Projet ?
           </h3>
-          <p className="text-gray-400 mb-8 text-lg">
+          <p className="text-secondary-400 mb-8 text-lg">
             Contactez-nous pour discuter de vos besoins et obtenir un devis personnalisé
           </p>
           <Link to="/contact" className="btn-primary inline-flex items-center space-x-2">

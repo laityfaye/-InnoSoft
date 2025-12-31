@@ -67,7 +67,7 @@ const Portfolio = () => {
           <h1 className="text-5xl md:text-6xl font-display font-bold mb-6">
             Notre <span className="gradient-text">Portfolio</span>
           </h1>
-          <p className="text-xl text-gray-400 leading-relaxed">
+          <p className="text-xl text-secondary-400 leading-relaxed">
             Découvrez quelques-unes de nos réalisations
           </p>
         </motion.div>
@@ -81,7 +81,7 @@ const Portfolio = () => {
           transition={{ delay: 0.2 }}
           className="flex flex-wrap items-center justify-center gap-4"
         >
-          <Filter className="w-5 h-5 text-gray-400" />
+          <Filter className="w-5 h-5 text-secondary-400" />
           {filters.map((filter) => (
             <button
               key={filter.id}
@@ -89,7 +89,7 @@ const Portfolio = () => {
               className={`px-6 py-2 rounded-lg font-medium transition-all ${
                 activeFilter === filter.id
                   ? 'bg-gradient-primary text-white shadow-glow'
-                  : 'glass-effect text-gray-400 hover:text-white hover:bg-white/10'
+                  : 'glass-effect text-secondary-400 hover:text-white hover:bg-white/10'
               }`}
             >
               {filter.label}
@@ -114,7 +114,7 @@ const Portfolio = () => {
               transition={{ delay: index * 0.1 }}
               className="group relative overflow-hidden rounded-2xl glass-effect card-hover"
             >
-              <div className="aspect-video relative overflow-hidden bg-gray-800">
+              <div className="aspect-video relative overflow-hidden bg-secondary-800">
                 {project.image ? (
                   <img
                     src={project.image}
@@ -133,7 +133,7 @@ const Portfolio = () => {
                   />
                 ) : null}
                 {!project.image && (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-800 text-gray-500">
+                  <div className="w-full h-full flex items-center justify-center bg-secondary-800 text-secondary-500">
                     <span>Aucune image</span>
                   </div>
                 )}
@@ -159,7 +159,7 @@ const Portfolio = () => {
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-semibold mb-2 text-white">{project.title}</h3>
-                <p className="text-gray-400 text-sm mb-4 leading-relaxed">
+                <p className="text-secondary-400 text-sm mb-4 leading-relaxed">
                   {project.description}
                 </p>
                 {project.tags && project.tags.length > 0 && (
@@ -189,7 +189,7 @@ const Portfolio = () => {
             animate={{ opacity: 1 }}
             className="text-center py-20"
           >
-            <p className="text-gray-400 [data-theme='light']:text-gray-600 text-lg">
+            <p className="text-secondary-400 [data-theme='light']:text-secondary-600 text-lg">
               Aucun projet trouvé dans cette catégorie.
             </p>
           </motion.div>

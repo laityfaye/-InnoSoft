@@ -44,7 +44,7 @@ const About = () => {
           <h1 className="text-5xl md:text-6xl font-display font-bold mb-6">
             À Propos de <span className="gradient-text">InnoSoft</span>
           </h1>
-          <p className="text-xl text-gray-400 leading-relaxed">
+          <p className="text-xl text-secondary-400 leading-relaxed">
             Votre partenaire de confiance pour la transformation numérique
           </p>
         </motion.div>
@@ -63,7 +63,7 @@ const About = () => {
               <Target className="w-8 h-8 text-white" />
             </div>
             <h2 className="text-3xl font-display font-bold mb-4 text-white">Notre Mission</h2>
-            <p className="text-gray-400 leading-relaxed text-lg">
+            <p className="text-secondary-400 leading-relaxed text-lg">
               Fournir des solutions technologiques innovantes, accessibles et personnalisées
               pour accompagner entreprises et institutions dans leur transformation numérique.
               Nous nous engageons à offrir des services de qualité qui répondent aux besoins
@@ -81,7 +81,7 @@ const About = () => {
               <Eye className="w-8 h-8 text-white" />
             </div>
             <h2 className="text-3xl font-display font-bold mb-4 text-white">Notre Vision</h2>
-            <p className="text-gray-400 leading-relaxed text-lg">
+            <p className="text-secondary-400 leading-relaxed text-lg">
               Devenir un leader des Technologies de l'Information et de la Communication
               en optimisant les systèmes d'information et en renforçant la connectivité
               entre services et utilisateurs. Nous aspirons à être reconnus comme le
@@ -104,18 +104,18 @@ const About = () => {
             <h2 className="text-4xl font-display font-bold text-white">Notre Histoire</h2>
           </div>
           <div className="p-8 rounded-2xl glass-effect">
-            <p className="text-gray-300 leading-relaxed text-lg mb-4">
+            <p className="text-secondary-300 leading-relaxed text-lg mb-4">
               InnoSoft Creation a été fondée avec la vision de démocratiser l'accès aux
               technologies de pointe tout en maintenant les plus hauts standards de qualité.
               Depuis nos débuts, nous avons développé des solutions robustes et innovantes
               pour plusieurs secteurs d'activité, notamment la santé, l'éducation et le commerce.
             </p>
-            <p className="text-gray-300 leading-relaxed text-lg mb-4">
+            <p className="text-secondary-300 leading-relaxed text-lg mb-4">
               Notre approche unique allie créativité, technologie et innovation. Nous croyons
               que chaque projet est une opportunité de créer quelque chose d'exceptionnel qui
               transforme la façon dont nos clients interagissent avec la technologie.
             </p>
-            <p className="text-gray-300 leading-relaxed text-lg">
+            <p className="text-secondary-300 leading-relaxed text-lg">
               Aujourd'hui, InnoSoft Creation continue d'évoluer et de s'adapter aux besoins
               changeants du marché, tout en restant fidèle à nos valeurs fondamentales :
               l'excellence, l'innovation et l'engagement envers nos clients.
@@ -152,7 +152,7 @@ const About = () => {
                   <Icon className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2 text-white">{value.title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">{value.description}</p>
+                <p className="text-secondary-400 text-sm leading-relaxed">{value.description}</p>
               </motion.div>
             )
           })}

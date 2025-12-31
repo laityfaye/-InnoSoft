@@ -52,19 +52,19 @@ const Contact = () => {
     {
       icon: Mail,
       label: 'Email',
-      value: 'contact@innosoft-creation.com',
-      href: 'mailto:contact@innosoft-creation.com',
+      value: 'innosoftcreation@gmail.com',
+      href: 'mailto:innosoftcreation@gmail.com',
     },
     {
       icon: Phone,
       label: 'Téléphone',
-      value: '+221 00 000 00 00',
-      href: 'tel:+221000000000',
+      value: '+221 78 018 62 29',
+      href: 'tel:+221780186229',
     },
     {
       icon: MapPin,
       label: 'Adresse',
-      value: 'Dakar, Sénégal',
+      value: 'Ville verte, Thiès, Sénégal',
       href: '#',
     },
   ]
@@ -82,7 +82,7 @@ const Contact = () => {
           <h1 className="text-5xl md:text-6xl font-display font-bold mb-6">
             Contactez-<span className="gradient-text">Nous</span>
           </h1>
-          <p className="text-xl text-gray-400 [data-theme='light']:text-gray-600 leading-relaxed">
+          <p className="text-xl text-secondary-400 [data-theme='light']:text-secondary-600 leading-relaxed">
             Discutons de votre projet et découvrons comment nous pouvons vous aider
           </p>
         </motion.div>
@@ -107,13 +107,13 @@ const Contact = () => {
                     <a
                       key={info.label}
                       href={info.href}
-                      className="flex items-start space-x-4 p-4 rounded-xl glass-effect hover:bg-white/5 [data-theme='light']:hover:bg-gray-100 transition-colors group"
+                      className="flex items-start space-x-4 p-4 rounded-xl glass-effect hover:bg-white/5 [data-theme='light']:hover:bg-secondary-100 transition-colors group"
                     >
                       <div className="w-12 h-12 rounded-lg bg-gradient-primary flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                         <Icon className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500 [data-theme='light']:text-gray-600 mb-1">{info.label}</p>
+                        <p className="text-sm text-secondary-500 [data-theme='light']:text-secondary-600 mb-1">{info.label}</p>
                         <p className="text-white [data-theme='light']:text-dark-500 font-medium">{info.value}</p>
                       </div>
                     </a>
@@ -143,7 +143,7 @@ const Contact = () => {
                   <h3 className="text-2xl font-display font-bold mb-2 text-white [data-theme='light']:text-dark-500">
                     Message Envoyé !
                   </h3>
-                  <p className="text-gray-400 [data-theme='light']:text-gray-600">
+                  <p className="text-secondary-400 [data-theme='light']:text-secondary-600">
                     Nous vous répondrons dans les plus brefs délais.
                   </p>
                 </motion.div>
@@ -151,7 +151,7 @@ const Contact = () => {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-300 [data-theme='light']:text-gray-700 mb-2">
+                      <label htmlFor="name" className="block text-sm font-medium text-secondary-300 [data-theme='light']:text-secondary-700 mb-2">
                         Nom complet *
                       </label>
                       <input
@@ -162,9 +162,9 @@ const Contact = () => {
                         value={formData.name}
                         onChange={handleChange}
                         className="w-full px-4 py-3 rounded-lg 
-                          [data-theme='dark']:bg-gray-800 [data-theme='dark']:border-gray-700 [data-theme='dark']:text-white [data-theme='dark']:placeholder-gray-400
-                          [data-theme='dark']:hover:bg-gray-700 [data-theme='dark']:hover:border-gray-600
-                          [data-theme='light']:bg-white [data-theme='light']:border-gray-300 [data-theme='light']:text-dark-500 [data-theme='light']:border-2 [data-theme='light']:placeholder-gray-400
+                          [data-theme='dark']:bg-secondary-800 [data-theme='dark']:border-secondary-700 [data-theme='dark']:text-white [data-theme='dark']:placeholder-secondary-400
+                          [data-theme='dark']:hover:bg-secondary-700 [data-theme='dark']:hover:border-secondary-600
+                          [data-theme='light']:bg-white [data-theme='light']:border-secondary-300 [data-theme='light']:text-dark-500 [data-theme='light']:border-2 [data-theme='light']:placeholder-secondary-400
                           [data-theme='light']:hover:border-primary-400
                           border
                           focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
@@ -178,7 +178,7 @@ const Contact = () => {
                       />
                     </div>
                     <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-300 [data-theme='light']:text-gray-700 mb-2">
+                      <label htmlFor="email" className="block text-sm font-medium text-secondary-300 [data-theme='light']:text-secondary-700 mb-2">
                         Email *
                       </label>
                       <input
@@ -189,9 +189,9 @@ const Contact = () => {
                         value={formData.email}
                         onChange={handleChange}
                         className="w-full px-4 py-3 rounded-lg 
-                          [data-theme='dark']:bg-gray-800 [data-theme='dark']:border-gray-700 [data-theme='dark']:text-white [data-theme='dark']:placeholder-gray-400
-                          [data-theme='dark']:hover:bg-gray-700 [data-theme='dark']:hover:border-gray-600
-                          [data-theme='light']:bg-white [data-theme='light']:border-gray-300 [data-theme='light']:text-dark-500 [data-theme='light']:border-2 [data-theme='light']:placeholder-gray-400
+                          [data-theme='dark']:bg-secondary-800 [data-theme='dark']:border-secondary-700 [data-theme='dark']:text-white [data-theme='dark']:placeholder-secondary-400
+                          [data-theme='dark']:hover:bg-secondary-700 [data-theme='dark']:hover:border-secondary-600
+                          [data-theme='light']:bg-white [data-theme='light']:border-secondary-300 [data-theme='light']:text-dark-500 [data-theme='light']:border-2 [data-theme='light']:placeholder-secondary-400
                           [data-theme='light']:hover:border-primary-400
                           border
                           focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
@@ -208,7 +208,7 @@ const Contact = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label htmlFor="phone" className="block text-sm font-medium text-gray-300 [data-theme='light']:text-gray-700 mb-2">
+                      <label htmlFor="phone" className="block text-sm font-medium text-secondary-300 [data-theme='light']:text-secondary-700 mb-2">
                         Téléphone
                       </label>
                       <input
@@ -218,9 +218,9 @@ const Contact = () => {
                         value={formData.phone}
                         onChange={handleChange}
                         className="w-full px-4 py-3 rounded-lg 
-                          [data-theme='dark']:bg-gray-800 [data-theme='dark']:border-gray-700 [data-theme='dark']:text-white [data-theme='dark']:placeholder-gray-400
-                          [data-theme='dark']:hover:bg-gray-700 [data-theme='dark']:hover:border-gray-600
-                          [data-theme='light']:bg-white [data-theme='light']:border-gray-300 [data-theme='light']:text-dark-500 [data-theme='light']:border-2 [data-theme='light']:placeholder-gray-400
+                          [data-theme='dark']:bg-secondary-800 [data-theme='dark']:border-secondary-700 [data-theme='dark']:text-white [data-theme='dark']:placeholder-secondary-400
+                          [data-theme='dark']:hover:bg-secondary-700 [data-theme='dark']:hover:border-secondary-600
+                          [data-theme='light']:bg-white [data-theme='light']:border-secondary-300 [data-theme='light']:text-dark-500 [data-theme='light']:border-2 [data-theme='light']:placeholder-secondary-400
                           [data-theme='light']:hover:border-primary-400
                           border
                           focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
@@ -234,7 +234,7 @@ const Contact = () => {
                       />
                     </div>
                     <div>
-                      <label htmlFor="subject" className="block text-sm font-medium text-gray-300 [data-theme='light']:text-gray-700 mb-2">
+                      <label htmlFor="subject" className="block text-sm font-medium text-secondary-300 [data-theme='light']:text-secondary-700 mb-2">
                         Sujet *
                       </label>
                       <select
@@ -244,12 +244,12 @@ const Contact = () => {
                         value={formData.subject}
                         onChange={handleChange}
                         className="w-full px-4 py-3 rounded-lg 
-                          [data-theme='dark']:bg-gray-800 [data-theme='dark']:border-gray-700 [data-theme='dark']:text-white
-                          [data-theme='dark']:hover:bg-gray-700 [data-theme='dark']:hover:border-gray-600
-                          [data-theme='light']:bg-white [data-theme='light']:border-gray-300 [data-theme='light']:text-dark-500 [data-theme='light']:border-2
+                          [data-theme='dark']:bg-secondary-800 [data-theme='dark']:border-secondary-700 [data-theme='dark']:text-white
+                          [data-theme='dark']:hover:bg-secondary-700 [data-theme='dark']:hover:border-secondary-600
+                          [data-theme='light']:bg-white [data-theme='light']:border-secondary-300 [data-theme='light']:text-dark-500 [data-theme='light']:border-2
                           [data-theme='light']:hover:border-primary-400
                           border focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all
-                          [data-theme='dark']:[&>option]:bg-gray-800 [data-theme='dark']:[&>option]:text-white"
+                          [data-theme='dark']:[&>option]:bg-secondary-800 [data-theme='dark']:[&>option]:text-white"
                         style={{
                           color: isDark ? '#ffffff' : '#111827',
                           backgroundColor: isDark ? '#1f2937' : '#ffffff',
@@ -267,7 +267,7 @@ const Contact = () => {
                   </div>
 
                   <div>
-                    <label htmlFor="message" className="block text-sm font-medium text-gray-300 [data-theme='light']:text-gray-700 mb-2">
+                    <label htmlFor="message" className="block text-sm font-medium text-secondary-300 [data-theme='light']:text-secondary-700 mb-2">
                       Message *
                     </label>
                     <textarea
@@ -278,9 +278,9 @@ const Contact = () => {
                       value={formData.message}
                       onChange={handleChange}
                       className="w-full px-4 py-3 rounded-lg 
-                        [data-theme='dark']:bg-gray-800 [data-theme='dark']:border-gray-700 [data-theme='dark']:text-white [data-theme='dark']:placeholder-gray-400
-                        [data-theme='dark']:hover:bg-gray-750 [data-theme='dark']:hover:border-gray-600
-                        [data-theme='light']:bg-white [data-theme='light']:border-gray-300 [data-theme='light']:text-dark-500 [data-theme='light']:border-2 [data-theme='light']:placeholder-gray-400
+                        [data-theme='dark']:bg-secondary-800 [data-theme='dark']:border-secondary-700 [data-theme='dark']:text-white [data-theme='dark']:placeholder-secondary-400
+                        [data-theme='dark']:hover:bg-secondary-750 [data-theme='dark']:hover:border-secondary-600
+                        [data-theme='light']:bg-white [data-theme='light']:border-secondary-300 [data-theme='light']:text-dark-500 [data-theme='light']:border-2 [data-theme='light']:placeholder-secondary-400
                         border
                         focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all resize-none"
                       placeholder="Décrivez votre projet..."

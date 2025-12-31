@@ -33,12 +33,12 @@ const CTA = () => {
             <span>Prêt à transformer votre entreprise ?</span>
           </motion.div>
 
-          <h2 className="text-4xl md:text-6xl font-display font-bold mb-6">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-black mb-8 tracking-tight">
             Commencez Votre Projet
-            <span className="block gradient-text">Aujourd'hui</span>
+            <span className="block gradient-text mt-2">Aujourd'hui</span>
           </h2>
 
-          <p className="text-xl text-gray-300 [data-theme='light']:text-gray-600 mb-10 max-w-2xl mx-auto transition-colors">
+          <p className="text-xl text-white/70 [data-theme='light']:text-secondary-600 mb-10 max-w-2xl mx-auto transition-colors">
             Discutons de vos besoins et découvrons comment nous pouvons vous aider
             à atteindre vos objectifs numériques.
           </p>
