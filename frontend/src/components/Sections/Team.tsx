@@ -88,7 +88,7 @@ const Team = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8 px-4 sm:px-0">
             {teamMembers.map((member, index) => (
               <motion.div
                 key={member.id}
@@ -98,9 +98,9 @@ const Team = () => {
                 whileHover={{ y: -8, scale: 1.02 }}
                 className="group relative"
               >
-                <div className="relative rounded-2xl overflow-hidden glass-effect card-hover border-primary-500/0 group-hover:border-primary-500/20 transition-all duration-500">
+                <div className="relative rounded-xl sm:rounded-2xl overflow-hidden glass-effect card-hover border-primary-500/0 group-hover:border-primary-500/20 transition-all duration-500">
                   {/* Image */}
-                  <div className="relative h-80 overflow-hidden">
+                  <div className="relative h-60 sm:h-70 md:h-80 overflow-hidden">
                     {member.image ? (
                       <motion.img
                         src={member.image}
@@ -162,14 +162,14 @@ const Team = () => {
                   </div>
 
                   {/* Content */}
-                  <div className="p-6 text-center">
-                    <h3 className="text-xl font-bold mb-1 text-white [data-theme='light']:text-dark-500 transition-colors">
+                  <div className="p-4 sm:p-5 md:p-6 text-center">
+                    <h3 className="text-lg sm:text-xl font-bold mb-1 text-white [data-theme='light']:text-dark-500 transition-colors">
                       {member.name}
                     </h3>
-                    <p className="text-primary-400 mb-3 text-sm font-medium">
+                    <p className="text-primary-400 mb-2 sm:mb-3 text-xs sm:text-sm font-medium">
                       {member.role}
                     </p>
-                    <p className="text-secondary-400 [data-theme='light']:text-secondary-600 text-sm leading-relaxed transition-colors">
+                    <p className="text-secondary-400 [data-theme='light']:text-secondary-600 text-xs sm:text-sm leading-relaxed transition-colors">
                       {member.bio}
                     </p>
                   </div>

@@ -56,12 +56,12 @@ const Hero = () => {
   return (
     <section
       ref={ref}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 sm:pt-24 md:pt-28 lg:pt-32 pb-20 sm:pb-24"
     >
       {/* Enhanced Animated Background */}
       <div className="absolute inset-0 [data-theme='dark']:bg-gradient-to-br [data-theme='dark']:from-dark-500 [data-theme='dark']:via-dark-600 [data-theme='dark']:to-dark-500 [data-theme='light']:bg-gradient-to-br [data-theme='light']:from-white [data-theme='light']:via-secondary-50 [data-theme='light']:to-secondary-100">
         {/* Grid Pattern Overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:2rem_2rem] sm:bg-[size:3rem_3rem] md:bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
         
         {/* Background Stars */}
         <BackgroundStars />
@@ -69,7 +69,7 @@ const Hero = () => {
         {/* Small Shooting Stars */}
         <SmallShootingStars />
         
-        {/* Animated Gradient Orbs */}
+        {/* Animated Gradient Orbs - Responsive sizes */}
         <motion.div
           animate={{
             x: [0, 100, 0],
@@ -81,7 +81,7 @@ const Hero = () => {
             repeat: Infinity,
             ease: 'easeInOut',
           }}
-          className="absolute top-1/4 left-1/4 w-[500px] h-[500px] [data-theme='dark']:bg-primary-500/30 [data-theme='light']:bg-primary-500/10 rounded-full blur-[100px] opacity-60"
+          className="absolute top-1/4 left-1/4 w-[200px] h-[200px] sm:w-[300px] sm:h-[300px] md:w-[400px] md:h-[400px] lg:w-[500px] lg:h-[500px] [data-theme='dark']:bg-primary-500/30 [data-theme='light']:bg-primary-500/10 rounded-full blur-[60px] sm:blur-[80px] md:blur-[100px] opacity-40 sm:opacity-50 md:opacity-60"
         />
         <motion.div
           animate={{
@@ -95,7 +95,7 @@ const Hero = () => {
             ease: 'easeInOut',
             delay: 1,
           }}
-          className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] [data-theme='dark']:bg-secondary-500/30 [data-theme='light']:bg-secondary-500/10 rounded-full blur-[120px] opacity-60"
+          className="absolute bottom-1/4 right-1/4 w-[250px] h-[250px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] lg:w-[600px] lg:h-[600px] [data-theme='dark']:bg-secondary-500/30 [data-theme='light']:bg-secondary-500/10 rounded-full blur-[70px] sm:blur-[100px] md:blur-[120px] opacity-40 sm:opacity-50 md:opacity-60"
         />
         <motion.div
           animate={{
@@ -109,7 +109,7 @@ const Hero = () => {
             ease: 'easeInOut',
             delay: 2,
           }}
-          className="absolute top-1/2 left-1/2 w-[400px] h-[400px] [data-theme='dark']:bg-accent-500/20 [data-theme='light']:bg-accent-500/5 rounded-full blur-[90px] opacity-50 -translate-x-1/2 -translate-y-1/2"
+          className="absolute top-1/2 left-1/2 w-[150px] h-[150px] sm:w-[250px] sm:h-[250px] md:w-[350px] md:h-[350px] lg:w-[400px] lg:h-[400px] [data-theme='dark']:bg-accent-500/20 [data-theme='light']:bg-accent-500/5 rounded-full blur-[50px] sm:blur-[70px] md:blur-[90px] opacity-30 sm:opacity-40 md:opacity-50 -translate-x-1/2 -translate-y-1/2"
         />
       </div>
 
@@ -121,28 +121,28 @@ const Hero = () => {
           className="text-center max-w-6xl mx-auto"
         >
           {/* Enhanced Badge */}
-          <motion.div variants={itemVariants} className="mb-10">
+          <motion.div variants={itemVariants} className="mb-6 sm:mb-8 md:mb-10">
             <motion.span
               whileHover={{ scale: 1.05, y: -2 }}
-              className="inline-flex items-center space-x-3 px-6 py-3 rounded-full glass-effect text-sm font-semibold text-primary-300 [data-theme='light']:text-primary-600 shadow-xl [data-theme='dark']:shadow-primary-500/30 [data-theme='light']:shadow-primary-500/20 border-primary-500/20"
+              className="inline-flex items-center space-x-2 sm:space-x-3 px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-full glass-effect text-xs sm:text-sm font-semibold text-primary-300 [data-theme='light']:text-primary-600 shadow-xl [data-theme='dark']:shadow-primary-500/30 [data-theme='light']:shadow-primary-500/20 border-primary-500/20"
             >
               <motion.div
                 animate={{ rotate: [0, 360] }}
                 transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
               >
-                <Sparkles className="w-5 h-5 text-primary-400" />
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-primary-400" />
               </motion.div>
-              <span className="tracking-wide">Innovation & Excellence Technologique</span>
+              <span className="tracking-wide text-center">Innovation & Excellence Technologique</span>
             </motion.span>
           </motion.div>
 
           {/* Enhanced Main Heading */}
           <motion.h1
             variants={itemVariants}
-            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-display font-black mb-10 leading-[1.05] tracking-tighter"
+            className="text-4xl xs:text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-display font-black mb-6 sm:mb-8 md:mb-10 leading-[1.1] sm:leading-[1.08] md:leading-[1.05] tracking-tighter px-2 sm:px-0"
           >
             <motion.div
-              className="block mb-3"
+              className="block mb-2 sm:mb-3"
               initial={{ opacity: 0, y: 30 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.3, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
@@ -151,7 +151,7 @@ const Hero = () => {
               <span className="gradient-text bg-gradient-to-r from-primary-400 via-primary-500 via-primary-600 to-primary-700 bg-clip-text text-transparent relative">
               L'Innovation
               <motion.span
-                className="absolute -inset-4 bg-gradient-to-r from-primary-500/20 via-primary-600/20 to-primary-700/20 blur-2xl -z-10"
+                className="absolute -inset-2 sm:-inset-3 md:-inset-4 bg-gradient-to-r from-primary-500/20 via-primary-600/20 to-primary-700/20 blur-xl sm:blur-2xl -z-10"
                 animate={{ opacity: [0.3, 0.6, 0.3] }}
                 transition={{ duration: 3, repeat: Infinity }}
               />
@@ -177,14 +177,14 @@ const Hero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.9, duration: 0.6 }}
-              className="text-xl sm:text-2xl md:text-3xl text-white/80 mb-12 text-center leading-relaxed font-light"
+              className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-white/80 mb-8 sm:mb-10 md:mb-12 text-center leading-relaxed font-light px-4 sm:px-6 md:px-0"
             >
               Nous créons des solutions innovantes qui transforment votre vision en réalité
           </motion.p>
             
             {/* Clean Animated Scrolling Words */}
-            <div className="relative h-20 sm:h-24 md:h-28 flex items-center justify-center my-12">
-              <div className="absolute inset-0 flex items-center justify-center">
+            <div className="relative h-16 sm:h-20 md:h-24 lg:h-28 flex items-center justify-center my-8 sm:my-10 md:my-12">
+              <div className="absolute inset-0 flex items-center justify-center px-4">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentWordIndex}
@@ -197,7 +197,7 @@ const Hero = () => {
                     }}
                     className="text-center"
                   >
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
+                    <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl font-bold tracking-tight">
                       <span className="bg-gradient-to-r from-primary-400 via-primary-500 to-primary-600 bg-clip-text text-transparent">
                         {scrollingWords[currentWordIndex]}
                       </span>
@@ -230,11 +230,11 @@ const Hero = () => {
           {/* Subtle Horizontal Scroll Banner */}
           <motion.div
             variants={itemVariants}
-            className="relative w-full overflow-hidden py-6 mb-12"
+            className="relative w-full overflow-hidden py-4 sm:py-5 md:py-6 mb-8 sm:mb-10 md:mb-12"
           >
             {/* Fade edges */}
-            <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-black to-transparent z-10 pointer-events-none" />
-            <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-black to-transparent z-10 pointer-events-none" />
+            <div className="absolute inset-y-0 left-0 w-16 sm:w-24 md:w-32 bg-gradient-to-r from-black to-transparent z-10 pointer-events-none" />
+            <div className="absolute inset-y-0 right-0 w-16 sm:w-24 md:w-32 bg-gradient-to-l from-black to-transparent z-10 pointer-events-none" />
             
             {/* Scrolling content */}
             <motion.div
@@ -252,13 +252,13 @@ const Hero = () => {
               }}
             >
               {[...Array(2)].map((_, i) => (
-                <div key={i} className="flex items-center space-x-16 px-16">
+                <div key={i} className="flex items-center space-x-8 sm:space-x-12 md:space-x-16 px-8 sm:px-12 md:px-16">
                   {scrollingWords.map((word, idx) => (
-                    <div key={`${i}-${idx}`} className="flex items-center space-x-16">
-                      <span className="text-base sm:text-lg md:text-xl lg:text-2xl font-medium text-white/12 uppercase tracking-wider whitespace-nowrap">
+                    <div key={`${i}-${idx}`} className="flex items-center space-x-8 sm:space-x-12 md:space-x-16">
+                      <span className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl font-medium text-white/12 uppercase tracking-wider whitespace-nowrap">
                         {word}
                       </span>
-                      <div className="w-1 h-1 rounded-full bg-primary-500/20" />
+                      <div className="w-0.5 sm:w-1 h-0.5 sm:h-1 rounded-full bg-primary-500/20" />
                     </div>
                   ))}
                 </div>
@@ -269,29 +269,31 @@ const Hero = () => {
           {/* Enhanced CTA Buttons */}
           <motion.div
             variants={itemVariants}
-            className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-24"
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5 md:gap-6 mb-16 sm:mb-20 md:mb-24 px-4 sm:px-0"
           >
             <motion.div 
               whileHover={{ y: -4 }} 
               whileTap={{ y: 0 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              className="w-full sm:w-auto"
             >
               <Link
                 to="/contact"
-                className="btn-primary group flex items-center space-x-3 text-lg px-12 py-6 font-semibold relative z-10"
+                className="btn-primary group flex items-center justify-center space-x-2 sm:space-x-3 text-base sm:text-lg px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 font-semibold relative z-10 w-full sm:w-auto"
               >
                 <span>Démarrer un projet</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform duration-300" />
               </Link>
             </motion.div>
             <motion.div 
               whileHover={{ y: -4 }} 
               whileTap={{ y: 0 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              className="w-full sm:w-auto"
             >
               <Link
                 to="/services"
-                className="btn-secondary text-lg px-12 py-6 font-semibold relative z-10"
+                className="btn-secondary text-base sm:text-lg px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 font-semibold relative z-10 w-full sm:w-auto text-center block"
               >
                 Découvrir nos services
               </Link>
@@ -301,7 +303,7 @@ const Hero = () => {
           {/* Enhanced Features Cards */}
           <motion.div
             variants={itemVariants}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-24"
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mt-12 sm:mt-16 md:mt-20 lg:mt-24 px-4 sm:px-0"
           >
             {[
               { 
@@ -343,32 +345,32 @@ const Hero = () => {
                   animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
                   transition={{ delay: 1 + index * 0.15, duration: 0.6 }}
                   whileHover={{ y: -12, scale: 1.03 }}
-                  className="group relative p-10 rounded-3xl glass-effect card-hover overflow-hidden border-primary-500/10 group-hover:border-primary-500/30 transition-all duration-500"
+                  className="group relative p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl glass-effect card-hover overflow-hidden border-primary-500/10 group-hover:border-primary-500/30 transition-all duration-500"
                 >
                   {/* Animated Gradient Border */}
-                  <div className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${feature.borderGradient} to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-500`} />
+                  <div className={`absolute inset-0 rounded-2xl sm:rounded-3xl bg-gradient-to-br ${feature.borderGradient} to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-500`} />
                   
                   {/* Background Glow on Hover */}
-                  <div className={`absolute -inset-4 ${feature.glowColor} rounded-3xl blur-2xl opacity-0 group-hover:opacity-40 transition-opacity duration-700 -z-10`} />
+                  <div className={`absolute -inset-2 sm:-inset-3 md:-inset-4 ${feature.glowColor} rounded-2xl sm:rounded-3xl blur-xl sm:blur-2xl opacity-0 group-hover:opacity-40 transition-opacity duration-700 -z-10`} />
                   
                   {/* Icon Container */}
                   <motion.div
                     whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
                     transition={{ duration: 0.5, type: "spring" }}
-                    className={`relative w-20 h-20 rounded-2xl bg-gradient-to-br ${feature.gradientFrom} ${feature.gradientTo} flex items-center justify-center mb-8 mx-auto shadow-2xl ${feature.shadowColor} group-hover:shadow-2xl transition-all duration-500`}
+                    className={`relative w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 rounded-xl sm:rounded-2xl bg-gradient-to-br ${feature.gradientFrom} ${feature.gradientTo} flex items-center justify-center mb-4 sm:mb-6 md:mb-8 mx-auto shadow-2xl ${feature.shadowColor} group-hover:shadow-2xl transition-all duration-500`}
                   >
-                    <Icon className="w-10 h-10 text-white relative z-10" />
+                    <Icon className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-white relative z-10" />
                     <motion.div
                       animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
                       transition={{ duration: 2, repeat: Infinity }}
-                      className={`absolute inset-0 rounded-2xl ${feature.glowColor} blur-xl`}
+                      className={`absolute inset-0 rounded-xl sm:rounded-2xl ${feature.glowColor} blur-lg sm:blur-xl`}
                     />
                   </motion.div>
                   
-                  <h3 className="text-white [data-theme='light']:text-dark-500 font-bold text-2xl mb-4 relative z-10 tracking-tight">
+                  <h3 className="text-white [data-theme='light']:text-dark-500 font-bold text-xl sm:text-xl md:text-2xl mb-2 sm:mb-3 md:mb-4 relative z-10 tracking-tight">
                     {feature.title}
                   </h3>
-                  <p className="text-secondary-400 [data-theme='light']:text-secondary-600 text-base leading-relaxed relative z-10">
+                  <p className="text-secondary-400 [data-theme='light']:text-secondary-600 text-sm sm:text-base leading-relaxed relative z-10">
                     {feature.desc}
                   </p>
                   
@@ -386,7 +388,7 @@ const Hero = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.8 }}
-        className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-20"
+        className="absolute bottom-4 sm:bottom-6 md:bottom-8 lg:bottom-10 left-1/2 transform -translate-x-1/2 z-20 hidden sm:block"
       >
         <motion.div
           animate={{ y: [0, 12, 0] }}

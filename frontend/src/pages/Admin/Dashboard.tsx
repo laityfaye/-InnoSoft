@@ -1818,7 +1818,7 @@ const Dashboard = () => {
 
         {/* Main Content */}
         <main className="flex-1 transition-all duration-300 h-[calc(100vh-4rem)] flex flex-col overflow-hidden">
-          <div className="w-full px-4 sm:px-6 lg:px-6 py-4 flex-1 flex flex-col min-h-0 overflow-hidden">
+          <div className="w-full px-4 sm:px-6 lg:px-6 py-4 flex-1 flex flex-col min-h-0 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-primary-500/30 scrollbar-track-transparent hover:scrollbar-thumb-primary-500/50">
 
           {/* Metrics Cards - Masquées quand un onglet est sélectionné */}
           {showMetrics && (

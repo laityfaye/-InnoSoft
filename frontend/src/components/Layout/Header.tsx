@@ -37,14 +37,14 @@ const Header = () => {
           : 'bg-dark-500/50 backdrop-blur-xl'
       }`}
     >
-      <nav className="container-custom py-2">
+      <nav className="container-custom py-2 sm:py-2.5 md:py-3">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 group">
             <img 
               src="/logo.png" 
               alt="InnoSoft Creation Logo" 
-              className="h-24 w-auto object-contain transition-transform group-hover:scale-105"
+              className="h-12 sm:h-16 md:h-20 lg:h-24 w-auto object-contain transition-transform group-hover:scale-105"
             />
           </Link>
 
@@ -73,9 +73,10 @@ const Header = () => {
             ))}
             <Link
               to="/contact"
-              className="btn-primary text-sm px-6 py-2.5"
+              className="btn-primary text-xs sm:text-sm px-4 sm:px-5 md:px-6 py-2 sm:py-2.5"
             >
-              Démarrer un projet
+              <span className="hidden sm:inline">Démarrer un projet</span>
+              <span className="sm:hidden">Contact</span>
             </Link>
           </div>
 

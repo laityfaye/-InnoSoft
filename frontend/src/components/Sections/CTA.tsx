@@ -27,23 +27,23 @@ const CTA = () => {
             initial={{ scale: 0 }}
             animate={inView ? { scale: 1 } : {}}
             transition={{ delay: 0.2, type: 'spring' }}
-            className="inline-flex items-center space-x-2 px-4 py-2 rounded-full glass-effect text-sm font-medium text-primary-300 mb-6"
+            className="inline-flex items-center space-x-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full glass-effect text-xs sm:text-sm font-medium text-primary-300 mb-4 sm:mb-5 md:mb-6"
           >
-            <Sparkles className="w-4 h-4" />
-            <span>Prêt à transformer votre entreprise ?</span>
+            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="whitespace-nowrap">Prêt à transformer votre entreprise ?</span>
           </motion.div>
 
-          <h2 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-black mb-8 tracking-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-black mb-6 sm:mb-7 md:mb-8 tracking-tight px-4 sm:px-0">
             Commencez Votre Projet
-            <span className="block gradient-text mt-2">Aujourd'hui</span>
+            <span className="block gradient-text mt-1 sm:mt-2">Aujourd'hui</span>
           </h2>
 
-          <p className="text-xl text-white/70 [data-theme='light']:text-secondary-600 mb-10 max-w-2xl mx-auto transition-colors">
+          <p className="text-base sm:text-lg md:text-xl text-white/70 [data-theme='light']:text-secondary-600 mb-8 sm:mb-9 md:mb-10 max-w-2xl mx-auto transition-colors px-4 sm:px-6 md:px-0">
             Discutons de vos besoins et découvrons comment nous pouvons vous aider
             à atteindre vos objectifs numériques.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4 sm:px-0">
             <Link
               to="/contact"
               className="btn-primary group flex items-center space-x-2"
