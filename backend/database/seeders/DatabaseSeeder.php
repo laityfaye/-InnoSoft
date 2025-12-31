@@ -19,6 +19,8 @@ class DatabaseSeeder extends Seeder
             AwardSeeder::class,
             VideoSeeder::class,
             SocialLinkSeeder::class,
+            ProjectSeeder::class,
+            TestimonialSeeder::class,
         ]);
     }
 }
