@@ -303,7 +303,7 @@ const Hero = () => {
           {/* Enhanced Features Cards */}
           <motion.div
             variants={itemVariants}
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3 md:gap-4 lg:gap-5 xl:gap-6 mt-6 sm:mt-10 md:mt-14 lg:mt-18 xl:mt-24 px-3 sm:px-4 md:px-0"
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3 md:gap-4 lg:gap-5 xl:gap-6 mt-6 sm:mt-10 md:mt-14 lg:mt-18 xl:mt-24 px-3 sm:px-4 md:px-0 max-w-5xl mx-auto"
           >
             {[
               { 
@@ -345,7 +345,7 @@ const Hero = () => {
                   animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
                   transition={{ delay: 1 + index * 0.15, duration: 0.6 }}
                   whileHover={{ y: -12, scale: 1.03 }}
-                  className="group relative p-3 sm:p-5 md:p-7 lg:p-9 xl:p-10 rounded-lg sm:rounded-xl md:rounded-2xl lg:rounded-3xl glass-effect card-hover overflow-hidden border-primary-500/10 group-hover:border-primary-500/30 transition-all duration-500"
+                  className="group relative p-3 sm:p-5 md:p-7 lg:p-9 xl:p-10 rounded-lg sm:rounded-xl md:rounded-2xl lg:rounded-3xl glass-effect card-hover overflow-hidden border-primary-500/10 group-hover:border-primary-500/30 transition-all duration-500 max-w-[280px] sm:max-w-none mx-auto sm:mx-0"
                 >
                   {/* Animated Gradient Border */}
                   <div className={`absolute inset-0 rounded-lg sm:rounded-xl md:rounded-2xl lg:rounded-3xl bg-gradient-to-br ${feature.borderGradient} to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-500`} />
