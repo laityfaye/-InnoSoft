@@ -179,7 +179,7 @@ const Hero = () => {
               transition={{ delay: 0.9, duration: 0.6 }}
               className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl text-white/80 mb-6 sm:mb-8 md:mb-10 lg:mb-12 text-center leading-relaxed font-light px-3 sm:px-4 md:px-6 lg:px-0"
             >
-              Nous créons des solutions innovantes qui transforment votre vision en réalité
+              Nous créons des solutions innovantes<br className="sm:hidden" /> qui transforment votre vision en réalité
           </motion.p>
             
             {/* Clean Animated Scrolling Words */}
@@ -303,7 +303,7 @@ const Hero = () => {
           {/* Enhanced Features Cards */}
           <motion.div
             variants={itemVariants}
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6 mt-8 sm:mt-12 md:mt-16 lg:mt-20 xl:mt-24 px-3 sm:px-4 md:px-0"
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3 md:gap-4 lg:gap-5 xl:gap-6 mt-6 sm:mt-10 md:mt-14 lg:mt-18 xl:mt-24 px-3 sm:px-4 md:px-0"
           >
             {[
               { 
@@ -345,32 +345,32 @@ const Hero = () => {
                   animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
                   transition={{ delay: 1 + index * 0.15, duration: 0.6 }}
                   whileHover={{ y: -12, scale: 1.03 }}
-                  className="group relative p-4 sm:p-6 md:p-8 lg:p-10 rounded-xl sm:rounded-2xl md:rounded-3xl glass-effect card-hover overflow-hidden border-primary-500/10 group-hover:border-primary-500/30 transition-all duration-500"
+                  className="group relative p-3 sm:p-5 md:p-7 lg:p-9 xl:p-10 rounded-lg sm:rounded-xl md:rounded-2xl lg:rounded-3xl glass-effect card-hover overflow-hidden border-primary-500/10 group-hover:border-primary-500/30 transition-all duration-500"
                 >
                   {/* Animated Gradient Border */}
-                  <div className={`absolute inset-0 rounded-xl sm:rounded-2xl md:rounded-3xl bg-gradient-to-br ${feature.borderGradient} to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-500`} />
+                  <div className={`absolute inset-0 rounded-lg sm:rounded-xl md:rounded-2xl lg:rounded-3xl bg-gradient-to-br ${feature.borderGradient} to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-500`} />
                   
                   {/* Background Glow on Hover */}
-                  <div className={`absolute -inset-1 sm:-inset-2 md:-inset-3 lg:-inset-4 ${feature.glowColor} rounded-xl sm:rounded-2xl md:rounded-3xl blur-lg sm:blur-xl md:blur-2xl opacity-0 group-hover:opacity-40 transition-opacity duration-700 -z-10`} />
+                  <div className={`absolute -inset-0.5 sm:-inset-1 md:-inset-2 lg:-inset-3 xl:-inset-4 ${feature.glowColor} rounded-lg sm:rounded-xl md:rounded-2xl lg:rounded-3xl blur-md sm:blur-lg md:blur-xl lg:blur-2xl opacity-0 group-hover:opacity-40 transition-opacity duration-700 -z-10`} />
                   
                   {/* Icon Container */}
                   <motion.div
                     whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
                     transition={{ duration: 0.5, type: "spring" }}
-                    className={`relative w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-lg sm:rounded-xl md:rounded-2xl bg-gradient-to-br ${feature.gradientFrom} ${feature.gradientTo} flex items-center justify-center mb-3 sm:mb-4 md:mb-6 lg:mb-8 mx-auto shadow-2xl ${feature.shadowColor} group-hover:shadow-2xl transition-all duration-500`}
+                    className={`relative w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 xl:w-20 xl:h-20 rounded-md sm:rounded-lg md:rounded-xl lg:rounded-2xl bg-gradient-to-br ${feature.gradientFrom} ${feature.gradientTo} flex items-center justify-center mb-2 sm:mb-3 md:mb-4 lg:mb-6 xl:mb-8 mx-auto shadow-2xl ${feature.shadowColor} group-hover:shadow-2xl transition-all duration-500`}
                   >
-                    <Icon className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-10 lg:h-10 text-white relative z-10" />
+                    <Icon className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 xl:w-10 xl:h-10 text-white relative z-10" />
                     <motion.div
                       animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
                       transition={{ duration: 2, repeat: Infinity }}
-                      className={`absolute inset-0 rounded-lg sm:rounded-xl md:rounded-2xl ${feature.glowColor} blur-md sm:blur-lg md:blur-xl`}
+                      className={`absolute inset-0 rounded-md sm:rounded-lg md:rounded-xl lg:rounded-2xl ${feature.glowColor} blur-sm sm:blur-md md:blur-lg lg:blur-xl`}
                     />
                   </motion.div>
                   
-                  <h3 className="text-white [data-theme='light']:text-dark-500 font-bold text-lg sm:text-xl md:text-2xl mb-1.5 sm:mb-2 md:mb-3 lg:mb-4 relative z-10 tracking-tight text-center">
+                  <h3 className="text-white [data-theme='light']:text-dark-500 font-bold text-base sm:text-lg md:text-xl lg:text-2xl mb-1 sm:mb-1.5 md:mb-2 lg:mb-3 xl:mb-4 relative z-10 tracking-tight text-center">
                     {feature.title}
                   </h3>
-                  <p className="text-secondary-400 [data-theme='light']:text-secondary-600 text-xs sm:text-sm md:text-base leading-relaxed relative z-10 text-center">
+                  <p className="text-secondary-400 [data-theme='light']:text-secondary-600 text-[10px] sm:text-xs md:text-sm lg:text-base leading-relaxed relative z-10 text-center">
                     {feature.desc}
                   </p>
                   
