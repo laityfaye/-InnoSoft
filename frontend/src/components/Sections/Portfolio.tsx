@@ -190,11 +190,8 @@ const Portfolio = () => {
               const gradientColor = colorClasses[project.color as keyof typeof colorClasses]
 
               return (
-                <motion.div
+                <div
                   key={project.id}
-                  initial={{ opacity: 0 }}
-                  animate={inView ? { opacity: 1 } : {}}
-                  transition={{ duration: 0.4 }}
                   className="group relative rounded-2xl overflow-hidden glass-effect card-hover border-primary-500/0 group-hover:border-primary-500/30 transition-all duration-500"
                 >
                   {/* Background Gradient on Hover */}
@@ -283,7 +280,7 @@ const Portfolio = () => {
 
                   {/* Hover Glow */}
                   <div className={`absolute -inset-4 bg-gradient-to-br ${gradientColor} opacity-0 group-hover:opacity-10 blur-2xl transition-opacity duration-700 -z-10`} />
-                </motion.div>
+                </div>
               )
             })}
           </div>
