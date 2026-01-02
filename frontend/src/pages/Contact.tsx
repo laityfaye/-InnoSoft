@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle } from 'lucide-react'
 import { useTheme } from '../hooks/useTheme'
@@ -145,6 +145,9 @@ const Contact = () => {
         message: '',
       })
 
+      // Scroll to top to show success message
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+
       setTimeout(() => setIsSubmitted(false), 5000)
     } catch (err: any) {
       console.error('Error sending message:', err)
@@ -192,7 +195,40 @@ const Contact = () => {
   ]
 
   return (
-    <div className="pt-32 pb-20">
+    <div className="pt-32 pb-20 relative">
+      {/* Success Notification Toast */}
+      <AnimatePresence>
+        {isSubmitted && (
+          <motion.div
+            initial={{ opacity: 0, y: -100, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -100, scale: 0.8 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="fixed top-24 left-1/2 transform -translate-x-1/2 z-50 max-w-md w-full mx-4"
+          >
+            <div className="glass-effect rounded-xl px-6 py-4 shadow-2xl border border-primary-500/30 bg-gradient-to-r from-primary-500/10 to-primary-600/10">
+              <div className="flex items-start gap-4">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2, type: "spring", stiffness: 200, damping: 15 }}
+                  className="w-12 h-12 rounded-full bg-gradient-primary flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary-500/50"
+                >
+                  <CheckCircle className="w-7 h-7 text-white" />
+                </motion.div>
+                <div className="flex-1 pt-1">
+                  <h4 className="text-lg font-bold text-white [data-theme='light']:text-dark-500 mb-1">
+                    Message envoyé avec succès !
+                  </h4>
+                  <p className="text-sm text-secondary-300 [data-theme='light']:text-secondary-600 leading-relaxed">
+                    Votre message a été reçu. Notre équipe vous répondra dans les <strong>plus brefs délais</strong>.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Hero Section */}
       <section className="container-custom mb-20">
         <motion.div
@@ -279,9 +315,9 @@ const Contact = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.2 }}
-                    className="text-secondary-400 [data-theme='light']:text-secondary-600 mb-6"
+                    className="text-secondary-400 [data-theme='light']:text-secondary-600 mb-6 text-lg"
                   >
-                    Merci pour votre message. Nous vous répondrons dans les plus brefs délais.
+                    Merci pour votre message ! Notre équipe a bien reçu votre demande et vous répondra dans les <strong className="text-primary-400">plus brefs délais</strong>.
                   </motion.p>
                   <motion.button
                     initial={{ opacity: 0 }}
