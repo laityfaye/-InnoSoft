@@ -192,10 +192,9 @@ const Portfolio = () => {
               return (
                 <motion.div
                   key={project.id}
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={inView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ delay: index * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                  whileHover={{ y: -8, scale: 1.02 }}
+                  initial={{ opacity: 0 }}
+                  animate={inView ? { opacity: 1 } : {}}
+                  transition={{ duration: 0.4 }}
                   className="group relative rounded-2xl overflow-hidden glass-effect card-hover border-primary-500/0 group-hover:border-primary-500/30 transition-all duration-500"
                 >
                   {/* Background Gradient on Hover */}
