@@ -184,7 +184,7 @@ const Portfolio = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-            {projects.map((project, index) => {
+            {projects.map((project) => {
               const Icon = project.icon
               const gradientBg = gradientBgClasses[project.color as keyof typeof gradientBgClasses]
               const gradientColor = colorClasses[project.color as keyof typeof colorClasses]
