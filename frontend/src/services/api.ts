@@ -136,7 +136,7 @@ export const chatApi = {
 
 // Contact
 export const contactApi = {
-  send: (data: { name: string; email: string; message: string; subject?: string }) =>
+  send: (data: { name: string; email: string; message: string; subject?: string; phone?: string }) =>
     api.post('/contact', data),
 }
 

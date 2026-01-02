@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { Mail, Phone, MapPin, Send, CheckCircle } from 'lucide-react'
 import { useTheme } from '../hooks/useTheme'
+import { contactApi } from '../services/api'
 
 const Contact = () => {
   const { isDark } = useTheme()
@@ -20,32 +21,50 @@ const Contact = () => {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     })
+    // Clear error when user starts typing
+    if (error) setError(null)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
+    setError(null)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    try {
+      await contactApi.send({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone || undefined,
+        message: formData.message,
+        subject: formData.subject || 'Nouveau message depuis le formulaire de contact',
+      })
 
-    setIsSubmitting(false)
-    setIsSubmitted(true)
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      subject: '',
-      message: '',
-    })
+      setIsSubmitted(true)
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: '',
+      })
 
-    setTimeout(() => setIsSubmitted(false), 5000)
+      setTimeout(() => setIsSubmitted(false), 5000)
+    } catch (err: any) {
+      console.error('Error sending message:', err)
+      setError(
+        err.response?.data?.message || 
+        'Une erreur est survenue lors de l\'envoi du message. Veuillez réessayer.'
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const contactInfo = [
@@ -149,6 +168,15 @@ const Contact = () => {
                 </motion.div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm"
+                    >
+                      {error}
+                    </motion.div>
+                  )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label htmlFor="name" className="block text-sm font-medium text-secondary-300 [data-theme='light']:text-secondary-700 mb-2">
