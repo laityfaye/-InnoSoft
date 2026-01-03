@@ -4,6 +4,7 @@ import { ThemeProvider } from './contexts/ThemeContext'
 import { AuthProvider } from './contexts/AuthContext'
 import Layout from './components/Layout/Layout'
 import ScrollToTop from './components/ScrollToTop'
+import Analytics from './components/Analytics'
 
 // Lazy load pages for better performance
 const Home = lazy(() => import('./pages/Home'))
@@ -31,6 +32,7 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
+        <Analytics />
         <Router>
           <ScrollToTop />
           <Suspense fallback={<PageLoader />}>
