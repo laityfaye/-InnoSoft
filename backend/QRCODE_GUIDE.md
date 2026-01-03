@@ -33,20 +33,23 @@ Génère un QR code en format SVG (vectoriel, plus léger et scalable).
 https://api.innosft.com/api/qrcode/svg
 ```
 
-### 3. Télécharger le QR Code (Haute Résolution)
+### 3. Télécharger le QR Code PNG (Haute Résolution)
 **URL :** `GET /api/qrcode/download`
 
-Télécharge le QR code en haute résolution (2000x2000 pixels) pour l'impression.
-
-- **Format PNG** : Si Imagick est disponible (haute résolution)
-- **Format SVG** : Si Imagick n'est pas disponible (vectoriel, qualité parfaite)
+Télécharge le QR code en **format PNG haute résolution** (2000x2000 pixels) pour l'impression.
 
 **Exemple d'utilisation :**
 ```
 https://api.innosft.com/api/qrcode/download
 ```
 
-**Note :** Le SVG est vectoriel, ce qui signifie qu'il peut être agrandi à n'importe quelle taille sans perte de qualité - parfait pour l'impression professionnelle !
+**Spécifications :**
+- **Format :** PNG
+- **Taille :** 2000x2000 pixels
+- **Résolution :** Haute résolution adaptée à l'impression professionnelle
+- **Correction d'erreur :** Niveau H (High) - robuste même si partiellement endommagé
+
+**Note :** L'extension PHP Imagick est requise pour générer des PNG. Si elle n'est pas disponible, vous pouvez utiliser `/api/qrcode/svg` pour un format SVG (vectoriel, qualité parfaite).
 
 ### 4. Informations du QR Code
 **URL :** `GET /api/qrcode/info`
@@ -95,28 +98,27 @@ Si `FRONTEND_URL` n'est pas défini, il utilise `APP_URL`. Si aucun des deux n'e
 </div>
 ```
 
-### 4. Téléchargement pour l'Impression (Haute Résolution)
-Téléchargez le QR code en haute résolution (2000x2000px) pour une qualité d'impression professionnelle :
+### 4. Téléchargement PNG pour l'Impression
+Téléchargez le QR code en **PNG haute résolution** (2000x2000px) pour une qualité d'impression professionnelle :
 ```
 https://api.innosft.com/api/qrcode/download
 ```
 
-**Formats disponibles :**
-- **PNG 2000x2000px** : Si Imagick est installé (haute résolution raster)
-- **SVG 2000x2000px** : Format vectoriel (recommandé pour l'impression - qualité infinie)
+**Caractéristiques du PNG téléchargeable :**
+- ✅ **Format :** PNG
+- ✅ **Résolution :** 2000x2000 pixels (haute résolution)
+- ✅ **Qualité :** Adaptée à l'impression professionnelle (flyers, brochures, affiches)
+- ✅ **Correction d'erreur :** Niveau H (High) pour une lecture fiable
 
-**Avantages du SVG pour l'impression :**
-- ✅ Qualité parfaite à n'importe quelle taille d'impression
-- ✅ Fichier léger
-- ✅ Pas de pixellisation même en grand format
-- ✅ Idéal pour les flyers, brochures, affiches grand format
+**Note technique :** L'extension PHP Imagick est nécessaire pour générer des PNG. Si vous avez besoin d'un format vectoriel, utilisez `/api/qrcode/svg`.
 
 ## ✨ Caractéristiques
 
 - **Taille affichage :** 500x500 pixels
-- **Taille téléchargement :** 2000x2000 pixels (haute résolution pour l'impression)
+- **Taille téléchargement PNG :** 2000x2000 pixels (haute résolution pour l'impression)
 - **Correction d'erreur :** Niveau H (High) - permet la lecture même si le QR code est partiellement endommagé
-- **Format :** PNG (si Imagick disponible) ou SVG (toujours disponible, recommandé)
+- **Format téléchargement :** PNG (haute résolution) - nécessite l'extension PHP Imagick
+- **Format affichage :** PNG ou SVG (détection automatique)
 - **URL cible :** Configuration via variable d'environnement
 
 ## 🚀 Test Rapide

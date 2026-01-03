@@ -112,7 +112,7 @@ class QRCodeController extends Controller
     }
 
     /**
-     * Télécharge le QR code en haute résolution
+     * Télécharge le QR code en PNG haute résolution
      * 
      * @param Request $request
      * @return \Illuminate\Http\Response
@@ -126,34 +126,33 @@ class QRCodeController extends Controller
             // Taille haute résolution pour l'impression (2000px)
             $highResolutionSize = 2000;
             
-            // Vérifier si Imagick est disponible pour PNG haute résolution
-            if (extension_loaded('imagick')) {
-                $qrCode = QrCode::format('png')
-                    ->size($highResolutionSize) // Haute résolution pour l'impression
-                    ->errorCorrection('H') // Niveau de correction d'erreur élevé
-                    ->generate($frontendUrl);
-                
-                return response($qrCode, 200)
-                    ->header('Content-Type', 'image/png')
-                    ->header('Content-Disposition', 'attachment; filename="qrcode-innosoft-campaign-hd.png"');
-            } else {
-                // Utiliser SVG haute résolution (vectoriel, qualité parfaite à n'importe quelle taille)
-                // SVG est vectoriel, donc la taille n'affecte pas la qualité, mais on augmente quand même pour compatibilité
-                $qrCode = QrCode::format('svg')
-                    ->size($highResolutionSize) // Grande taille pour une meilleure qualité
-                    ->errorCorrection('H')
-                    ->generate($frontendUrl);
-                
-                return response($qrCode, 200)
-                    ->header('Content-Type', 'image/svg+xml')
-                    ->header('Content-Disposition', 'attachment; filename="qrcode-innosoft-campaign-hd.svg"');
+            // Vérifier si Imagick est disponible (requis pour PNG)
+            if (!extension_loaded('imagick')) {
+                return response()->json([
+                    'error' => 'Extension Imagick requise pour PNG',
+                    'message' => 'L\'extension PHP Imagick est nécessaire pour générer des QR codes PNG. Veuillez contacter l\'administrateur système pour l\'installer.',
+                    'alternative' => 'Vous pouvez utiliser /api/qrcode/svg pour un format SVG (vectoriel, haute qualité)'
+                ], 503);
             }
+            
+            // Générer le QR code en PNG haute résolution
+            $qrCode = QrCode::format('png')
+                ->size($highResolutionSize) // Haute résolution pour l'impression (2000x2000px)
+                ->errorCorrection('H') // Niveau de correction d'erreur élevé
+                ->generate($frontendUrl);
+            
+            return response($qrCode, 200)
+                ->header('Content-Type', 'image/png')
+                ->header('Content-Disposition', 'attachment; filename="qrcode-innosoft-campaign-hd.png"');
+                
         } catch (\Exception $e) {
-            \Log::error('QR Code Download Error: ' . $e->getMessage());
+            \Log::error('QR Code Download Error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
             
             return response()->json([
-                'error' => 'Erreur lors du téléchargement du QR code',
-                'message' => config('app.debug') ? $e->getMessage() : 'Une erreur est survenue'
+                'error' => 'Erreur lors du téléchargement du QR code PNG',
+                'message' => config('app.debug') ? $e->getMessage() : 'Une erreur est survenue lors de la génération du QR code PNG'
             ], 500);
         }
     }
