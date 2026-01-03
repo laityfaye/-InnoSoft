@@ -377,11 +377,17 @@ const Dashboard = () => {
     }
   }, [isAuthenticated, authLoading, navigate])
 
+  // Charger les métriques une seule fois au montage
   useEffect(() => {
     if (isAuthenticated) {
       // Charger toutes les données pour les compteurs de la sidebar au démarrage
       loadMetrics()
-      // Charger les données de l'onglet actif
+    }
+  }, [isAuthenticated])
+
+  // Charger les données de l'onglet actif lorsque l'onglet change
+  useEffect(() => {
+    if (isAuthenticated) {
       loadData()
     }
   }, [isAuthenticated, activeTab])
@@ -506,9 +512,6 @@ const Dashboard = () => {
         const response = await contactMessagesApi.getAll()
         setContactMessages(response.data.data || [])
       }
-      
-      // Charger les métriques en parallèle
-      loadMetrics()
     } catch (error) {
       console.error('Error loading data:', error)
     } finally {
@@ -1642,11 +1645,13 @@ const Dashboard = () => {
   // Polling pour les nouvelles conversations et messages
   useEffect(() => {
     if (activeTab === 'chat' && isAuthenticated) {
+      let consecutiveErrors = 0
       const interval = setInterval(async () => {
         // Recharger la liste des conversations
         try {
           const response = await adminApi.chat.getAllConversations()
           setConversations(response.data.data || [])
+          consecutiveErrors = 0 // Réinitialiser le compteur d'erreurs en cas de succès
           
           // Recharger la conversation sélectionnée si elle existe
           if (selectedConversation) {
@@ -1655,10 +1660,17 @@ const Dashboard = () => {
               setSelectedConversation(convResponse.data.data)
             }
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error('Error refreshing chat:', error)
+          consecutiveErrors++
+          
+          // Si erreur 429 (Too Many Requests), arrêter le polling temporairement
+          if (error.response?.status === 429 || consecutiveErrors >= 3) {
+            console.warn('Too many requests or multiple errors. Polling paused.')
+            clearInterval(interval)
+          }
         }
-      }, 5000) // Vérifier toutes les 5 secondes
+      }, 30000) // Vérifier toutes les 30 secondes (au lieu de 5)
 
       return () => clearInterval(interval)
     }
