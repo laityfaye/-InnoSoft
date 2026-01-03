@@ -4,6 +4,7 @@ import { useInView } from 'react-intersection-observer'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Calendar, Clock, ArrowRight, BookOpen, Filter } from 'lucide-react'
 import { newsApi } from '../services/api'
+import SEO from '../components/SEO'
 
 interface NewsPost {
   id: number
@@ -81,7 +82,13 @@ const Blog = () => {
     : news.filter((item) => item.category === activeFilter)
 
   return (
-    <div className="min-h-screen pt-20 pb-20">
+    <>
+      <SEO
+        title="Blog & Actualités - InnoSoft Creation"
+        description="Restez informé avec nos articles, tutoriels et actualités sur les technologies modernes, le développement web, les applications mobiles et bien plus encore."
+        url="/blog"
+      />
+      <div className="min-h-screen pt-20 pb-20">
       <div className="container-custom">
         {/* Header */}
         <motion.div
@@ -222,6 +229,7 @@ const Blog = () => {
         )}
       </div>
     </div>
+    </>
   )
 }
 

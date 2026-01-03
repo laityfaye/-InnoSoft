@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { ExternalLink, Github, Filter } from 'lucide-react'
 import { projectsApi } from '../services/api'
+import SEO from '../components/SEO'
 
 interface Project {
   id: number
@@ -55,7 +56,13 @@ const Portfolio = () => {
   const filteredProjects = projects
 
   return (
-    <div className="pt-32 pb-20">
+    <>
+      <SEO
+        title="Notre Portfolio - Réalisations InnoSoft Creation"
+        description="Découvrez nos réalisations : projets web, applications mobiles, designs et solutions innovantes développées par InnoSoft Creation."
+        url="/portfolio"
+      />
+      <div className="pt-32 pb-20">
       {/* Hero Section */}
       <section className="container-custom mb-20">
         <motion.div
@@ -100,16 +107,41 @@ const Portfolio = () => {
 
       {/* Projects Grid */}
       <section ref={ref} className="container-custom">
-        <AnimatePresence mode="popLayout">
+        {loading ? (
+          <div className="text-center py-20">
+            <div className="inline-block w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
+            <p className="mt-4 text-secondary-400 [data-theme='light']:text-secondary-600">
+              Chargement des projets...
+            </p>
+          </div>
+        ) : filteredProjects.length === 0 ? (
           <motion.div
-            key={activeFilter}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center py-20"
           >
-            {filteredProjects.map((project, index) => (
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary-500/10 mb-6">
+              <Filter className="w-10 h-10 text-primary-400" />
+            </div>
+            <p className="text-xl font-semibold text-white [data-theme='light']:text-dark-500 mb-2">
+              Aucun projet trouvé
+            </p>
+            <p className="text-secondary-400 [data-theme='light']:text-secondary-600">
+              Essayez de sélectionner une autre catégorie
+            </p>
+          </motion.div>
+        ) : (
+          <AnimatePresence mode="popLayout">
+            <motion.div
+              key={activeFilter}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            >
+              {filteredProjects.map((project, index) => (
                 <motion.div
                   key={project.id}
                   layout
@@ -226,37 +258,13 @@ const Portfolio = () => {
                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-primary transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
               </div>
             </motion.div>
-          ))}
-        </motion.div>
-        </AnimatePresence>
-
-        {loading ? (
-          <div className="text-center py-20">
-            <div className="inline-block w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
-            <p className="mt-4 text-secondary-400 [data-theme='light']:text-secondary-600">
-              Chargement des projets...
-            </p>
-          </div>
-        ) : filteredProjects.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center py-20"
-          >
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary-500/10 mb-6">
-              <Filter className="w-10 h-10 text-primary-400" />
-            </div>
-            <p className="text-xl font-semibold text-white [data-theme='light']:text-dark-500 mb-2">
-              Aucun projet trouvé
-            </p>
-            <p className="text-secondary-400 [data-theme='light']:text-secondary-600">
-              Essayez de sélectionner une autre catégorie
-            </p>
-          </motion.div>
-        ) : null}
+              ))}
+            </motion.div>
+          </AnimatePresence>
+        )}
       </section>
     </div>
+    </>
   )
 }
 

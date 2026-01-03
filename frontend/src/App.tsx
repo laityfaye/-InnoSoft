@@ -1,18 +1,31 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { AuthProvider } from './contexts/AuthContext'
 import Layout from './components/Layout/Layout'
 import ScrollToTop from './components/ScrollToTop'
-import Home from './pages/Home'
-import Services from './pages/Services'
-import About from './pages/About'
-import Contact from './pages/Contact'
-import Portfolio from './pages/Portfolio'
-import Products from './pages/Products'
-import Blog from './pages/Blog'
-import BlogPost from './pages/BlogPost'
-import AdminLogin from './pages/Admin/Login'
-import AdminDashboard from './pages/Admin/Dashboard'
+
+// Lazy load pages for better performance
+const Home = lazy(() => import('./pages/Home'))
+const Services = lazy(() => import('./pages/Services'))
+const About = lazy(() => import('./pages/About'))
+const Contact = lazy(() => import('./pages/Contact'))
+const Portfolio = lazy(() => import('./pages/Portfolio'))
+const Products = lazy(() => import('./pages/Products'))
+const Blog = lazy(() => import('./pages/Blog'))
+const BlogPost = lazy(() => import('./pages/BlogPost'))
+const AdminLogin = lazy(() => import('./pages/Admin/Login'))
+const AdminDashboard = lazy(() => import('./pages/Admin/Dashboard'))
+
+// Loading component
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-dark-500">
+    <div className="text-center">
+      <div className="inline-block w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mb-4" />
+      <p className="text-secondary-400">Chargement...</p>
+    </div>
+  </div>
+)
 
 function App() {
   return (
@@ -20,21 +33,23 @@ function App() {
       <AuthProvider>
         <Router>
           <ScrollToTop />
-          <Routes>
-            {/* Public routes with layout */}
-            <Route path="/" element={<Layout><Home /></Layout>} />
-            <Route path="/services" element={<Layout><Services /></Layout>} />
-            <Route path="/about" element={<Layout><About /></Layout>} />
-            <Route path="/portfolio" element={<Layout><Portfolio /></Layout>} />
-            <Route path="/contact" element={<Layout><Contact /></Layout>} />
-            <Route path="/products" element={<Layout><Products /></Layout>} />
-            <Route path="/blog" element={<Layout><Blog /></Layout>} />
-            <Route path="/blog/:slug" element={<Layout><BlogPost /></Layout>} />
-            
-            {/* Admin routes without layout */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          </Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              {/* Public routes with layout */}
+              <Route path="/" element={<Layout><Home /></Layout>} />
+              <Route path="/services" element={<Layout><Services /></Layout>} />
+              <Route path="/about" element={<Layout><About /></Layout>} />
+              <Route path="/portfolio" element={<Layout><Portfolio /></Layout>} />
+              <Route path="/contact" element={<Layout><Contact /></Layout>} />
+              <Route path="/products" element={<Layout><Products /></Layout>} />
+              <Route path="/blog" element={<Layout><Blog /></Layout>} />
+              <Route path="/blog/:slug" element={<Layout><BlogPost /></Layout>} />
+              
+              {/* Admin routes without layout */}
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            </Routes>
+          </Suspense>
         </Router>
       </AuthProvider>
     </ThemeProvider>

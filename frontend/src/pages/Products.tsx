@@ -4,6 +4,7 @@ import { useInView } from 'react-intersection-observer'
 import { ShoppingCart, Search, Star, Plus, Minus, X, ShoppingBag, Check, Sparkles } from 'lucide-react'
 import { useTheme } from '../hooks/useTheme'
 import { productsApi } from '../services/api'
+import SEO from '../components/SEO'
 
 interface Product {
   id: number
@@ -127,7 +128,13 @@ const Products = () => {
   }
 
   return (
-    <div className="pt-32 pb-20 min-h-screen">
+    <>
+      <SEO
+        title="Nos Produits - Matériel et Solutions InnoSoft Creation"
+        description="Découvrez notre catalogue de produits : matériel électronique, accessoires informatiques et solutions technologiques professionnelles disponibles chez InnoSoft Creation."
+        url="/products"
+      />
+      <div className="pt-32 pb-20 min-h-screen">
       {/* Hero Section */}
       <section className="container-custom mb-12">
         <motion.div
@@ -433,6 +440,7 @@ const Products = () => {
         )}
       </AnimatePresence>
     </div>
+    </>
   )
 }
 

@@ -4,6 +4,7 @@ import { useInView } from 'react-intersection-observer'
 import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle } from 'lucide-react'
 import { useTheme } from '../hooks/useTheme'
 import { contactApi } from '../services/api'
+import SEO from '../components/SEO'
 
 interface FieldErrors {
   name?: string
@@ -195,7 +196,13 @@ const Contact = () => {
   ]
 
   return (
-    <div className="pt-32 pb-20 relative">
+    <>
+      <SEO
+        title="Contactez-Nous - InnoSoft Creation"
+        description="Contactez InnoSoft Creation pour discuter de votre projet. Nous sommes situés à Thiès, Sénégal. Réponse garantie dans les plus brefs délais."
+        url="/contact"
+      />
+      <div className="pt-32 pb-20 relative">
       {/* Success Notification Toast */}
       <AnimatePresence>
         {isSubmitted && (
@@ -582,6 +589,7 @@ const Contact = () => {
         </div>
       </section>
     </div>
+    </>
   )
 }
 

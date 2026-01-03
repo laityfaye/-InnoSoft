@@ -3,6 +3,7 @@ import { useInView } from 'react-intersection-observer'
 import { Code, Smartphone, Palette, Server, Cloud, Database, Globe, Zap } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import ServiceImage from '../components/Services/ServiceImage'
+import SEO from '../components/SEO'
 
 const Services = () => {
   const [ref, inView] = useInView({
@@ -104,7 +105,13 @@ const Services = () => {
   }
 
   return (
-    <div className="pt-32 pb-20">
+    <>
+      <SEO
+        title="Nos Services - Solutions Technologiques Complètes"
+        description="Découvrez nos services : développement web, applications mobiles, design graphique, matériel électronique, solutions cloud et intégration système. Des solutions sur mesure pour votre entreprise."
+        url="/services"
+      />
+      <div className="pt-32 pb-20">
       {/* Hero Section */}
       <section className="container-custom mb-20">
         <motion.div
@@ -204,6 +211,7 @@ const Services = () => {
         </motion.div>
       </section>
     </div>
+    </>
   )
 }
 

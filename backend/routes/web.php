@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SitemapController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,4 +20,7 @@ Route::get('/', function () {
         'version' => '1.0.0',
     ]);
 });
+
+// Sitemap XML pour le SEO
+Route::get('/sitemap.xml', [SitemapController::class, 'index']);
 

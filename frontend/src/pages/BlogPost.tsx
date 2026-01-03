@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Calendar, Clock, ArrowLeft, User, Eye, BookOpen } from 'lucide-react'
 import { newsApi } from '../services/api'
+import SEO from '../components/SEO'
 
 interface NewsPost {
   id: number
@@ -144,9 +145,28 @@ const BlogPost = () => {
     )
   }
 
+  // Formater les dates pour les meta tags
+  const publishedTime = post.published_at || post.created_at
+  const modifiedTime = post.updated_at
+  const publishedISO = publishedTime ? new Date(publishedTime).toISOString() : undefined
+  const modifiedISO = modifiedTime ? new Date(modifiedTime).toISOString() : undefined
+
   return (
-    <div className="min-h-screen pt-20 pb-20">
-      <div className="container-custom max-w-4xl">
+    <>
+      <SEO
+        title={post.title}
+        description={post.excerpt || post.content.substring(0, 160)}
+        image={post.image}
+        url={`/blog/${post.slug}`}
+        type="article"
+        author={post.author || 'InnoSoft Creation'}
+        publishedTime={publishedISO}
+        modifiedTime={modifiedISO}
+        section={post.category}
+        tags={[post.category]}
+      />
+      <div className="min-h-screen pt-20 pb-20">
+        <div className="container-custom max-w-4xl">
         {/* Back Button */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -301,8 +321,9 @@ const BlogPost = () => {
             </div>
           </motion.section>
         )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 

@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://innosft.com/sitemap.xml
+
+# Disallow admin routes
+Disallow: /admin/
+
+# Allow all other routes
+Allow: /
+Allow: /services
+Allow: /portfolio
+Allow: /about
+Allow: /contact
+Allow: /blog
+Allow: /products
+

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { Target, Eye, History, Users, Award, Zap } from 'lucide-react'
+import SEO from '../components/SEO'
 
 const About = () => {
   const [ref, inView] = useInView({
@@ -32,7 +33,13 @@ const About = () => {
   ]
 
   return (
-    <div className="pt-32 pb-20">
+    <>
+      <SEO
+        title="À Propos de Nous - InnoSoft Creation"
+        description="Découvrez InnoSoft Creation : notre mission, notre vision et nos valeurs. Une équipe passionnée par l'innovation technologique au Sénégal."
+        url="/about"
+      />
+      <div className="pt-32 pb-20">
       {/* Hero Section */}
       <section className="container-custom mb-20">
         <motion.div
@@ -159,6 +166,7 @@ const About = () => {
         </div>
       </section>
     </div>
+    </>
   )
 }
 
