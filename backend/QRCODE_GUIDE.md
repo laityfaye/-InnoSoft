@@ -33,15 +33,20 @@ Génère un QR code en format SVG (vectoriel, plus léger et scalable).
 https://api.innosft.com/api/qrcode/svg
 ```
 
-### 3. Télécharger le QR Code
+### 3. Télécharger le QR Code (Haute Résolution)
 **URL :** `GET /api/qrcode/download`
 
-Télécharge le QR code en PNG avec le nom `qrcode-innosoft-campaign.png`.
+Télécharge le QR code en haute résolution (2000x2000 pixels) pour l'impression.
+
+- **Format PNG** : Si Imagick est disponible (haute résolution)
+- **Format SVG** : Si Imagick n'est pas disponible (vectoriel, qualité parfaite)
 
 **Exemple d'utilisation :**
 ```
 https://api.innosft.com/api/qrcode/download
 ```
+
+**Note :** Le SVG est vectoriel, ce qui signifie qu'il peut être agrandi à n'importe quelle taille sans perte de qualité - parfait pour l'impression professionnelle !
 
 ### 4. Informations du QR Code
 **URL :** `GET /api/qrcode/info`
@@ -90,17 +95,28 @@ Si `FRONTEND_URL` n'est pas défini, il utilise `APP_URL`. Si aucun des deux n'e
 </div>
 ```
 
-### 4. Impression sur Documents Marketing
-Téléchargez le QR code PNG et intégrez-le dans vos designs :
+### 4. Téléchargement pour l'Impression (Haute Résolution)
+Téléchargez le QR code en haute résolution (2000x2000px) pour une qualité d'impression professionnelle :
 ```
 https://api.innosft.com/api/qrcode/download
 ```
 
+**Formats disponibles :**
+- **PNG 2000x2000px** : Si Imagick est installé (haute résolution raster)
+- **SVG 2000x2000px** : Format vectoriel (recommandé pour l'impression - qualité infinie)
+
+**Avantages du SVG pour l'impression :**
+- ✅ Qualité parfaite à n'importe quelle taille d'impression
+- ✅ Fichier léger
+- ✅ Pas de pixellisation même en grand format
+- ✅ Idéal pour les flyers, brochures, affiches grand format
+
 ## ✨ Caractéristiques
 
-- **Taille :** 500x500 pixels (PNG) / Scalable (SVG)
+- **Taille affichage :** 500x500 pixels
+- **Taille téléchargement :** 2000x2000 pixels (haute résolution pour l'impression)
 - **Correction d'erreur :** Niveau H (High) - permet la lecture même si le QR code est partiellement endommagé
-- **Format :** PNG ou SVG
+- **Format :** PNG (si Imagick disponible) ou SVG (toujours disponible, recommandé)
 - **URL cible :** Configuration via variable d'environnement
 
 ## 🚀 Test Rapide

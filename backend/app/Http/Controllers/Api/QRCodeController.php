@@ -68,17 +68,26 @@ class QRCodeController extends Controller
      */
     public function generateSvg(Request $request)
     {
-        $frontendUrl = env('FRONTEND_URL', env('APP_URL', 'https://innosft.com'));
-        $frontendUrl = rtrim($frontendUrl, '/');
-        
-        $qrCode = QrCode::format('svg')
-            ->size(500)
-            ->errorCorrection('H')
-            ->generate($frontendUrl);
-        
-        return response($qrCode, 200)
-            ->header('Content-Type', 'image/svg+xml')
-            ->header('Content-Disposition', 'inline; filename="qrcode-innosoft.svg"');
+        try {
+            $frontendUrl = env('FRONTEND_URL', env('APP_URL', 'https://innosft.com'));
+            $frontendUrl = rtrim($frontendUrl, '/');
+            
+            $qrCode = QrCode::format('svg')
+                ->size(500)
+                ->errorCorrection('H')
+                ->generate($frontendUrl);
+            
+            return response($qrCode, 200)
+                ->header('Content-Type', 'image/svg+xml')
+                ->header('Content-Disposition', 'inline; filename="qrcode-innosoft.svg"');
+        } catch (\Exception $e) {
+            \Log::error('QR Code SVG Generation Error: ' . $e->getMessage());
+            
+            return response()->json([
+                'error' => 'Erreur lors de la génération du QR code SVG',
+                'message' => config('app.debug') ? $e->getMessage() : 'Une erreur est survenue'
+            ], 500);
+        }
     }
 
     /**
@@ -103,7 +112,7 @@ class QRCodeController extends Controller
     }
 
     /**
-     * Télécharge le QR code en PNG
+     * Télécharge le QR code en haute résolution
      * 
      * @param Request $request
      * @return \Illuminate\Http\Response
@@ -114,26 +123,30 @@ class QRCodeController extends Controller
             $frontendUrl = env('FRONTEND_URL', env('APP_URL', 'https://innosft.com'));
             $frontendUrl = rtrim($frontendUrl, '/');
             
-            // Vérifier si Imagick est disponible pour PNG
+            // Taille haute résolution pour l'impression (2000px)
+            $highResolutionSize = 2000;
+            
+            // Vérifier si Imagick est disponible pour PNG haute résolution
             if (extension_loaded('imagick')) {
                 $qrCode = QrCode::format('png')
-                    ->size(500)
-                    ->errorCorrection('H')
+                    ->size($highResolutionSize) // Haute résolution pour l'impression
+                    ->errorCorrection('H') // Niveau de correction d'erreur élevé
                     ->generate($frontendUrl);
                 
                 return response($qrCode, 200)
                     ->header('Content-Type', 'image/png')
-                    ->header('Content-Disposition', 'attachment; filename="qrcode-innosoft-campaign.png"');
+                    ->header('Content-Disposition', 'attachment; filename="qrcode-innosoft-campaign-hd.png"');
             } else {
-                // Utiliser SVG si PNG n'est pas disponible
+                // Utiliser SVG haute résolution (vectoriel, qualité parfaite à n'importe quelle taille)
+                // SVG est vectoriel, donc la taille n'affecte pas la qualité, mais on augmente quand même pour compatibilité
                 $qrCode = QrCode::format('svg')
-                    ->size(500)
+                    ->size($highResolutionSize) // Grande taille pour une meilleure qualité
                     ->errorCorrection('H')
                     ->generate($frontendUrl);
                 
                 return response($qrCode, 200)
                     ->header('Content-Type', 'image/svg+xml')
-                    ->header('Content-Disposition', 'attachment; filename="qrcode-innosoft-campaign.svg"');
+                    ->header('Content-Disposition', 'attachment; filename="qrcode-innosoft-campaign-hd.svg"');
             }
         } catch (\Exception $e) {
             \Log::error('QR Code Download Error: ' . $e->getMessage());
