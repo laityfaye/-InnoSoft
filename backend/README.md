@@ -52,6 +52,12 @@ php artisan queue:work
 ### Contact
 - `POST /api/contact` - Envoyer un message de contact
 
+### QR Code (Campagne)
+- `GET /api/qrcode` - Générer un QR code PNG qui redirige vers la plateforme
+- `GET /api/qrcode/svg` - Générer un QR code SVG (vectoriel)
+- `GET /api/qrcode/download` - Télécharger le QR code en PNG
+- `GET /api/qrcode/info` - Obtenir les informations et URLs du QR code
+
 ## Structure
 
 ```

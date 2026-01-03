@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\SocialLinkController;
 use App\Http\Controllers\Api\TeamController;
 use App\Http\Controllers\Api\TestimonialController;
 use App\Http\Controllers\Api\VideoController;
+use App\Http\Controllers\Api\QRCodeController;
 use App\Http\Controllers\Api\Admin\ContactMessageController;
 
 /*
@@ -75,6 +76,12 @@ Route::middleware('api')->group(function () {
     
     // Contact form
     Route::post('/contact', [ContactController::class, 'store']);
+    
+    // QR Code - public routes
+    Route::get('/qrcode', [QRCodeController::class, 'generate']);
+    Route::get('/qrcode/svg', [QRCodeController::class, 'generateSvg']);
+    Route::get('/qrcode/download', [QRCodeController::class, 'download']);
+    Route::get('/qrcode/info', [QRCodeController::class, 'info']);
     
     // Chat - public routes
     Route::post('/chat/anonymous/conversation', [ChatController::class, 'createOrGetAnonymousConversation']);
