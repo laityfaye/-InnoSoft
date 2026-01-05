@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, ShoppingCart, Plus, Minus, Star, Share2, Check, ShoppingBag, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { productsApi } from '../services/api'
 import SEO from '../components/SEO'
-import { useTheme } from '../hooks/useTheme'
 
 interface Product {
   id: number
