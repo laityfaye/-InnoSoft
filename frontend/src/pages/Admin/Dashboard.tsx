@@ -36,9 +36,17 @@ interface Product {
   description: string
   price: number
   image?: string | null
+  images?: string[] | null
   category: string
   rating?: number
   stock: number
+  is_featured?: boolean
+  order?: number
+  discount_percentage?: number | null
+  promotion_price?: number | null
+  promotion_start_date?: string | null
+  promotion_end_date?: string | null
+  is_on_promotion?: boolean
 }
 
 interface Partner {
@@ -227,6 +235,10 @@ const Dashboard = () => {
   const [contactMessageFilter, setContactMessageFilter] = useState<'all' | 'unread' | 'replied' | 'unreplied'>('all')
   const [contactMessageSearch, setContactMessageSearch] = useState('')
   const [contactMessageSort, setContactMessageSort] = useState<'newest' | 'oldest' | 'name'>('newest')
+  const [productSearch, setProductSearch] = useState('')
+  const [productCategoryFilter, setProductCategoryFilter] = useState<string>('all')
+  const [productStockFilter, setProductStockFilter] = useState<string>('all')
+  const [productSort, setProductSort] = useState<'name' | 'price' | 'stock' | 'date'>('date')
   const [loading, setLoading] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [metrics, setMetrics] = useState({
@@ -261,12 +273,17 @@ const Dashboard = () => {
     rating: '',
     stock: '',
     image: '',
+    images: [] as string[],
+    discount_percentage: '',
+    promotion_start_date: '',
+    promotion_end_date: '',
+    is_on_promotion: false,
   })
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [selectedProductFile, setSelectedProductFile] = useState<File | null>(null)
+  const [selectedProductFiles, setSelectedProductFiles] = useState<File[]>([])
   const [selectedPartnerFile, setSelectedPartnerFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const [previewProductUrl, setPreviewProductUrl] = useState<string | null>(null)
+  const [previewProductUrls, setPreviewProductUrls] = useState<string[]>([])
   const [previewPartnerUrl, setPreviewPartnerUrl] = useState<string | null>(null)
   const [showPartnerForm, setShowPartnerForm] = useState(false)
   const [editingPartner, setEditingPartner] = useState<Partner | null>(null)
@@ -685,10 +702,37 @@ const Dashboard = () => {
       formData.append('stock', productForm.stock)
       if (productForm.rating) formData.append('rating', productForm.rating)
       
-      if (selectedProductFile) {
-        formData.append('image_file', selectedProductFile)
-      } else if (productForm.image) {
+      // Champs de promotion
+      if (productForm.discount_percentage) {
+        formData.append('discount_percentage', productForm.discount_percentage)
+      }
+      if (productForm.promotion_start_date) {
+        formData.append('promotion_start_date', productForm.promotion_start_date)
+      }
+      if (productForm.promotion_end_date) {
+        formData.append('promotion_end_date', productForm.promotion_end_date)
+      }
+      formData.append('is_on_promotion', productForm.is_on_promotion ? '1' : '0')
+      
+      // Upload de plusieurs images
+      selectedProductFiles.forEach((file) => {
+        formData.append('image_files[]', file) // Laravel recevra cela comme un tableau
+      })
+      
+      // Images par URL
+      if (productForm.images && productForm.images.length > 0) {
+        productForm.images.forEach((imageUrl) => {
+          if (imageUrl.trim()) {
+            formData.append('images[]', imageUrl.trim())
+          }
+        })
+      }
+      
+      // Rétrocompatibilité : image unique
+      if (selectedProductFiles.length === 0 && productForm.images.length === 0) {
+        if (productForm.image) {
         formData.append('image', productForm.image)
+        }
       }
 
       if (editingProduct) {
@@ -699,12 +743,15 @@ const Dashboard = () => {
 
       setShowProductForm(false)
       setEditingProduct(null)
-      setProductForm({ name: '', description: '', price: '', category: 'hardware', rating: '', stock: '', image: '' })
-      setSelectedProductFile(null)
-      if (previewProductUrl && previewProductUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(previewProductUrl)
+      setProductForm({ name: '', description: '', price: '', category: 'hardware', rating: '', stock: '', image: '', images: [], discount_percentage: '', promotion_start_date: '', promotion_end_date: '', is_on_promotion: false })
+      setSelectedProductFiles([])
+      // Nettoyer les URLs blob
+      previewProductUrls.forEach((url) => {
+        if (url.startsWith('blob:')) {
+          URL.revokeObjectURL(url)
       }
-      setPreviewProductUrl(null)
+      })
+      setPreviewProductUrls([])
       loadData()
     } catch (error: any) {
       console.error('Error saving product:', error)
@@ -721,36 +768,63 @@ const Dashboard = () => {
   }
 
   const handleProductFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
+
       const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
-      if (!validTypes.includes(file.type)) {
-        alert('Type de fichier non supporté. Veuillez sélectionner une image (JPEG, PNG, GIF, WebP).')
+    const invalidFiles = files.filter(file => !validTypes.includes(file.type))
+    
+    if (invalidFiles.length > 0) {
+      alert('Certains fichiers ne sont pas supportés. Veuillez sélectionner uniquement des images (JPEG, PNG, GIF, WebP).')
         return
       }
       
-      if (file.size > 5 * 1024 * 1024) {
-        alert('Le fichier est trop volumineux. Taille maximale : 5MB.')
+    const oversizedFiles = files.filter(file => file.size > 5 * 1024 * 1024)
+    if (oversizedFiles.length > 0) {
+      alert('Certains fichiers sont trop volumineux. Taille maximale par fichier : 5MB.')
         return
       }
 
-      setSelectedProductFile(file)
-      const url = URL.createObjectURL(file)
-      setPreviewProductUrl(url)
-      setProductForm({ ...productForm, image: '' })
-    }
+    const newFiles = [...selectedProductFiles, ...files]
+    setSelectedProductFiles(newFiles)
+    
+    // Créer des aperçus pour les nouveaux fichiers
+    const newPreviewUrls = files.map(file => URL.createObjectURL(file))
+    setPreviewProductUrls([...previewProductUrls, ...newPreviewUrls])
+    
+    // Réinitialiser l'input
+    e.target.value = ''
   }
 
-  const handleRemoveProductFile = () => {
-    setSelectedProductFile(null)
-    if (previewProductUrl) {
-      URL.revokeObjectURL(previewProductUrl)
+  const handleRemoveProductFile = (index: number) => {
+    const newFiles = selectedProductFiles.filter((_, i) => i !== index)
+    setSelectedProductFiles(newFiles)
+    
+    // Nettoyer l'URL blob
+    const urlToRemove = previewProductUrls[index]
+    if (urlToRemove && urlToRemove.startsWith('blob:')) {
+      URL.revokeObjectURL(urlToRemove)
     }
-    setPreviewProductUrl(null)
+    
+    const newPreviewUrls = previewProductUrls.filter((_, i) => i !== index)
+    setPreviewProductUrls(newPreviewUrls)
+  }
+
+  const handleRemoveProductImageUrl = (index: number) => {
+    const newImages = productForm.images.filter((_, i) => i !== index)
+    setProductForm({ ...productForm, images: newImages })
+  }
+
+  const handleAddProductImageUrl = () => {
+    setProductForm({ ...productForm, images: [...productForm.images, ''] })
   }
 
   const handleEditProduct = (product: Product) => {
     setEditingProduct(product)
+    const productImages = product.images && product.images.length > 0 
+      ? product.images 
+      : (product.image ? [product.image] : [])
+    
     setProductForm({
       name: product.name,
       description: product.description,
@@ -759,9 +833,14 @@ const Dashboard = () => {
       rating: product.rating?.toString() || '',
       stock: product.stock.toString(),
       image: product.image || '',
+      images: productImages,
+      discount_percentage: product.discount_percentage?.toString() || '',
+      promotion_start_date: product.promotion_start_date ? new Date(product.promotion_start_date).toISOString().slice(0, 16) : '',
+      promotion_end_date: product.promotion_end_date ? new Date(product.promotion_end_date).toISOString().slice(0, 16) : '',
+      is_on_promotion: product.is_on_promotion || false,
     })
-    setSelectedProductFile(null)
-    setPreviewProductUrl(product.image || null)
+    setSelectedProductFiles([])
+    setPreviewProductUrls(productImages)
     setShowProductForm(true)
   }
 
@@ -2377,19 +2456,109 @@ const Dashboard = () => {
         {/* Products Tab */}
         {activeTab === 'products' && (
           <div>
-            <div className="flex justify-end mb-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+              {/* Search and Filters */}
+              <div className="flex-1 w-full md:w-auto">
+                <div className="flex flex-col md:flex-row gap-3">
+                  {/* Search Bar */}
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-secondary-400" />
+                    <input
+                      type="text"
+                      placeholder="Rechercher un produit..."
+                      value={productSearch}
+                      onChange={(e) => setProductSearch(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 rounded-lg 
+                        [data-theme='dark']:bg-secondary-800 [data-theme='dark']:border-secondary-700 [data-theme='dark']:text-white
+                        [data-theme='light']:bg-white [data-theme='light']:border-secondary-300 [data-theme='light']:text-dark-500 [data-theme='light']:border-2
+                        border focus:outline-none focus:border-primary-500"
+                      style={{
+                        color: isDark ? '#ffffff' : '#111827',
+                        backgroundColor: isDark ? '#1f2937' : '#ffffff',
+                        borderColor: isDark ? '#374151' : '#d1d5db',
+                      }}
+                    />
+                  </div>
+
+                  {/* Category Filter */}
+                  <select
+                    value={productCategoryFilter}
+                    onChange={(e) => setProductCategoryFilter(e.target.value)}
+                    className="px-4 py-2 rounded-lg 
+                      [data-theme='dark']:bg-secondary-800 [data-theme='dark']:border-secondary-700 [data-theme='dark']:text-white
+                      [data-theme='light']:bg-white [data-theme='light']:border-secondary-300 [data-theme='light']:text-dark-500 [data-theme='light']:border-2
+                      border focus:outline-none focus:border-primary-500"
+                    style={{
+                      color: isDark ? '#ffffff' : '#111827',
+                      backgroundColor: isDark ? '#1f2937' : '#ffffff',
+                      borderColor: isDark ? '#374151' : '#d1d5db',
+                    }}
+                  >
+                    <option value="all">Toutes les catégories</option>
+                    <option value="hardware">Matériel</option>
+                    <option value="software">Logiciels</option>
+                    <option value="accessories">Accessoires</option>
+                    <option value="services">Services</option>
+                  </select>
+
+                  {/* Stock Filter */}
+                  <select
+                    value={productStockFilter}
+                    onChange={(e) => setProductStockFilter(e.target.value)}
+                    className="px-4 py-2 rounded-lg 
+                      [data-theme='dark']:bg-secondary-800 [data-theme='dark']:border-secondary-700 [data-theme='dark']:text-white
+                      [data-theme='light']:bg-white [data-theme='light']:border-secondary-300 [data-theme='light']:text-dark-500 [data-theme='light']:border-2
+                      border focus:outline-none focus:border-primary-500"
+                    style={{
+                      color: isDark ? '#ffffff' : '#111827',
+                      backgroundColor: isDark ? '#1f2937' : '#ffffff',
+                      borderColor: isDark ? '#374151' : '#d1d5db',
+                    }}
+                  >
+                    <option value="all">Tous les stocks</option>
+                    <option value="out">Rupture (0)</option>
+                    <option value="low">Faible (≤1)</option>
+                    <option value="warning">Attention (≤5)</option>
+                    <option value="ok">Normal (&gt;5)</option>
+                  </select>
+
+                  {/* Sort */}
+                  <select
+                    value={productSort}
+                    onChange={(e) => setProductSort(e.target.value as 'name' | 'price' | 'stock' | 'date')}
+                    className="px-4 py-2 rounded-lg 
+                      [data-theme='dark']:bg-secondary-800 [data-theme='dark']:border-secondary-700 [data-theme='dark']:text-white
+                      [data-theme='light']:bg-white [data-theme='light']:border-secondary-300 [data-theme='light']:text-dark-500 [data-theme='light']:border-2
+                      border focus:outline-none focus:border-primary-500"
+                    style={{
+                      color: isDark ? '#ffffff' : '#111827',
+                      backgroundColor: isDark ? '#1f2937' : '#ffffff',
+                      borderColor: isDark ? '#374151' : '#d1d5db',
+                    }}
+                  >
+                    <option value="date">Plus récent</option>
+                    <option value="name">Nom (A-Z)</option>
+                    <option value="price">Prix</option>
+                    <option value="stock">Stock</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Add Product Button */}
               <button
                 onClick={() => {
                   setEditingProduct(null)
-                  setProductForm({ name: '', description: '', price: '', category: 'hardware', rating: '', stock: '', image: '' })
-                  setSelectedProductFile(null)
-                  if (previewProductUrl && previewProductUrl.startsWith('blob:')) {
-                    URL.revokeObjectURL(previewProductUrl)
+                  setProductForm({ name: '', description: '', price: '', category: 'hardware', rating: '', stock: '', image: '', images: [], discount_percentage: '', promotion_start_date: '', promotion_end_date: '', is_on_promotion: false })
+                  setSelectedProductFiles([])
+                  previewProductUrls.forEach((url) => {
+                    if (url.startsWith('blob:')) {
+                      URL.revokeObjectURL(url)
                   }
-                  setPreviewProductUrl(null)
+                  })
+                  setPreviewProductUrls([])
                   setShowProductForm(true)
                 }}
-                className="btn-primary flex items-center space-x-2"
+                className="btn-primary flex items-center space-x-2 whitespace-nowrap"
               >
                 <Plus className="w-5 h-5" />
                 <span>Ajouter un produit</span>
@@ -2539,64 +2708,198 @@ const Dashboard = () => {
                       />
                     </div>
                   </div>
+                  
+                  {/* Section Promotion */}
+                  <div className="border-t [data-theme='dark']:border-secondary-700 [data-theme='light']:border-secondary-300 pt-6 mt-6">
+                    <h3 className="text-lg font-semibold text-secondary-200 [data-theme='light']:text-secondary-800 mb-4">
+                      Promotion
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-3">
+                        <input
+                          type="checkbox"
+                          id="is_on_promotion"
+                          checked={productForm.is_on_promotion}
+                          onChange={(e) => setProductForm({ ...productForm, is_on_promotion: e.target.checked })}
+                          className="w-5 h-5 rounded border-secondary-600 text-primary-500 focus:ring-primary-500"
+                        />
+                        <label htmlFor="is_on_promotion" className="text-sm font-medium text-secondary-300 [data-theme='light']:text-secondary-700">
+                          Activer la promotion
+                        </label>
+                      </div>
+                      
+                      {productForm.is_on_promotion && (
+                        <>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-secondary-300 [data-theme='light']:text-secondary-700 mb-2">
+                                Pourcentage de réduction (%)
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                step="0.01"
+                                value={productForm.discount_percentage}
+                                onChange={(e) => setProductForm({ ...productForm, discount_percentage: e.target.value })}
+                                placeholder="Ex: 20"
+                                className="w-full px-4 py-2 rounded-lg 
+                                  [data-theme='dark']:bg-secondary-800 [data-theme='dark']:border-secondary-700 [data-theme='dark']:text-white
+                                  [data-theme='light']:bg-white [data-theme='light']:border-secondary-300 [data-theme='light']:text-dark-500 [data-theme='light']:border-2
+                                  border focus:outline-none focus:border-primary-500"
+                                style={{
+                                  color: isDark ? '#ffffff' : '#111827',
+                                  backgroundColor: isDark ? '#1f2937' : '#ffffff',
+                                  borderColor: isDark ? '#374151' : '#d1d5db',
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-secondary-300 [data-theme='light']:text-secondary-700 mb-2">
+                                Date de début
+                              </label>
+                              <input
+                                type="datetime-local"
+                                value={productForm.promotion_start_date}
+                                onChange={(e) => setProductForm({ ...productForm, promotion_start_date: e.target.value })}
+                                className="w-full px-4 py-2 rounded-lg 
+                                  [data-theme='dark']:bg-secondary-800 [data-theme='dark']:border-secondary-700 [data-theme='dark']:text-white
+                                  [data-theme='light']:bg-white [data-theme='light']:border-secondary-300 [data-theme='light']:text-dark-500 [data-theme='light']:border-2
+                                  border focus:outline-none focus:border-primary-500"
+                                style={{
+                                  color: isDark ? '#ffffff' : '#111827',
+                                  backgroundColor: isDark ? '#1f2937' : '#ffffff',
+                                  borderColor: isDark ? '#374151' : '#d1d5db',
+                                }}
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-secondary-300 [data-theme='light']:text-secondary-700 mb-2">
+                              Date de fin
+                            </label>
+                            <input
+                              type="datetime-local"
+                              value={productForm.promotion_end_date}
+                              onChange={(e) => setProductForm({ ...productForm, promotion_end_date: e.target.value })}
+                              className="w-full px-4 py-2 rounded-lg 
+                                [data-theme='dark']:bg-secondary-800 [data-theme='dark']:border-secondary-700 [data-theme='dark']:text-white
+                                [data-theme='light']:bg-white [data-theme='light']:border-secondary-300 [data-theme='light']:text-dark-500 [data-theme='light']:border-2
+                                border focus:outline-none focus:border-primary-500"
+                              style={{
+                                color: isDark ? '#ffffff' : '#111827',
+                                backgroundColor: isDark ? '#1f2937' : '#ffffff',
+                                borderColor: isDark ? '#374151' : '#d1d5db',
+                              }}
+                            />
+                          </div>
+                          {productForm.discount_percentage && productForm.price && (
+                            <div className="p-3 rounded-lg bg-primary-500/10 border border-primary-500/20">
+                              <p className="text-sm text-secondary-300 [data-theme='light']:text-secondary-700">
+                                <span className="font-semibold">Prix original:</span> {parseFloat(productForm.price).toLocaleString('fr-FR')} XOF
+                              </p>
+                              <p className="text-sm text-primary-400 font-semibold">
+                                <span className="font-semibold">Prix promotionnel:</span> {Math.round(parseFloat(productForm.price) * (1 - parseFloat(productForm.discount_percentage) / 100)).toLocaleString('fr-FR')} XOF
+                                <span className="ml-2 text-xs text-secondary-400">(-{productForm.discount_percentage}%)</span>
+                              </p>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  
                   <div>
                     <label className="block text-sm font-medium text-secondary-300 [data-theme='light']:text-secondary-700 mb-2">
-                      Image
+                      Images du produit (plusieurs images possibles)
                     </label>
                     <div className="space-y-4">
+                      {/* Upload de fichiers multiples */}
                       <div>
                         <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer
                           [data-theme='dark']:border-secondary-600 [data-theme='dark']:bg-secondary-800/50 [data-theme='dark']:hover:bg-secondary-800
                           [data-theme='light']:border-secondary-300 [data-theme='light']:bg-secondary-50 [data-theme='light']:hover:bg-secondary-100
                           transition-colors">
                           <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                            {selectedProductFile ? (
-                              <div className="flex items-center space-x-2 text-primary-400">
-                                <ImageIcon className="w-8 h-8" />
-                                <span className="text-sm font-medium">{selectedProductFile.name}</span>
-                              </div>
-                            ) : (
-                              <>
                                 <Upload className="w-10 h-10 mb-2 text-secondary-400" />
                                 <p className="mb-2 text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
                                   <span className="font-semibold">Cliquez pour téléverser</span> ou glissez-déposez
                                 </p>
                                 <p className="text-xs text-secondary-400 [data-theme='light']:text-secondary-500">
-                                  Image (JPEG, PNG, GIF, WebP) - Max 5MB
+                              Images (JPEG, PNG, GIF, WebP) - Max 5MB par fichier
                                 </p>
-                              </>
-                            )}
+                            <p className="text-xs text-primary-400 mt-1">
+                              Vous pouvez sélectionner plusieurs fichiers à la fois
+                            </p>
                           </div>
                           <input
                             type="file"
                             className="hidden"
                             accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
                             onChange={handleProductFileChange}
-                            disabled={!!selectedProductFile}
+                            multiple
                           />
                         </label>
-                        {selectedProductFile && (
+                      </div>
+
+                      {/* Aperçus des fichiers uploadés */}
+                      {selectedProductFiles.length > 0 && (
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium text-secondary-300 [data-theme='light']:text-secondary-700">
+                            Fichiers sélectionnés ({selectedProductFiles.length})
+                          </p>
+                          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            {selectedProductFiles.map((file, index) => (
+                              <div key={index} className="relative group">
+                                <div className="relative rounded-lg overflow-hidden border
+                                  [data-theme='dark']:border-secondary-700
+                                  [data-theme='light']:border-secondary-300">
+                                  <img
+                                    src={previewProductUrls[index]}
+                                    alt={`Aperçu ${index + 1}`}
+                                    className="w-full h-32 object-cover"
+                                  />
                           <button
                             type="button"
-                            onClick={handleRemoveProductFile}
-                            className="mt-2 text-sm text-primary-400 hover:text-primary-300 flex items-center space-x-1"
+                                    onClick={() => handleRemoveProductFile(index)}
+                                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-red-500/90 hover:bg-red-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                           >
-                            <X className="w-4 h-4" />
-                            <span>Supprimer le fichier</span>
+                                    <X className="w-4 h-4 text-white" />
                           </button>
-                        )}
                       </div>
-                      {previewProductUrl && (
+                                <p className="text-xs text-secondary-400 mt-1 truncate" title={file.name}>
+                                  {file.name}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Aperçus des images existantes (en mode édition) */}
+                      {editingProduct && previewProductUrls.length > 0 && selectedProductFiles.length === 0 && (
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium text-secondary-300 [data-theme='light']:text-secondary-700">
+                            Images actuelles ({previewProductUrls.length})
+                          </p>
+                          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            {previewProductUrls.map((url, index) => (
+                              <div key={index} className="relative group">
                         <div className="relative rounded-lg overflow-hidden border
                           [data-theme='dark']:border-secondary-700
                           [data-theme='light']:border-secondary-300">
                           <img
-                            src={previewProductUrl}
-                            alt="Aperçu"
-                            className="w-full h-64 object-cover"
+                                    src={url}
+                                    alt={`Image ${index + 1}`}
+                                    className="w-full h-32 object-cover"
                           />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       )}
+
                       <div className="relative">
                         <div className="absolute inset-0 flex items-center">
                           <div className="w-full border-t [data-theme='dark']:border-secondary-700 [data-theme='light']:border-secondary-300"></div>
@@ -2607,25 +2910,38 @@ const Dashboard = () => {
                           </span>
                         </div>
                       </div>
+
+                      {/* URLs d'images */}
                       <div>
-                        <label className="block text-sm font-medium text-secondary-300 [data-theme='light']:text-secondary-700 mb-2">
-                          URL de l'image
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="block text-sm font-medium text-secondary-300 [data-theme='light']:text-secondary-700">
+                            URLs d'images
                         </label>
+                          <button
+                            type="button"
+                            onClick={handleAddProductImageUrl}
+                            className="text-sm text-primary-400 hover:text-primary-300 flex items-center space-x-1"
+                          >
+                            <Plus className="w-4 h-4" />
+                            <span>Ajouter une URL</span>
+                          </button>
+                        </div>
+                        <div className="space-y-2">
+                          {productForm.images.map((imageUrl, index) => (
+                            <div key={index} className="flex gap-2">
                         <input
                           type="url"
-                          value={productForm.image}
+                                value={imageUrl}
                           onChange={(e) => {
-                            setProductForm({ ...productForm, image: e.target.value })
-                            if (e.target.value && !selectedProductFile) {
-                              setPreviewProductUrl(e.target.value)
-                            }
+                                  const newImages = [...productForm.images]
+                                  newImages[index] = e.target.value
+                                  setProductForm({ ...productForm, images: newImages })
                           }}
                           placeholder="https://example.com/image.jpg"
-                          disabled={!!selectedProductFile}
-                          className="w-full px-4 py-2 rounded-lg 
+                                className="flex-1 px-4 py-2 rounded-lg 
                             [data-theme='dark']:bg-secondary-800 [data-theme='dark']:border-secondary-700 [data-theme='dark']:text-white
                             [data-theme='light']:bg-white [data-theme='light']:border-secondary-300 [data-theme='light']:text-dark-500 [data-theme='light']:border-2
-                            border focus:outline-none focus:border-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                                  border focus:outline-none focus:border-primary-500"
                           style={{
                             color: isDark ? '#ffffff' : '#111827',
                             WebkitTextFillColor: isDark ? '#ffffff' : '#111827',
@@ -2633,6 +2949,21 @@ const Dashboard = () => {
                             borderColor: isDark ? '#374151' : '#d1d5db',
                           }}
                         />
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveProductImageUrl(index)}
+                                className="px-3 py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-400 transition-colors"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ))}
+                          {productForm.images.length === 0 && (
+                            <p className="text-xs text-secondary-400 [data-theme='light']:text-secondary-500 italic">
+                              Aucune URL d'image. Cliquez sur "Ajouter une URL" pour en ajouter.
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -2645,6 +2976,14 @@ const Dashboard = () => {
                       onClick={() => {
                         setShowProductForm(false)
                         setEditingProduct(null)
+                        setProductForm({ name: '', description: '', price: '', category: 'hardware', rating: '', stock: '', image: '', images: [], discount_percentage: '', promotion_start_date: '', promotion_end_date: '', is_on_promotion: false })
+                        setSelectedProductFiles([])
+                        previewProductUrls.forEach((url) => {
+                          if (url.startsWith('blob:')) {
+                            URL.revokeObjectURL(url)
+                          }
+                        })
+                        setPreviewProductUrls([])
                       }}
                       className="btn-secondary"
                     >
@@ -2659,13 +2998,109 @@ const Dashboard = () => {
               <div className="text-center py-12">
                 <div className="inline-block w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
               </div>
-            ) : products.length === 0 ? (
-              <div className="text-center py-12 text-secondary-400 [data-theme='light']:text-secondary-600">
-                Aucun produit pour le moment
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {products.map((product) => (
+            ) : (() => {
+              // Filtrer et trier les produits
+              let filteredProducts = [...products]
+
+              // Filtre par recherche
+              if (productSearch) {
+                const searchLower = productSearch.toLowerCase()
+                filteredProducts = filteredProducts.filter(product =>
+                  product.name.toLowerCase().includes(searchLower) ||
+                  product.description.toLowerCase().includes(searchLower) ||
+                  product.category.toLowerCase().includes(searchLower)
+                )
+              }
+
+              // Filtre par catégorie
+              if (productCategoryFilter !== 'all') {
+                filteredProducts = filteredProducts.filter(product =>
+                  product.category === productCategoryFilter
+                )
+              }
+
+              // Filtre par stock
+              if (productStockFilter !== 'all') {
+                filteredProducts = filteredProducts.filter(product => {
+                  switch (productStockFilter) {
+                    case 'out':
+                      return product.stock === 0
+                    case 'low':
+                      return product.stock > 0 && product.stock <= 1
+                    case 'warning':
+                      return product.stock > 1 && product.stock <= 5
+                    case 'ok':
+                      return product.stock > 5
+                    default:
+                      return true
+                  }
+                })
+              }
+
+              // Trier les produits
+              filteredProducts.sort((a, b) => {
+                switch (productSort) {
+                  case 'name':
+                    return a.name.localeCompare(b.name)
+                  case 'price':
+                    return a.price - b.price
+                  case 'stock':
+                    return a.stock - b.stock
+                  case 'date':
+                  default:
+                    return new Date(b.created_at || b.updated_at || 0).getTime() - new Date(a.created_at || a.updated_at || 0).getTime()
+                }
+              })
+
+              if (products.length === 0) {
+                return (
+                  <div className="text-center py-12 text-secondary-400 [data-theme='light']:text-secondary-600">
+                    Aucun produit pour le moment
+                  </div>
+                )
+              }
+
+              if (filteredProducts.length === 0) {
+                return (
+                  <div className="text-center py-12 text-secondary-400 [data-theme='light']:text-secondary-600">
+                    Aucun produit ne correspond à vos critères de recherche
+                    {(productSearch || productCategoryFilter !== 'all' || productStockFilter !== 'all') && (
+                      <div className="mt-4">
+                        <button
+                          onClick={() => {
+                            setProductSearch('')
+                            setProductCategoryFilter('all')
+                            setProductStockFilter('all')
+                          }}
+                          className="text-primary-400 hover:text-primary-300 underline"
+                        >
+                          Réinitialiser les filtres
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )
+              }
+
+              return (
+                <>
+                  <div className="mb-4 text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
+                    {filteredProducts.length} produit{filteredProducts.length > 1 ? 's' : ''} trouvé{filteredProducts.length > 1 ? 's' : ''}
+                    {productSearch || productCategoryFilter !== 'all' || productStockFilter !== 'all' ? (
+                      <button
+                        onClick={() => {
+                          setProductSearch('')
+                          setProductCategoryFilter('all')
+                          setProductStockFilter('all')
+                        }}
+                        className="ml-2 text-primary-400 hover:text-primary-300 underline"
+                      >
+                        Réinitialiser les filtres
+                      </button>
+                    ) : null}
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredProducts.map((product) => (
                   <motion.div
                     key={product.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -2703,9 +3138,38 @@ const Dashboard = () => {
                         </div>
                       )}
                     </div>
-                    <p className="text-xs text-secondary-500 mb-4">
-                      Stock: {product.stock}
-                    </p>
+                    <div className="mb-4">
+                      <div className={`flex items-center justify-between px-3 py-2 rounded-lg ${
+                        product.stock === 0 
+                          ? 'bg-red-500/20 border border-red-500/50' 
+                          : product.stock <= 1 
+                          ? 'bg-yellow-500/20 border border-yellow-500/50' 
+                          : product.stock <= 5 
+                          ? 'bg-orange-500/20 border border-orange-500/50' 
+                          : 'bg-green-500/20 border border-green-500/50'
+                      }`}>
+                        <span className={`text-xs font-semibold ${
+                          product.stock === 0 
+                            ? 'text-red-400' 
+                            : product.stock <= 1 
+                            ? 'text-yellow-400' 
+                            : product.stock <= 5 
+                            ? 'text-orange-400' 
+                            : 'text-green-400'
+                        }`}>
+                          Stock: {product.stock}
+                        </span>
+                        {product.stock === 0 && (
+                          <span className="text-xs text-red-400 font-bold">RUPTURE</span>
+                        )}
+                        {product.stock > 0 && product.stock <= 1 && (
+                          <span className="text-xs text-yellow-400 font-bold">⚠️ FAIBLE</span>
+                        )}
+                        {product.stock > 1 && product.stock <= 5 && (
+                          <span className="text-xs text-orange-400 font-bold">ATTENTION</span>
+                        )}
+                      </div>
+                    </div>
                     <div className="flex space-x-2">
                       <button
                         onClick={() => handleEditProduct(product)}
@@ -2722,9 +3186,11 @@ const Dashboard = () => {
                       </button>
                     </div>
                   </motion.div>
-                ))}
-              </div>
-            )}
+                    ))}
+                  </div>
+                </>
+              )
+            })()}
           </div>
         )}
 

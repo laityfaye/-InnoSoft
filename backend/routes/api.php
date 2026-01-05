@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\TeamController;
 use App\Http\Controllers\Api\TestimonialController;
 use App\Http\Controllers\Api\VideoController;
 use App\Http\Controllers\Api\QRCodeController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\Admin\ContactMessageController;
 
 /*
@@ -40,6 +41,10 @@ Route::middleware('api')->group(function () {
     
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/{id}', [ProductController::class, 'show']);
+    
+    // Orders - public routes
+    Route::post('/orders', [OrderController::class, 'store']);
+    Route::get('/orders/{id}', [OrderController::class, 'show']);
     
     // Testimonials - public routes
     Route::get('/testimonials', [TestimonialController::class, 'index']);

@@ -140,6 +140,22 @@ export const contactApi = {
     api.post('/contact', data),
 }
 
+// Orders
+export const ordersApi = {
+  create: (data: {
+    customer_name: string
+    customer_email: string
+    customer_phone?: string
+    shipping_address: string
+    city?: string
+    country?: string
+    payment_method?: string
+    notes?: string
+    items: Array<{ product_id: number; quantity: number }>
+  }) => api.post('/orders', data),
+  getById: (id: number) => api.get(`/orders/${id}`),
+}
+
 // Contact Messages (Admin)
 export const contactMessagesApi = {
   getAll: () => api.get('/admin/contact-messages'),
