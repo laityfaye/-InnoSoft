@@ -1,18 +1,9 @@
 User-agent: *
 Allow: /
 
-# Sitemap
-Sitemap: https://innosft.com/sitemap.xml
-
-# Disallow admin routes
+# Block admin and private routes
 Disallow: /admin/
 
-# Allow all other routes
-Allow: /
-Allow: /services
-Allow: /portfolio
-Allow: /about
-Allow: /contact
-Allow: /blog
-Allow: /products
+# Sitemap
+Sitemap: https://innosft.com/sitemap.xml
 
