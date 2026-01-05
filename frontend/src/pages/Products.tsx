@@ -54,30 +54,6 @@ const Products = () => {
   const [showFilters, setShowFilters] = useState(false)
 
   const categories = ['all', 'hardware', 'software', 'accessories', 'services']
-    const savedCart = localStorage.getItem('innosoft_cart')
-    if (savedCart) {
-      try {
-        const parsedCart = JSON.parse(savedCart)
-        // Protection : ne pas remplacer un panier non vide par un panier vide
-        if (parsedCart.length === 0 && cart.length > 0 && !force) {
-          console.warn('Attempted to load empty cart but current cart has items. Keeping current cart.')
-          return
-        }
-        // Ne mettre à jour que si le panier chargé est différent de l'actuel
-        const currentCartStr = JSON.stringify(cart)
-        const savedCartStr = JSON.stringify(parsedCart)
-        if (currentCartStr !== savedCartStr) {
-          setCart(parsedCart)
-        }
-      } catch (error) {
-        console.error('Error loading cart from localStorage:', error)
-      }
-    } else if (cart.length > 0) {
-      // Si localStorage est vide mais qu'on a des items, ne pas vider (protection)
-      // Cela peut arriver si localStorage a été vidé par erreur ou pendant une transition
-      console.warn('localStorage cart is empty but cart state has items. Keeping current cart.')
-    }
-  }
 
   // Charger le panier au montage (une seule fois)
   useEffect(() => {
