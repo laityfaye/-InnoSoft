@@ -27,7 +27,6 @@ interface Product {
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { isDark } = useTheme()
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -103,10 +102,6 @@ const ProductDetail = () => {
       }
 
       setProduct(foundProduct)
-      // Initialiser avec la première image disponible
-      const productImages = foundProduct.images && foundProduct.images.length > 0 
-        ? foundProduct.images 
-        : (foundProduct.image ? [foundProduct.image] : [])
       setSelectedImageIndex(0)
 
       // Charger les produits liés (même catégorie)
@@ -409,7 +404,7 @@ const ProductDetail = () => {
         description={product.description}
         image={currentImage || product.image || undefined}
         url={`/products/${product.id}`}
-        structuredData={structuredData}
+        structuredData={structuredData || undefined}
       />
       <div className="min-h-screen pt-32 pb-20">
         <div className="container-custom max-w-7xl">

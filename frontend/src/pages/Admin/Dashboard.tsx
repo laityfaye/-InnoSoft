@@ -47,6 +47,8 @@ interface Product {
   promotion_start_date?: string | null
   promotion_end_date?: string | null
   is_on_promotion?: boolean
+  created_at?: string
+  updated_at?: string
 }
 
 interface Partner {

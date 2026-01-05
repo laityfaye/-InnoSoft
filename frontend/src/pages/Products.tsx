@@ -54,9 +54,6 @@ const Products = () => {
   const [showFilters, setShowFilters] = useState(false)
 
   const categories = ['all', 'hardware', 'software', 'accessories', 'services']
-
-  // Fonction pour charger le panier depuis localStorage
-  const loadCart = (force = false) => {
     const savedCart = localStorage.getItem('innosoft_cart')
     if (savedCart) {
       try {
@@ -244,7 +241,7 @@ const Products = () => {
   // Initialiser priceRange avec les bounds quand les produits sont chargés
   useEffect(() => {
     if (products.length > 0 && priceRange[1] === 1000000 && priceBounds[1] !== 1000000) {
-      setPriceRange(priceBounds)
+      setPriceRange([priceBounds[0], priceBounds[1]] as [number, number])
     }
   }, [products.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -865,7 +862,7 @@ const Products = () => {
                   {/* Action Buttons */}
                   <div className="flex gap-2">
                     <button
-                      onClick={(e) => handleProductClick(product.id)}
+                      onClick={() => handleProductClick(product.id)}
                       className="flex-1 btn-secondary flex items-center justify-center space-x-2"
                     >
                       <Eye className="w-4 h-4" />

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { ShoppingCart, MapPin, Phone, Mail, User, CreditCard, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react'
+import { ShoppingCart, MapPin, User, CreditCard, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react'
 import { useTheme } from '../hooks/useTheme'
 import { ordersApi } from '../services/api'
 import SEO from '../components/SEO'
