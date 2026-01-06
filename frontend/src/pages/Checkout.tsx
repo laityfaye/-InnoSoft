@@ -90,15 +90,44 @@ const Checkout = () => {
   const markersRef = useRef<any[]>([])
   const initMapAttemptsRef = useRef<number>(0)
 
-  const [formData, setFormData] = useState({
-    customer_name: '',
-    customer_email: '',
-    customer_phone: '',
-    shipping_address: '',
-    city: '',
-    country: 'Sénégal',
-    payment_method: 'cash',
-    notes: '',
+  // Clés pour le stockage
+  const CUSTOMER_INFO_KEY = 'innosoft_customer_info'
+  const CHECKOUT_FORM_KEY = 'innosoft_checkout_form'
+
+  const [formData, setFormData] = useState(() => {
+    // Charger les informations sauvegardées depuis localStorage (infos client) ou sessionStorage (formulaire en cours)
+    const savedCustomerInfo = localStorage.getItem(CUSTOMER_INFO_KEY)
+    const savedFormData = sessionStorage.getItem(CHECKOUT_FORM_KEY)
+    
+    const defaultData = {
+      customer_name: '',
+      customer_email: '',
+      customer_phone: '',
+      shipping_address: '',
+      city: '',
+      country: 'Sénégal',
+      payment_method: 'cash',
+      notes: '',
+    }
+
+    // Priorité : sessionStorage (formulaire en cours) > localStorage (infos client sauvegardées)
+    if (savedFormData) {
+      try {
+        const parsed = JSON.parse(savedFormData)
+        return { ...defaultData, ...parsed }
+      } catch (e) {
+        console.error('Erreur lors du chargement du formulaire:', e)
+      }
+    } else if (savedCustomerInfo) {
+      try {
+        const parsed = JSON.parse(savedCustomerInfo)
+        return { ...defaultData, ...parsed }
+      } catch (e) {
+        console.error('Erreur lors du chargement des infos client:', e)
+      }
+    }
+
+    return defaultData
   })
 
   // Charger le panier depuis localStorage
@@ -875,10 +904,18 @@ const Checkout = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
-    setFormData({
+    const newFormData = {
       ...formData,
       [name]: value,
-    })
+    }
+    setFormData(newFormData)
+    
+    // Sauvegarder dans sessionStorage pour conserver les données si l'utilisateur quitte la page
+    try {
+      sessionStorage.setItem(CHECKOUT_FORM_KEY, JSON.stringify(newFormData))
+    } catch (e) {
+      console.error('Erreur lors de la sauvegarde du formulaire:', e)
+    }
     
     if (touched[name]) {
       const fieldError = validateField(name, value)
@@ -970,6 +1007,24 @@ const Checkout = () => {
       if (response.data.success) {
         setIsSubmitted(true)
         setOrderNumber(response.data.data.order_number)
+        
+        // Sauvegarder les informations du client dans localStorage pour les prochaines commandes
+        const customerInfo = {
+          customer_name: formData.customer_name.trim(),
+          customer_email: formData.customer_email.trim(),
+          customer_phone: formData.customer_phone.trim(),
+          shipping_address: formData.shipping_address.trim(),
+          city: formData.city.trim(),
+          country: formData.country,
+        }
+        try {
+          localStorage.setItem(CUSTOMER_INFO_KEY, JSON.stringify(customerInfo))
+        } catch (e) {
+          console.error('Erreur lors de la sauvegarde des infos client:', e)
+        }
+        
+        // Nettoyer le formulaire en cours de sessionStorage
+        sessionStorage.removeItem(CHECKOUT_FORM_KEY)
         
         // Vider le panier
         localStorage.removeItem('innosoft_cart')
@@ -1087,7 +1142,7 @@ const Checkout = () => {
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
                 {/* Formulaire */}
-                <div className="lg:col-span-2 order-2 lg:order-1">
+                <div className="lg:col-span-2 order-1">
                   <motion.form
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -1622,6 +1677,103 @@ const Checkout = () => {
                       </div>
                     </motion.div>
 
+                    {/* Récapitulatif - Affiché en bas sur mobile, à droite sur desktop */}
+                    <div className="lg:hidden">
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="glass-effect rounded-xl p-4 md:p-6 mb-6"
+                      >
+                        <h2 className="text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-6 flex items-center space-x-2">
+                          <ShoppingCart className="w-6 h-6 text-primary-400" />
+                          <span>Récapitulatif</span>
+                        </h2>
+
+                        <div className="space-y-4 mb-6">
+                          {cart.map((item) => {
+                            const productImage = (item.product.images && item.product.images.length > 0)
+                              ? item.product.images[0]
+                              : item.product.image
+
+                            return (
+                              <div key={item.product.id} className="flex items-start space-x-3 pb-4 border-b [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200">
+                                {productImage && (
+                                  <img
+                                    src={productImage}
+                                    alt={item.product.name}
+                                    className="w-16 h-16 rounded-lg object-cover"
+                                  />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="font-semibold text-white [data-theme='light']:text-dark-500 text-sm line-clamp-2">
+                                    {item.product.name}
+                                  </h4>
+                                  <p className="text-xs text-secondary-400 [data-theme='light']:text-secondary-600 mt-1">
+                                    Qté: {item.quantity} × {formatPrice(getCurrentPrice(item.product))}
+                                  </p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="font-bold text-white [data-theme='light']:text-dark-500">
+                                    {formatPrice(getCurrentPrice(item.product) * item.quantity)}
+                                  </p>
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+
+                        <div className="border-t [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200 pt-4 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
+                              Sous-total
+                            </span>
+                            <span className="text-sm font-semibold text-white [data-theme='light']:text-dark-500">
+                              {formatPrice(getSubtotal())}
+                            </span>
+                          </div>
+                          
+                          {deliveryType === 'delivery' && deliveryFee > 0 && (
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
+                                Frais de livraison
+                                {distance !== null && (
+                                  <span className="block text-xs mt-0.5">
+                                    {distance <= DELIVERY_BASE_DISTANCE 
+                                      ? `(${distance} km - tarif de base)`
+                                      : `(${DELIVERY_BASE_DISTANCE} km à ${DELIVERY_BASE_FEE} F + ${(distance - DELIVERY_BASE_DISTANCE).toFixed(1)} km × ${DELIVERY_FEE_PER_KM} F/km)`
+                                    }
+                                  </span>
+                                )}
+                              </span>
+                              <span className="text-sm font-semibold text-primary-400">
+                                {formatPrice(deliveryFee)}
+                              </span>
+                            </div>
+                          )}
+                          
+                          {deliveryType === 'pickup' && (
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
+                                Retrait sur place
+                              </span>
+                              <span className="text-sm font-semibold text-primary-400">
+                                Gratuit
+                              </span>
+                            </div>
+                          )}
+
+                          <div className="flex items-center justify-between pt-2 border-t [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200">
+                            <span className="text-lg font-semibold text-white [data-theme='light']:text-dark-500">
+                              Total
+                            </span>
+                            <span className="text-2xl font-bold gradient-text">
+                              {formatPrice(getTotalPrice())}
+                            </span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    </div>
+
                     {/* Bouton de soumission */}
                     <button
                       type="submit"
@@ -1643,13 +1795,13 @@ const Checkout = () => {
                   </motion.form>
                 </div>
 
-                {/* Récapitulatif */}
-                <div className="lg:col-span-1 order-1 lg:order-2">
+                {/* Récapitulatif - Affiché à droite sur desktop uniquement */}
+                <div className="hidden lg:block lg:col-span-1">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="glass-effect rounded-xl p-4 md:p-6 sticky top-20 lg:top-32 mb-6 lg:mb-0"
+                    className="glass-effect rounded-xl p-4 md:p-6 sticky top-20 lg:top-32"
                   >
                     <h2 className="text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-6 flex items-center space-x-2">
                       <ShoppingCart className="w-6 h-6 text-primary-400" />
