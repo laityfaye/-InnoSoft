@@ -474,7 +474,7 @@ const Products = () => {
         url="/products"
         structuredData={structuredData}
       />
-      <div className="pt-16 sm:pt-20 md:pt-24 lg:pt-32 pb-20 min-h-screen">
+      <div className="pt-16 sm:pt-20 md:pt-24 lg:pt-32 pb-20 min-h-screen relative">
       {/* Hero Section */}
       <section className="container-custom mb-12">
         <motion.div
@@ -564,10 +564,10 @@ const Products = () => {
               <span className="hidden md:inline">Filtres</span>
             </button>
 
-            {/* Cart Button */}
+            {/* Cart Button - Mobile Only */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="relative px-6 py-3 rounded-xl bg-gradient-primary text-white font-semibold flex items-center space-x-2 hover:shadow-glow transition-all transform hover:scale-105"
+              className="relative px-6 py-3 rounded-xl bg-gradient-primary text-white font-semibold flex items-center space-x-2 hover:shadow-glow transition-all transform hover:scale-105 lg:hidden"
             >
               <ShoppingCart className="w-5 h-5" />
               <span className="hidden md:inline">Panier</span>
@@ -686,7 +686,7 @@ const Products = () => {
       </section>
 
       {/* Products Grid */}
-      <section className="container-custom">
+      <section className="container-custom lg:pr-[400px]">
         {loading ? (
           <div className="text-center py-20">
             <div className="inline-block w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mb-4" />
@@ -910,7 +910,186 @@ const Products = () => {
         )}
       </section>
 
-      {/* Cart Sidebar */}
+      {/* Floating Cart Icon - Always Visible */}
+      <motion.button
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => {
+          // Sur desktop, scroll vers le panier flottant, sur mobile ouvrir le panier
+          if (window.innerWidth >= 1024) {
+            const cartElement = document.querySelector('[data-cart-summary]')
+            if (cartElement) {
+              cartElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            }
+          } else {
+            setIsCartOpen(true)
+          }
+        }}
+        className="fixed bottom-6 right-6 lg:bottom-6 lg:right-[400px] z-50 w-16 h-16 rounded-full bg-gradient-primary text-white shadow-glow flex items-center justify-center hover:shadow-glow-lg transition-all"
+        aria-label="Accéder au panier"
+      >
+        <ShoppingCart className="w-6 h-6" />
+        {cart.length > 0 && (
+          <motion.span
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="absolute -top-2 -right-2 w-7 h-7 bg-accent-500 rounded-full flex items-center justify-center text-xs font-bold shadow-lg"
+          >
+            {cart.reduce((sum, item) => sum + item.quantity, 0)}
+          </motion.span>
+        )}
+      </motion.button>
+
+      {/* Floating Cart Summary - Always Visible on Desktop */}
+      <motion.div
+        initial={{ x: '100%' }}
+        animate={{ x: 0 }}
+        data-cart-summary
+        className="hidden lg:block fixed right-0 top-0 h-screen w-96 glass-effect z-40 overflow-y-auto border-l [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200"
+      >
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500">
+              Récapitulatif
+            </h2>
+            <button
+              onClick={() => setIsCartOpen(!isCartOpen)}
+              className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+              aria-label={isCartOpen ? "Fermer le panier" : "Ouvrir le panier"}
+            >
+              {isCartOpen ? (
+                <X className="w-6 h-6 text-secondary-400" />
+              ) : (
+                <ShoppingCart className="w-6 h-6 text-secondary-400" />
+              )}
+            </button>
+          </div>
+
+          {cart.length === 0 ? (
+            <div className="text-center py-12">
+              <ShoppingBag className="w-16 h-16 text-secondary-400 mx-auto mb-4" />
+              <p className="text-secondary-400 [data-theme='light']:text-secondary-600">
+                Votre panier est vide
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-4 mb-6 max-h-[calc(100vh-300px)] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-primary-500/50 scrollbar-track-transparent">
+                {cart.map((item) => {
+                  const productImage = (item.product.images && item.product.images.length > 0)
+                    ? item.product.images[0]
+                    : item.product.image;
+                  
+                  return (
+                    <motion.div
+                      key={item.product.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="glass-effect rounded-lg p-4"
+                    >
+                      <div className="flex items-start gap-3 mb-3">
+                        <div className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border
+                          [data-theme='dark']:border-secondary-700
+                          [data-theme='light']:border-secondary-300">
+                          {productImage ? (
+                            <img
+                              src={productImage}
+                              alt={item.product.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement
+                                target.style.display = 'none'
+                                const parent = target.parentElement
+                                if (parent) {
+                                  parent.innerHTML = `<div class="w-full h-full bg-gradient-to-br ${getCategoryColor(item.product.category)} opacity-20 flex items-center justify-center"><svg class="w-10 h-10 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg></div>`
+                                }
+                              }}
+                            />
+                          ) : (
+                            <div className={`w-full h-full bg-gradient-to-br ${getCategoryColor(item.product.category)} opacity-20 flex items-center justify-center`}>
+                              <ShoppingBag className="w-10 h-10 text-white/50" />
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between mb-1">
+                            <h4 className="font-semibold text-white [data-theme='light']:text-dark-500 text-sm line-clamp-2 flex-1">
+                              {item.product.name}
+                            </h4>
+                            <button
+                              onClick={() => removeFromCart(item.product.id)}
+                              className="p-1 hover:bg-white/10 rounded transition-colors flex-shrink-0 ml-2"
+                              aria-label="Supprimer du panier"
+                            >
+                              <X className="w-4 h-4 text-secondary-400" />
+                            </button>
+                          </div>
+                          <p className="text-xs text-secondary-400 [data-theme='light']:text-secondary-600 mb-2">
+                            {formatPrice(getCurrentPrice(item.product))} / unité
+                            {isPromotionActive(item.product) && item.product.price !== getCurrentPrice(item.product) && (
+                              <span className="ml-2 text-xs line-through opacity-60">
+                                {formatPrice(item.product.price)}
+                              </span>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <button
+                            onClick={() => updateQuantity(item.product.id, -1)}
+                            className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                          >
+                            <Minus className="w-4 h-4 text-white [data-theme='light']:text-dark-500" />
+                          </button>
+                          <span className="text-white [data-theme='light']:text-dark-500 font-semibold w-8 text-center">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => updateQuantity(item.product.id, 1)}
+                            disabled={item.quantity >= item.product.stock}
+                            className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <Plus className="w-4 h-4 text-white [data-theme='light']:text-dark-500" />
+                          </button>
+                        </div>
+                        <span className="font-bold gradient-text text-lg">
+                          {formatPrice(getCurrentPrice(item.product) * item.quantity)}
+                        </span>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              <div className="border-t [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200 pt-4 mb-4 sticky bottom-0 bg-inherit">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-lg font-semibold text-white [data-theme='light']:text-dark-500">
+                    Total
+                  </span>
+                  <span className="text-2xl font-bold gradient-text">
+                    {formatPrice(getTotalPrice())}
+                  </span>
+                </div>
+                <button 
+                  onClick={() => {
+                    navigate('/checkout')
+                  }}
+                  className="w-full btn-primary flex items-center justify-center space-x-2"
+                >
+                  <Check className="w-5 h-5" />
+                  <span>Passer la commande</span>
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </motion.div>
+
+      {/* Cart Sidebar - Mobile Only */}
       <AnimatePresence>
         {isCartOpen && (
           <>
@@ -919,14 +1098,14 @@ const Products = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsCartOpen(false)}
-              className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
+              className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm lg:hidden"
             />
             <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed right-0 top-0 h-full w-full md:w-96 glass-effect z-50 overflow-y-auto"
+              className="fixed right-0 top-0 h-full w-full md:w-96 glass-effect z-50 overflow-y-auto lg:hidden"
             >
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
