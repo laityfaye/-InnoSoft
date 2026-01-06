@@ -1140,7 +1140,7 @@ const Checkout = () => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 lg:pr-80">
                 {/* Formulaire */}
                 <div className="lg:col-span-2 order-1">
                   <motion.form
@@ -1795,14 +1795,16 @@ const Checkout = () => {
                   </motion.form>
                 </div>
 
-                {/* Récapitulatif - Affiché à droite sur desktop uniquement, toujours visible */}
-                <div className="hidden lg:block lg:col-span-1">
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="glass-effect rounded-xl p-4 md:p-6 sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto"
-                  >
+                {/* Récapitulatif - Affiché à droite sur desktop uniquement, toujours visible et fixe */}
+                <div className="hidden lg:block fixed right-0 top-0 h-screen w-80 z-30 pointer-events-none">
+                  <div className="h-full w-full pointer-events-auto overflow-y-auto">
+                    <motion.div
+                      initial={{ x: '100%' }}
+                      animate={{ x: 0 }}
+                      transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                      className="h-full glass-effect border-l [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200"
+                    >
+                      <div className="p-4 md:p-6">
                     <h2 className="text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-6 flex items-center space-x-2">
                       <ShoppingCart className="w-6 h-6 text-primary-400" />
                       <span>Récapitulatif</span>
@@ -1894,7 +1896,9 @@ const Checkout = () => {
                         </span>
                       </div>
                     </div>
-                  </motion.div>
+                      </div>
+                    </motion.div>
+                  </div>
                 </div>
               </div>
             </>
