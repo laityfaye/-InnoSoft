@@ -1140,7 +1140,7 @@ const Checkout = () => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 lg:pr-80">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
                 {/* Formulaire */}
                 <div className="lg:col-span-2 order-1">
                   <motion.form
@@ -1795,46 +1795,50 @@ const Checkout = () => {
                   </motion.form>
                 </div>
 
-                {/* Récapitulatif - Affiché à droite sur desktop uniquement, toujours visible et fixe */}
-                <div className="hidden lg:block fixed right-0 top-0 h-screen w-80 z-30 pointer-events-none">
-                  <div className="h-full w-full pointer-events-auto overflow-y-auto">
-                    <motion.div
-                      initial={{ x: '100%' }}
-                      animate={{ x: 0 }}
-                      transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                      className="h-full glass-effect border-l [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200"
-                    >
-                      <div className="p-4 md:p-6">
-                    <h2 className="text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-6 flex items-center space-x-2">
-                      <ShoppingCart className="w-6 h-6 text-primary-400" />
-                      <span>Récapitulatif</span>
-                    </h2>
+                {/* Récapitulatif - Affiché à droite sur desktop uniquement, sticky pour rester visible */}
+                <div className="hidden lg:block lg:col-span-1">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="glass-effect rounded-xl p-6 sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto shadow-2xl border-2 border-primary-500/20 hover:border-primary-500/40 transition-all"
+                  >
+                    <div className="flex items-center justify-between mb-6 pb-4 border-b [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200">
+                      <h2 className="text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 flex items-center space-x-2">
+                        <div className="p-2 rounded-lg bg-gradient-primary">
+                          <ShoppingCart className="w-5 h-5 text-white" />
+                        </div>
+                        <span>Récapitulatif</span>
+                      </h2>
+                    </div>
 
-                    <div className="space-y-4 mb-6">
+                    <div className="space-y-3 mb-6 max-h-[calc(100vh-450px)] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-primary-500/30 scrollbar-track-transparent">
                       {cart.map((item) => {
                         const productImage = (item.product.images && item.product.images.length > 0)
                           ? item.product.images[0]
                           : item.product.image
 
                         return (
-                          <div key={item.product.id} className="flex items-start space-x-3 pb-4 border-b [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200">
-                            {productImage && (
-                              <img
-                                src={productImage}
-                                alt={item.product.name}
-                                className="w-16 h-16 rounded-lg object-cover"
-                              />
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-semibold text-white [data-theme='light']:text-dark-500 text-sm line-clamp-2">
-                                {item.product.name}
-                              </h4>
-                              <p className="text-xs text-secondary-400 [data-theme='light']:text-secondary-600 mt-1">
-                                Qté: {item.quantity} × {formatPrice(getCurrentPrice(item.product))}
-                              </p>
+                          <div key={item.product.id} className="glass-effect rounded-lg p-3 border border-primary-500/10 hover:border-primary-500/30 transition-all">
+                            <div className="flex items-start space-x-3">
+                              {productImage && (
+                                <img
+                                  src={productImage}
+                                  alt={item.product.name}
+                                  className="w-14 h-14 rounded-lg object-cover flex-shrink-0"
+                                />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-semibold text-white [data-theme='light']:text-dark-500 text-sm line-clamp-2 mb-1">
+                                  {item.product.name}
+                                </h4>
+                                <p className="text-xs text-secondary-400 [data-theme='light']:text-secondary-600">
+                                  Qté: {item.quantity} × {formatPrice(getCurrentPrice(item.product))}
+                                </p>
+                              </div>
                             </div>
-                            <div className="text-right">
-                              <p className="font-bold text-white [data-theme='light']:text-dark-500">
+                            <div className="mt-2 pt-2 border-t [data-theme='dark']:border-white/5 [data-theme='light']:border-secondary-200/50">
+                              <p className="text-right font-bold gradient-text text-base">
                                 {formatPrice(getCurrentPrice(item.product) * item.quantity)}
                               </p>
                             </div>
@@ -1843,9 +1847,9 @@ const Checkout = () => {
                       })}
                     </div>
 
-                    <div className="border-t [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200 pt-4 space-y-2">
+                    <div className="border-t-2 [data-theme='dark']:border-primary-500/30 [data-theme='light']:border-primary-500/20 pt-4 space-y-3 bg-gradient-to-br from-primary-500/5 to-transparent rounded-lg p-4 -mx-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
+                        <span className="text-sm font-medium text-secondary-400 [data-theme='light']:text-secondary-600">
                           Sous-total
                         </span>
                         <span className="text-sm font-semibold text-white [data-theme='light']:text-dark-500">
@@ -1855,21 +1859,19 @@ const Checkout = () => {
                       
                       {deliveryType === 'delivery' && deliveryFee > 0 && (
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
-                            Frais de livraison
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium text-secondary-400 [data-theme='light']:text-secondary-600">
+                              Frais de livraison
+                            </span>
                             {distance !== null && (
-                              <span className="block text-xs mt-0.5">
-                                {distance !== null && (
-                                  <span className="block text-xs mt-0.5">
-                                    {distance <= DELIVERY_BASE_DISTANCE 
-                                      ? `(${distance} km - tarif de base)`
-                                      : `(${DELIVERY_BASE_DISTANCE} km à ${DELIVERY_BASE_FEE} F + ${(distance - DELIVERY_BASE_DISTANCE).toFixed(1)} km × ${DELIVERY_FEE_PER_KM} F/km)`
-                                    }
-                                  </span>
-                                )}
+                              <span className="text-xs text-secondary-500 mt-0.5">
+                                {distance <= DELIVERY_BASE_DISTANCE 
+                                  ? `(${distance} km - tarif de base)`
+                                  : `(${DELIVERY_BASE_DISTANCE} km à ${DELIVERY_BASE_FEE} F + ${(distance - DELIVERY_BASE_DISTANCE).toFixed(1)} km × ${DELIVERY_FEE_PER_KM} F/km)`
+                                }
                               </span>
                             )}
-                          </span>
+                          </div>
                           <span className="text-sm font-semibold text-primary-400">
                             {formatPrice(deliveryFee)}
                           </span>
@@ -1878,7 +1880,7 @@ const Checkout = () => {
                       
                       {deliveryType === 'pickup' && (
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
+                          <span className="text-sm font-medium text-secondary-400 [data-theme='light']:text-secondary-600">
                             Retrait sur place
                           </span>
                           <span className="text-sm font-semibold text-primary-400">
@@ -1887,18 +1889,16 @@ const Checkout = () => {
                         </div>
                       )}
 
-                      <div className="flex items-center justify-between pt-2 border-t [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200">
-                        <span className="text-lg font-semibold text-white [data-theme='light']:text-dark-500">
+                      <div className="flex items-center justify-between pt-3 border-t-2 [data-theme='dark']:border-primary-500/30 [data-theme='light']:border-primary-500/20">
+                        <span className="text-lg font-bold text-white [data-theme='light']:text-dark-500">
                           Total
                         </span>
-                        <span className="text-2xl font-bold gradient-text">
+                        <span className="text-2xl font-black gradient-text">
                           {formatPrice(getTotalPrice())}
                         </span>
                       </div>
                     </div>
-                      </div>
-                    </motion.div>
-                  </div>
+                  </motion.div>
                 </div>
               </div>
             </>
