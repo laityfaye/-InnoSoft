@@ -819,7 +819,7 @@ const Checkout = () => {
       const geocoder = new window.google.maps.Geocoder()
       const address = `${formData.shipping_address}, ${formData.city}, ${formData.country || 'Sénégal'}`
 
-      geocoder.geocode({ address }, (results, status) => {
+      geocoder.geocode({ address }, (results: any, status: string) => {
         setIsLoadingLocation(false)
         
         if (status === 'OK' && results && results[0]) {
