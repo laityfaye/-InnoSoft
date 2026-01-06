@@ -85,6 +85,7 @@ const Checkout = () => {
   const [mapsWarning, setMapsWarning] = useState<string | null>(null)
   const [isLoadingLocation, setIsLoadingLocation] = useState(false)
   const mapRef = useRef<HTMLDivElement>(null)
+  const summaryRef = useRef<HTMLDivElement>(null)
   // Types pour Google Maps - utiliser any car Google Maps est chargé dynamiquement
   const mapInstanceRef = useRef<any>(null)
   const markersRef = useRef<any[]>([])
@@ -151,6 +152,7 @@ const Checkout = () => {
       navigate('/products')
     }
   }, [navigate])
+
 
   // Charger Google Maps API
   useEffect(() => {
@@ -1796,15 +1798,16 @@ const Checkout = () => {
                 </div>
 
                 {/* Récapitulatif - Affiché à droite sur desktop uniquement, sticky pour rester visible */}
-                <div className="hidden lg:block lg:col-span-1 order-2">
+                <div 
+                  ref={summaryRef}
+                  className="hidden lg:block lg:col-span-1 order-2"
+                >
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="glass-effect rounded-xl p-6 shadow-2xl border-2 border-primary-500/20 hover:border-primary-500/40 transition-all z-10"
+                    className="glass-effect rounded-xl p-6 shadow-2xl border-2 border-primary-500/20 hover:border-primary-500/40 transition-all z-10 sticky top-8 self-start"
                     style={{ 
-                      position: 'sticky', 
-                      top: '2rem',
                       maxHeight: 'calc(100vh - 4rem)',
                       overflowY: 'auto',
                       scrollbarWidth: 'thin'
