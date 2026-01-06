@@ -1795,13 +1795,13 @@ const Checkout = () => {
                   </motion.form>
                 </div>
 
-                {/* Récapitulatif - Affiché à droite sur desktop uniquement */}
+                {/* Récapitulatif - Affiché à droite sur desktop uniquement, toujours visible */}
                 <div className="hidden lg:block lg:col-span-1">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="glass-effect rounded-xl p-4 md:p-6 sticky top-20 lg:top-32"
+                    className="glass-effect rounded-xl p-4 md:p-6 sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto"
                   >
                     <h2 className="text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-6 flex items-center space-x-2">
                       <ShoppingCart className="w-6 h-6 text-primary-400" />
