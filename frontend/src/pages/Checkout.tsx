@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { ShoppingCart, MapPin, User, CreditCard, CheckCircle, AlertCircle, ArrowLeft, Navigation, Package, Route, X, Tag, FileText, ChevronRight, ChevronLeft } from 'lucide-react'
+import { ShoppingCart, MapPin, User, CreditCard, CheckCircle, AlertCircle, ArrowLeft, Navigation, Package, X, Tag, FileText, ChevronRight, ChevronLeft } from 'lucide-react'
 import { useTheme } from '../hooks/useTheme'
 import { ordersApi } from '../services/api'
 import SEO from '../components/SEO'
@@ -45,6 +45,33 @@ interface PromoCode {
   discount: number
   type: 'percentage' | 'fixed'
   minAmount?: number
+}
+
+interface FormData {
+  customer_name: string
+  customer_email: string
+  customer_phone: string
+  shipping_address: string
+  city: string
+  country: string
+  payment_method: string
+  notes: string
+  promo_code: string
+}
+
+// Déclarer les types pour Google Maps Places API
+declare global {
+  interface Window {
+    google: {
+      maps: {
+        places?: {
+          AutocompleteService: new () => any
+          PlacesService: new (element: HTMLElement) => any
+        }
+        [key: string]: any
+      }
+    }
+  }
 }
 
 // Coordonnées du magasin (à configurer selon votre localisation)
@@ -122,7 +149,7 @@ const Checkout = () => {
   const CUSTOMER_INFO_KEY = 'innosoft_customer_info'
   const CHECKOUT_FORM_KEY = 'innosoft_checkout_form'
 
-  const [formData, setFormData] = useState(() => {
+  const [formData, setFormData] = useState<FormData>(() => {
     // Charger les informations sauvegardées depuis localStorage (infos client) ou sessionStorage (formulaire en cours)
     const savedCustomerInfo = localStorage.getItem(CUSTOMER_INFO_KEY)
     const savedFormData = sessionStorage.getItem(CHECKOUT_FORM_KEY)
@@ -923,7 +950,7 @@ const Checkout = () => {
         if (discount > 0) {
           setPromoDiscount(discount)
           setPromoError(null)
-          setFormData(prev => ({ ...prev, promo_code: code.toUpperCase().trim() }))
+          setFormData((prev: FormData) => ({ ...prev, promo_code: code.toUpperCase().trim() }))
         } else {
           setPromoError(`Le montant minimum de ${formatPrice(promo.minAmount || 0)} n'est pas atteint`)
           setPromoDiscount(0)
@@ -939,7 +966,7 @@ const Checkout = () => {
   
   // Gérer l'autocomplétion d'adresse
   const handleAddressInput = useCallback((value: string) => {
-    setFormData(prev => ({ ...prev, shipping_address: value }))
+    setFormData((prev: FormData) => ({ ...prev, shipping_address: value }))
     
     if (!autocompleteService || value.length < 3) {
       setShowAddressSuggestions(false)
@@ -978,7 +1005,7 @@ const Checkout = () => {
           comp.types.includes('country')
         )?.long_name || 'Sénégal'
         
-        setFormData(prev => ({
+        setFormData((prev: FormData) => ({
           ...prev,
           shipping_address: address,
           city: city || prev.city,
@@ -1005,8 +1032,8 @@ const Checkout = () => {
   // Initialiser les services Google Places
   useEffect(() => {
     if (window.google && window.google.maps && window.google.maps.places) {
-      setAutocompleteService(new window.google.maps.places.AutocompleteService())
-      setPlacesService(new window.google.maps.places.PlacesService(document.createElement('div')))
+      setAutocompleteService(new window.google.maps.places!.AutocompleteService())
+      setPlacesService(new window.google.maps.places!.PlacesService(document.createElement('div')))
     }
   }, [])
   

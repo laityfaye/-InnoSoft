@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { CheckCircle, User, MapPin, CreditCard, FileText } from 'lucide-react'
+import { CheckCircle } from 'lucide-react'
 
 interface Step {
   id: number
