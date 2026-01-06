@@ -7,7 +7,10 @@ export const Analytics = () => {
   useEffect(() => {
     // Ne charger Analytics que si l'ID est défini
     if (!GA_TRACKING_ID) {
-      console.warn('Google Analytics ID non configuré. Ajoutez VITE_GA_TRACKING_ID dans votre .env')
+      // Message silencieux en mode développement uniquement
+      if (import.meta.env.DEV) {
+        console.info('Google Analytics ID non configuré. Pour activer Analytics, ajoutez VITE_GA_TRACKING_ID dans votre .env')
+      }
       return
     }
 

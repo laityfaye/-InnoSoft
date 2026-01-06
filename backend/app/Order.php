@@ -18,6 +18,13 @@ class Order extends Model
         'city',
         'country',
         'payment_method',
+        'delivery_type',
+        'customer_latitude',
+        'customer_longitude',
+        'store_latitude',
+        'store_longitude',
+        'distance',
+        'delivery_fee',
         'status',
         'subtotal',
         'total',
@@ -27,6 +34,12 @@ class Order extends Model
     protected $casts = [
         'subtotal' => 'decimal:0',
         'total' => 'decimal:0',
+        'customer_latitude' => 'decimal:8',
+        'customer_longitude' => 'decimal:8',
+        'store_latitude' => 'decimal:8',
+        'store_longitude' => 'decimal:8',
+        'distance' => 'decimal:2',
+        'delivery_fee' => 'decimal:0',
     ];
 
     /**

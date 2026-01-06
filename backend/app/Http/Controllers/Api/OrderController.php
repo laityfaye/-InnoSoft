@@ -29,6 +29,9 @@ class OrderController extends Controller
             'city' => 'nullable|string|max:255',
             'country' => 'nullable|string|max:255',
             'payment_method' => 'nullable|string|in:cash,mobile_money,bank_transfer',
+            'delivery_type' => 'nullable|string|in:pickup,delivery',
+            'customer_latitude' => 'nullable|numeric|between:-90,90',
+            'customer_longitude' => 'nullable|numeric|between:-180,180',
             'notes' => 'nullable|string|max:2000',
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|integer|exists:products,id',
@@ -75,6 +78,29 @@ class OrderController extends Controller
                 ];
             }
 
+            // Gérer la livraison et calculer les frais
+            $deliveryType = $data['delivery_type'] ?? 'pickup';
+            $deliveryFee = 0;
+            $distance = null;
+            $storeLatitude = config('store.latitude');
+            $storeLongitude = config('store.longitude');
+            $customerLatitude = $data['customer_latitude'] ?? null;
+            $customerLongitude = $data['customer_longitude'] ?? null;
+
+            // Si livraison, calculer la distance et les frais
+            if ($deliveryType === 'delivery' && $customerLatitude && $customerLongitude && $storeLatitude && $storeLongitude) {
+                $distance = $this->calculateDistance(
+                    $customerLatitude,
+                    $customerLongitude,
+                    $storeLatitude,
+                    $storeLongitude
+                );
+                
+                // Calculer les frais de livraison (250 F par km)
+                $feePerKm = config('store.delivery_fee_per_km', 250);
+                $deliveryFee = round($distance * $feePerKm);
+            }
+
             // Créer la commande
             $order = Order::create([
                 'customer_name' => $data['customer_name'],
@@ -84,9 +110,16 @@ class OrderController extends Controller
                 'city' => $data['city'] ?? null,
                 'country' => $data['country'] ?? 'Sénégal',
                 'payment_method' => $data['payment_method'] ?? 'cash',
+                'delivery_type' => $deliveryType,
+                'customer_latitude' => $customerLatitude,
+                'customer_longitude' => $customerLongitude,
+                'store_latitude' => $storeLatitude,
+                'store_longitude' => $storeLongitude,
+                'distance' => $distance,
+                'delivery_fee' => $deliveryFee,
                 'status' => 'pending',
                 'subtotal' => $subtotal,
-                'total' => $subtotal, // Pour l'instant, pas de frais de livraison
+                'total' => $subtotal + $deliveryFee,
                 'notes' => $data['notes'] ?? null,
             ]);
 
@@ -212,6 +245,32 @@ class OrderController extends Controller
             'success' => true,
             'data' => $order,
         ]);
+    }
+
+    /**
+     * Calculer la distance entre deux points GPS en utilisant la formule de Haversine
+     * 
+     * @param float $lat1 Latitude du premier point
+     * @param float $lon1 Longitude du premier point
+     * @param float $lat2 Latitude du deuxième point
+     * @param float $lon2 Longitude du deuxième point
+     * @return float Distance en kilomètres
+     */
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371; // Rayon de la Terre en kilomètres
+
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+             sin($dLon / 2) * sin($dLon / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        $distance = $earthRadius * $c;
+
+        return round($distance, 2);
     }
 }
 

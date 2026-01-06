@@ -150,6 +150,9 @@ export const ordersApi = {
     city?: string
     country?: string
     payment_method?: string
+    delivery_type?: 'pickup' | 'delivery'
+    customer_latitude?: number
+    customer_longitude?: number
     notes?: string
     items: Array<{ product_id: number; quantity: number }>
   }) => api.post('/orders', data),
