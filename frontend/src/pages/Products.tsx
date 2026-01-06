@@ -910,6 +910,28 @@ const Products = () => {
         )}
       </section>
 
+      {/* Floating Cart Icon Button - Always Visible */}
+      <motion.button
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => setIsCartOpen(true)}
+        className="fixed bottom-6 right-6 lg:bottom-8 lg:right-8 z-50 w-16 h-16 lg:w-20 lg:h-20 rounded-full bg-gradient-primary text-white shadow-2xl flex items-center justify-center hover:shadow-glow transition-all"
+        aria-label="Ouvrir le panier"
+      >
+        <ShoppingCart className="w-6 h-6 lg:w-8 lg:h-8" />
+        {cart.length > 0 && (
+          <motion.span
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="absolute -top-2 -right-2 w-6 h-6 lg:w-7 lg:h-7 bg-accent-500 rounded-full flex items-center justify-center text-xs lg:text-sm font-bold animate-pulse border-2 border-dark-500 [data-theme='light']:border-white"
+          >
+            {cart.reduce((sum, item) => sum + item.quantity, 0)}
+          </motion.span>
+        )}
+      </motion.button>
+
       {/* Cart Sidebar */}
       <AnimatePresence>
         {isCartOpen && (
