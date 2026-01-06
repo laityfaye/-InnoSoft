@@ -70,8 +70,9 @@ const Checkout = () => {
   const [mapsWarning, setMapsWarning] = useState<string | null>(null)
   const [isLoadingLocation, setIsLoadingLocation] = useState(false)
   const mapRef = useRef<HTMLDivElement>(null)
-  const mapInstanceRef = useRef<google.maps.Map | null>(null)
-  const markersRef = useRef<google.maps.Marker[]>([])
+  // Types pour Google Maps - utiliser any car Google Maps est chargé dynamiquement
+  const mapInstanceRef = useRef<any>(null)
+  const markersRef = useRef<any[]>([])
   const initMapAttemptsRef = useRef<number>(0)
 
   const [formData, setFormData] = useState({
