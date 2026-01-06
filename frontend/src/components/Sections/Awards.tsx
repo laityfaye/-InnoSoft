@@ -59,7 +59,7 @@ const Awards = () => {
   }
 
   return (
-    <section ref={ref} className="section-padding bg-dark-600/30 [data-theme='light']:bg-secondary-50/50 transition-colors duration-300">
+    <section ref={ref} className="section-padding bg-dark-600/30 [data-theme='light']:bg-secondary-50/50 transition-colors duration-300 w-full">
       <div className="container-custom">
         {/* Header */}
         <motion.div

@@ -45,7 +45,7 @@ const TechStack = () => {
   ]
 
   return (
-    <section ref={ref} className="section-padding bg-dark-600/30">
+    <section ref={ref} className="section-padding bg-dark-600/30 w-full">
       <div className="container-custom">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

@@ -31,7 +31,7 @@ const Header = () => {
     <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 w-full max-w-full overflow-x-hidden ${
         isScrolled
           ? 'glass-effect shadow-xl border-b border-primary-500/10'
           : 'bg-dark-500/50 backdrop-blur-xl'

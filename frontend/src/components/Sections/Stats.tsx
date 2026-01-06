@@ -66,7 +66,7 @@ const Stats = () => {
   return (
     <section 
       ref={ref} 
-      className="section-padding bg-dark-600/50 [data-theme='light']:bg-secondary-50 transition-colors duration-300"
+      className="section-padding bg-dark-600/50 [data-theme='light']:bg-secondary-50 transition-colors duration-300 w-full"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

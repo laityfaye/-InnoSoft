@@ -185,7 +185,7 @@ const Portfolio = () => {
   }
 
   return (
-    <section ref={ref} className="min-h-screen bg-dark-600/20 relative overflow-hidden py-16 md:py-20 lg:py-24">
+    <section ref={ref} className="min-h-screen bg-dark-600/20 relative overflow-hidden py-16 md:py-20 lg:py-24 w-full">
       {/* Subtle background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-dark-600/10 to-transparent pointer-events-none" />
 

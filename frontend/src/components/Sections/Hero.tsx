@@ -56,7 +56,7 @@ const Hero = () => {
   return (
     <section
       ref={ref}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 sm:pt-24 md:pt-28 lg:pt-32 pb-20 sm:pb-24"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 sm:pt-24 md:pt-28 lg:pt-32 pb-20 sm:pb-24 w-full"
     >
       {/* Enhanced Animated Background */}
       <div className="absolute inset-0 [data-theme='dark']:bg-gradient-to-br [data-theme='dark']:from-dark-500 [data-theme='dark']:via-dark-600 [data-theme='dark']:to-dark-500 [data-theme='light']:bg-gradient-to-br [data-theme='light']:from-white [data-theme='light']:via-secondary-50 [data-theme='light']:to-secondary-100">
@@ -113,7 +113,7 @@ const Hero = () => {
         />
       </div>
 
-      <div className="container-custom relative z-10">
+      <div className="container-custom relative z-10 w-full max-w-full">
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -230,7 +230,7 @@ const Hero = () => {
           {/* Subtle Horizontal Scroll Banner */}
           <motion.div
             variants={itemVariants}
-            className="relative w-full overflow-hidden py-4 sm:py-5 md:py-6 mb-8 sm:mb-10 md:mb-12"
+            className="relative w-full overflow-hidden py-4 sm:py-5 md:py-6 mb-8 sm:mb-10 md:mb-12 max-w-full"
           >
             {/* Fade edges */}
             <div className="absolute inset-y-0 left-0 w-16 sm:w-24 md:w-32 bg-gradient-to-r from-black to-transparent z-10 pointer-events-none" />
@@ -240,7 +240,7 @@ const Hero = () => {
             <motion.div
               className="flex whitespace-nowrap"
               animate={{
-                x: [0, -1600],
+                x: [0, '-50%'],
               }}
               transition={{
                 x: {
@@ -249,6 +249,9 @@ const Hero = () => {
                   duration: 35,
                   ease: 'linear',
                 },
+              }}
+              style={{
+                width: 'max-content',
               }}
             >
               {[...Array(2)].map((_, i) => (

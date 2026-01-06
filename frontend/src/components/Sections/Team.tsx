@@ -45,7 +45,7 @@ const Team = () => {
   }
 
   return (
-    <section ref={ref} className="section-padding relative overflow-hidden">
+    <section ref={ref} className="section-padding relative overflow-hidden w-full">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 via-secondary-500/5 to-accent-500/5" />
       

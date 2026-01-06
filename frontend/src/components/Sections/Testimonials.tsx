@@ -127,7 +127,7 @@ const Testimonials = () => {
   const duplicatedTestimonials = [...testimonials, ...testimonials]
 
   return (
-    <section ref={ref} className="section-padding bg-dark-600/20 relative overflow-hidden py-16 md:py-20 lg:py-24">
+    <section ref={ref} className="section-padding bg-dark-600/20 relative overflow-hidden py-16 md:py-20 lg:py-24 w-full">
       {/* Enhanced Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
@@ -340,7 +340,7 @@ const Testimonials = () => {
             <div className="absolute right-0 top-0 bottom-0 w-40 bg-gradient-to-l from-dark-600/20 via-dark-600/10 to-transparent z-10 pointer-events-none" />
 
             {/* Scroll Container */}
-            <div className="overflow-hidden">
+            <div className="overflow-hidden w-full">
               <motion.div
                 className="flex gap-6"
                 animate={{
@@ -356,12 +356,13 @@ const Testimonials = () => {
                 }}
                 style={{
                   width: 'max-content',
+                  maxWidth: 'none',
                 }}
               >
                 {duplicatedTestimonials.map((testimonial, index) => (
                   <div
                     key={`${testimonial.id}-${index}`}
-                    className="flex-shrink-0 w-[380px] md:w-[420px] lg:w-[460px]"
+                    className="flex-shrink-0 w-[calc(100vw-2rem)] sm:w-[380px] md:w-[420px] lg:w-[460px] max-w-[460px]"
                   >
                     <div className="h-full backdrop-blur-2xl bg-gradient-to-br from-dark-500/90 via-dark-500/80 to-dark-500/90 border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl hover:shadow-primary-500/20 hover:border-primary-500/30 transition-all duration-300 group relative overflow-hidden">
                       {/* Shine effect on hover */}

@@ -46,7 +46,7 @@ const Process = () => {
   }
 
   return (
-    <section ref={ref} className="section-padding">
+    <section ref={ref} className="section-padding w-full">
       <div className="container-custom">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

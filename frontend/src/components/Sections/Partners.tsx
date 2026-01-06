@@ -99,7 +99,7 @@ const Partners = () => {
   }
 
   return (
-    <section ref={ref} className="section-padding relative overflow-hidden">
+    <section ref={ref} className="section-padding relative overflow-hidden w-full">
       {/* Background decorations */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary-500/5 to-transparent pointer-events-none" />
       <div className="absolute top-1/4 left-0 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl pointer-events-none animate-pulse" />
@@ -152,7 +152,7 @@ const Partners = () => {
             {/* Container de défilement - exactement comme la grille de Process mais en flex horizontal */}
             <div
               ref={scrollContainerRef}
-              className="flex gap-8 overflow-x-hidden scrollbar-hide relative"
+              className="flex gap-8 overflow-x-hidden scrollbar-hide relative w-full"
               style={{ scrollBehavior: 'auto' }}
             >
               {duplicatedPartners.map((partner, index) => {
@@ -166,7 +166,7 @@ const Partners = () => {
                     animate={inView ? { opacity: 1, y: 0 } : {}}
                     transition={{ delay: (index % partners.length) * 0.15, duration: 0.6 }}
                     className="relative flex-shrink-0 px-4 pt-4"
-                    style={{ minWidth: '280px', maxWidth: '320px' }}
+                    style={{ minWidth: 'min(280px, calc(100vw - 2rem))', maxWidth: '320px', width: 'min(280px, calc(100vw - 2rem))' }}
                   >
                     {/* Step card amélioré */}
                     <motion.div 
