@@ -88,7 +88,7 @@ const Blog = () => {
         description="Restez informé avec nos articles, tutoriels et actualités sur les technologies modernes, le développement web, les applications mobiles et bien plus encore."
         url="/blog"
       />
-      <div className="min-h-screen pt-20 pb-20">
+      <div className="min-h-screen pt-16 sm:pt-20 md:pt-24 lg:pt-28 pb-20">
       <div className="container-custom">
         {/* Header */}
         <motion.div

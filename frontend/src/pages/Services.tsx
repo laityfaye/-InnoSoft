@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
+import { useEffect, useState } from 'react'
 import { Code, Smartphone, Palette, Server, Cloud, Database, Globe, Zap } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import ServiceImage from '../components/Services/ServiceImage'
@@ -9,7 +10,23 @@ const Services = () => {
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
+    rootMargin: '-50px 0px',
   })
+  const [heroRef, heroInView] = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+    rootMargin: '-50px 0px',
+  })
+  const [isMounted, setIsMounted] = useState(false)
+
+  // S'assurer que le contenu s'affiche même si inView n'est pas encore true
+  // Cela évite le problème de page noire si useInView ne se déclenche pas immédiatement
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsMounted(true)
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [])
 
   const services = [
     {
@@ -111,12 +128,12 @@ const Services = () => {
         description="Découvrez nos services : développement web, applications mobiles, design graphique, matériel électronique, solutions cloud et intégration système. Des solutions sur mesure pour votre entreprise."
         url="/services"
       />
-      <div className="pt-32 pb-20">
+      <div className="pt-16 sm:pt-20 md:pt-24 lg:pt-32 pb-20">
       {/* Hero Section */}
-      <section className="container-custom mb-20">
+      <section ref={heroRef} className="container-custom mb-20">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
+          animate={(heroInView || isMounted) ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.6 }}
           className="text-center max-w-3xl mx-auto"
         >
@@ -141,7 +158,7 @@ const Services = () => {
                 key={service.id}
                 id={service.id}
                 initial={{ opacity: 0, y: 50 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
+                animate={(inView || isMounted) ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
                 transition={{ delay: index * 0.1 }}
                 className={`flex flex-col ${isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-center gap-12`}
               >
@@ -171,7 +188,7 @@ const Services = () => {
                 >
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9, x: isEven ? 50 : -50 }}
-                    animate={inView ? { opacity: 1, scale: 1, x: 0 } : {}}
+                    animate={(inView || isMounted) ? { opacity: 1, scale: 1, x: 0 } : { opacity: 0, scale: 0.9, x: isEven ? 50 : -50 }}
                     transition={{ delay: index * 0.1 + 0.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                     className="aspect-video rounded-3xl overflow-hidden relative shadow-2xl"
                   >
@@ -194,7 +211,7 @@ const Services = () => {
       <section className="container-custom mt-32">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
+          animate={(inView || isMounted) ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ delay: 0.8 }}
           className="text-center p-12 rounded-3xl glass-effect"
         >

@@ -202,7 +202,7 @@ const Contact = () => {
         description="Contactez InnoSoft Creation pour discuter de votre projet. Nous sommes situés à Thiès, Sénégal. Réponse garantie dans les plus brefs délais."
         url="/contact"
       />
-      <div className="pt-32 pb-20 relative">
+      <div className="pt-16 sm:pt-20 md:pt-24 lg:pt-32 pb-20 relative">
       {/* Success Notification Toast */}
       <AnimatePresence>
         {isSubmitted && (

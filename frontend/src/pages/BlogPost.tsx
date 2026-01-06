@@ -114,7 +114,7 @@ const BlogPost = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen pt-20 pb-20 flex items-center justify-center">
+      <div className="min-h-screen pt-16 sm:pt-20 md:pt-24 lg:pt-28 pb-20 flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mb-4" />
           <p className="text-secondary-400 [data-theme='light']:text-secondary-600">
@@ -127,7 +127,7 @@ const BlogPost = () => {
 
   if (error || !post) {
     return (
-      <div className="min-h-screen pt-20 pb-20 flex items-center justify-center">
+      <div className="min-h-screen pt-16 sm:pt-20 md:pt-24 lg:pt-28 pb-20 flex items-center justify-center">
         <div className="text-center">
           <BookOpen className="w-16 h-16 mx-auto mb-4 text-secondary-400 [data-theme='light']:text-secondary-600" />
           <h2 className="text-2xl font-bold mb-4 text-white [data-theme='light']:text-dark-500">
@@ -165,7 +165,7 @@ const BlogPost = () => {
         section={post.category}
         tags={[post.category]}
       />
-      <div className="min-h-screen pt-20 pb-20">
+      <div className="min-h-screen pt-16 sm:pt-20 md:pt-24 lg:pt-28 pb-20">
         <div className="container-custom max-w-4xl">
         {/* Back Button */}
         <motion.div

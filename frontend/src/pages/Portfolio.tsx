@@ -62,7 +62,7 @@ const Portfolio = () => {
         description="Découvrez nos réalisations : projets web, applications mobiles, designs et solutions innovantes développées par InnoSoft Creation."
         url="/portfolio"
       />
-      <div className="pt-32 pb-20">
+      <div className="pt-16 sm:pt-20 md:pt-24 lg:pt-32 pb-20">
       {/* Hero Section */}
       <section className="container-custom mb-20">
         <motion.div

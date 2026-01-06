@@ -998,7 +998,7 @@ const Checkout = () => {
         description="Finalisez votre commande en remplissant vos informations de livraison et de paiement."
         url="/checkout"
       />
-      <div className="pt-32 pb-20 min-h-screen">
+      <div className="pt-16 sm:pt-20 md:pt-24 lg:pt-32 pb-20 min-h-screen">
         <div className="container-custom">
           {/* Success Message */}
           {isSubmitted && (

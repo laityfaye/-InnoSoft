@@ -474,7 +474,7 @@ const Products = () => {
         url="/products"
         structuredData={structuredData}
       />
-      <div className="pt-32 pb-20 min-h-screen">
+      <div className="pt-16 sm:pt-20 md:pt-24 lg:pt-32 pb-20 min-h-screen">
       {/* Hero Section */}
       <section className="container-custom mb-12">
         <motion.div
