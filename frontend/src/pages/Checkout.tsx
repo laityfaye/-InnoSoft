@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { motion } from 'framer-motion'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { ShoppingCart, MapPin, User, CreditCard, CheckCircle, AlertCircle, ArrowLeft, Navigation, Package, Route } from 'lucide-react'
+import { ShoppingCart, MapPin, User, CreditCard, CheckCircle, AlertCircle, ArrowLeft, Navigation, Package, Route, X, Tag, FileText, ChevronRight, ChevronLeft } from 'lucide-react'
 import { useTheme } from '../hooks/useTheme'
 import { ordersApi } from '../services/api'
 import SEO from '../components/SEO'
+import CheckoutStepper from '../components/Checkout/CheckoutStepper'
 
 interface Product {
   id: number
@@ -36,6 +37,14 @@ interface FieldErrors {
   shipping_address?: string
   city?: string
   payment_method?: string
+  promo_code?: string
+}
+
+interface PromoCode {
+  code: string
+  discount: number
+  type: 'percentage' | 'fixed'
+  minAmount?: number
 }
 
 // Coordonnées du magasin (à configurer selon votre localisation)
@@ -84,12 +93,30 @@ const Checkout = () => {
   const [locationError, setLocationError] = useState<string | null>(null)
   const [mapsWarning, setMapsWarning] = useState<string | null>(null)
   const [isLoadingLocation, setIsLoadingLocation] = useState(false)
+  const [currentStep, setCurrentStep] = useState(1)
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [promoCode, setPromoCode] = useState('')
+  const [promoDiscount, setPromoDiscount] = useState(0)
+  const [promoError, setPromoError] = useState<string | null>(null)
+  const [isValidatingPromo, setIsValidatingPromo] = useState(false)
+  const [addressSuggestions, setAddressSuggestions] = useState<any[]>([])
+  const [showAddressSuggestions, setShowAddressSuggestions] = useState(false)
+  const [autocompleteService, setAutocompleteService] = useState<any>(null)
+  const [placesService, setPlacesService] = useState<any>(null)
   const mapRef = useRef<HTMLDivElement>(null)
   const summaryRef = useRef<HTMLDivElement>(null)
+  const addressInputRef = useRef<HTMLTextAreaElement>(null)
   // Types pour Google Maps - utiliser any car Google Maps est chargé dynamiquement
   const mapInstanceRef = useRef<any>(null)
   const markersRef = useRef<any[]>([])
   const initMapAttemptsRef = useRef<number>(0)
+  
+  // Codes promo disponibles (à remplacer par un appel API)
+  const availablePromoCodes: PromoCode[] = [
+    { code: 'WELCOME10', discount: 10, type: 'percentage', minAmount: 10000 },
+    { code: 'SAVE500', discount: 500, type: 'fixed', minAmount: 5000 },
+    { code: 'NEWYEAR20', discount: 20, type: 'percentage', minAmount: 20000 },
+  ]
 
   // Clés pour le stockage
   const CUSTOMER_INFO_KEY = 'innosoft_customer_info'
@@ -109,6 +136,7 @@ const Checkout = () => {
       country: 'Sénégal',
       payment_method: 'cash',
       notes: '',
+      promo_code: '',
     }
 
     // Priorité : sessionStorage (formulaire en cours) > localStorage (infos client sauvegardées)
@@ -855,7 +883,187 @@ const Checkout = () => {
       const itemPrice = getCurrentPrice(item.product)
       return total + itemPrice * item.quantity
     }, 0)
-    return subtotal + deliveryFee
+    const totalWithDelivery = subtotal + deliveryFee
+    return Math.max(0, totalWithDelivery - promoDiscount)
+  }
+  
+  // Calculer le montant de la réduction promo
+  const calculatePromoDiscount = (subtotal: number, promo: PromoCode): number => {
+    if (promo.minAmount && subtotal < promo.minAmount) {
+      return 0
+    }
+    if (promo.type === 'percentage') {
+      return Math.round(subtotal * (promo.discount / 100))
+    } else {
+      return promo.discount
+    }
+  }
+  
+  // Valider un code promo
+  const validatePromoCode = useCallback(async (code: string) => {
+    if (!code.trim()) {
+      setPromoError(null)
+      setPromoDiscount(0)
+      return
+    }
+    
+    setIsValidatingPromo(true)
+    setPromoError(null)
+    
+    // Simuler une validation (remplacer par un appel API)
+    setTimeout(() => {
+      const promo = availablePromoCodes.find(
+        p => p.code.toUpperCase() === code.toUpperCase().trim()
+      )
+      
+      if (promo) {
+        const subtotal = getSubtotal()
+        const discount = calculatePromoDiscount(subtotal, promo)
+        
+        if (discount > 0) {
+          setPromoDiscount(discount)
+          setPromoError(null)
+          setFormData(prev => ({ ...prev, promo_code: code.toUpperCase().trim() }))
+        } else {
+          setPromoError(`Le montant minimum de ${formatPrice(promo.minAmount || 0)} n'est pas atteint`)
+          setPromoDiscount(0)
+        }
+      } else {
+        setPromoError('Code promo invalide')
+        setPromoDiscount(0)
+      }
+      
+      setIsValidatingPromo(false)
+    }, 500)
+  }, [availablePromoCodes])
+  
+  // Gérer l'autocomplétion d'adresse
+  const handleAddressInput = useCallback((value: string) => {
+    setFormData(prev => ({ ...prev, shipping_address: value }))
+    
+    if (!autocompleteService || value.length < 3) {
+      setShowAddressSuggestions(false)
+      return
+    }
+    
+    autocompleteService.getPlacePredictions(
+      {
+        input: value,
+        componentRestrictions: { country: 'sn' }, // Sénégal
+        types: ['address'],
+      },
+      (predictions: any[], status: string) => {
+        if (status === 'OK' && predictions) {
+          setAddressSuggestions(predictions)
+          setShowAddressSuggestions(true)
+        } else {
+          setAddressSuggestions([])
+          setShowAddressSuggestions(false)
+        }
+      }
+    )
+  }, [autocompleteService])
+  
+  // Sélectionner une suggestion d'adresse
+  const selectAddress = useCallback((placeId: string) => {
+    if (!placesService) return
+    
+    placesService.getDetails({ placeId }, (place: any, status: string) => {
+      if (status === 'OK' && place) {
+        const address = place.formatted_address || ''
+        const city = place.address_components?.find((comp: any) =>
+          comp.types.includes('locality')
+        )?.long_name || ''
+        const country = place.address_components?.find((comp: any) =>
+          comp.types.includes('country')
+        )?.long_name || 'Sénégal'
+        
+        setFormData(prev => ({
+          ...prev,
+          shipping_address: address,
+          city: city || prev.city,
+          country: country || prev.country,
+        }))
+        
+        setShowAddressSuggestions(false)
+        
+        // Géocoder l'adresse pour obtenir les coordonnées
+        if (place.geometry?.location) {
+          const lat = place.geometry.location.lat()
+          const lng = place.geometry.location.lng()
+          setCustomerLocation({ lat, lng })
+          const dist = calculateDistance(lat, lng)
+          setDistance(dist)
+          if (deliveryType === 'delivery') {
+            setDeliveryFee(calculateDeliveryFee(dist))
+          }
+        }
+      }
+    })
+  }, [placesService, deliveryType])
+  
+  // Initialiser les services Google Places
+  useEffect(() => {
+    if (window.google && window.google.maps && window.google.maps.places) {
+      setAutocompleteService(new window.google.maps.places.AutocompleteService())
+      setPlacesService(new window.google.maps.places.PlacesService(document.createElement('div')))
+    }
+  }, [])
+  
+  // Définir les étapes
+  const steps = [
+    { id: 1, title: 'Informations', icon: User },
+    { id: 2, title: 'Adresse', icon: MapPin },
+    { id: 3, title: 'Paiement', icon: CreditCard },
+    { id: 4, title: 'Récapitulatif', icon: FileText },
+  ]
+  
+  // Valider l'étape actuelle
+  const validateStep = (step: number): boolean => {
+    const errors: FieldErrors = {}
+    
+    switch (step) {
+      case 1:
+        if (!formData.customer_name.trim()) errors.customer_name = 'Le nom est requis'
+        if (!formData.customer_email.trim()) errors.customer_email = 'L\'email est requis'
+        if (!formData.customer_phone.trim()) errors.customer_phone = 'Le téléphone est requis'
+        break
+      case 2:
+        if (!formData.shipping_address.trim()) errors.shipping_address = 'L\'adresse est requise'
+        if (!formData.city.trim()) errors.city = 'La ville est requise'
+        break
+      case 3:
+        if (!formData.payment_method) errors.payment_method = 'Le mode de paiement est requis'
+        break
+    }
+    
+    setFieldErrors(errors)
+    return Object.keys(errors).length === 0
+  }
+  
+  // Aller à l'étape suivante
+  const nextStep = () => {
+    if (validateStep(currentStep)) {
+      if (currentStep < steps.length) {
+        setCurrentStep(currentStep + 1)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
+    } else {
+      // Scroll vers la première erreur
+      const firstErrorField = document.querySelector('[name]') as HTMLElement
+      if (firstErrorField) {
+        firstErrorField.focus()
+        firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    }
+  }
+  
+  // Aller à l'étape précédente
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
   }
 
   // Calculer le sous-total (sans frais de livraison)
@@ -912,6 +1120,11 @@ const Checkout = () => {
     }
     setFormData(newFormData)
     
+    // Gérer l'autocomplétion pour l'adresse
+    if (name === 'shipping_address') {
+      handleAddressInput(value)
+    }
+    
     // Sauvegarder dans sessionStorage pour conserver les données si l'utilisateur quitte la page
     try {
       sessionStorage.setItem(CHECKOUT_FORM_KEY, JSON.stringify(newFormData))
@@ -919,15 +1132,32 @@ const Checkout = () => {
       console.error('Erreur lors de la sauvegarde du formulaire:', e)
     }
     
+    // Validation en temps réel avec debounce
     if (touched[name]) {
-      const fieldError = validateField(name, value)
-      setFieldErrors(prev => ({
-        ...prev,
-        [name]: fieldError,
-      }))
+      const timeoutId = setTimeout(() => {
+        const fieldError = validateField(name, value)
+        setFieldErrors(prev => ({
+          ...prev,
+          [name]: fieldError,
+        }))
+      }, 500)
+      
+      return () => clearTimeout(timeoutId)
     }
     
     if (error) setError(null)
+  }
+  
+  // Gérer le changement de code promo
+  const handlePromoCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const code = e.target.value
+    setPromoCode(code)
+    if (code.trim()) {
+      validatePromoCode(code)
+    } else {
+      setPromoDiscount(0)
+      setPromoError(null)
+    }
   }
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -940,8 +1170,32 @@ const Checkout = () => {
     }))
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+    
+    // Si on est à la dernière étape, ouvrir la modal de confirmation
+    if (currentStep === steps.length && !showConfirmModal) {
+      // Valider toutes les étapes
+      let allValid = true
+      for (let i = 1; i <= steps.length - 1; i++) {
+        if (!validateStep(i)) {
+          allValid = false
+          setCurrentStep(i)
+          break
+        }
+      }
+      
+      if (allValid) {
+        setShowConfirmModal(true)
+        return
+      }
+    }
+    
+    // Si la modal est confirmée, procéder à la soumission
+    if (showConfirmModal) {
+      setShowConfirmModal(false)
+    }
+    
     setLoading(true)
     setError(null)
 
@@ -1137,9 +1391,12 @@ const Checkout = () => {
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold mb-4">
                   Finaliser votre <span className="gradient-text">commande</span>
                 </h1>
-                <p className="text-secondary-400 [data-theme='light']:text-secondary-600">
+                <p className="text-secondary-400 [data-theme='light']:text-secondary-600 mb-6">
                   Remplissez vos informations pour finaliser votre commande
                 </p>
+                
+                {/* Stepper */}
+                <CheckoutStepper currentStep={currentStep} steps={steps} />
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 items-start" style={{ alignItems: 'start' }}>
@@ -1151,8 +1408,17 @@ const Checkout = () => {
                     onSubmit={handleSubmit}
                     className="glass-effect rounded-xl p-6 space-y-6"
                   >
-                    {/* Informations client */}
-                    <div>
+                    <AnimatePresence mode="wait">
+                      {/* Étape 1: Informations client */}
+                      {currentStep === 1 && (
+                        <motion.div
+                          key="step1"
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 20 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <div>
                       <h2 className="text-xl sm:text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-3 md:mb-4 flex items-center space-x-2">
                         <User className="w-6 h-6 text-primary-400" />
                         <span>Informations client</span>
@@ -1245,9 +1511,19 @@ const Checkout = () => {
                         </div>
                       </div>
                     </div>
+                          </motion.div>
+                      )}
 
-                    {/* Adresse de livraison */}
-                    <div>
+                      {/* Étape 2: Adresse de livraison */}
+                      {currentStep === 2 && (
+                        <motion.div
+                          key="step2"
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 20 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <div>
                       <h2 className="text-xl sm:text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-3 md:mb-4 flex items-center space-x-2">
                         <MapPin className="w-6 h-6 text-primary-400" />
                         <span>Adresse de livraison</span>
@@ -1257,25 +1533,56 @@ const Checkout = () => {
                           <label className="block text-sm font-medium text-white [data-theme='light']:text-dark-500 mb-2">
                             Adresse complète *
                           </label>
-                          <textarea
-                            name="shipping_address"
-                            value={formData.shipping_address}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            rows={3}
-                            className={`w-full px-4 py-3 rounded-xl border transition-all resize-none ${
-                              fieldErrors.shipping_address
-                                ? 'border-accent-500 focus:border-accent-500 focus:ring-accent-500/20'
-                                : '[data-theme="dark"]:bg-secondary-800/50 [data-theme="dark"]:border-secondary-700 [data-theme="dark"]:text-white [data-theme="light"]:bg-white [data-theme="light"]:border-secondary-300 [data-theme="light"]:text-dark-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20'
-                            }`}
-                            placeholder="Rue, quartier, numéro..."
-                            style={{
-                              color: isDark ? '#ffffff' : '#111827',
-                              WebkitTextFillColor: isDark ? '#ffffff' : '#111827',
-                              backgroundColor: isDark ? '#1f2937' : '#ffffff',
-                              borderColor: fieldErrors.shipping_address ? '#ef4444' : (isDark ? '#374151' : '#d1d5db'),
-                            }}
-                          />
+                          <div className="relative">
+                            <textarea
+                              ref={addressInputRef}
+                              name="shipping_address"
+                              value={formData.shipping_address}
+                              onChange={handleChange}
+                              onBlur={() => {
+                                setTimeout(() => setShowAddressSuggestions(false), 200)
+                                handleBlur({ target: { name: 'shipping_address', value: formData.shipping_address } } as any)
+                              }}
+                              onFocus={() => {
+                                if (formData.shipping_address.length >= 3) {
+                                  setShowAddressSuggestions(true)
+                                }
+                              }}
+                              rows={3}
+                              className={`w-full px-4 py-3 rounded-xl border transition-all resize-none ${
+                                fieldErrors.shipping_address
+                                  ? 'border-accent-500 focus:border-accent-500 focus:ring-accent-500/20'
+                                  : '[data-theme="dark"]:bg-secondary-800/50 [data-theme="dark"]:border-secondary-700 [data-theme="dark"]:text-white [data-theme="light"]:bg-white [data-theme="light"]:border-secondary-300 [data-theme="light"]:text-dark-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20'
+                              }`}
+                              placeholder="Commencez à taper votre adresse..."
+                              style={{
+                                color: isDark ? '#ffffff' : '#111827',
+                                WebkitTextFillColor: isDark ? '#ffffff' : '#111827',
+                                backgroundColor: isDark ? '#1f2937' : '#ffffff',
+                                borderColor: fieldErrors.shipping_address ? '#ef4444' : (isDark ? '#374151' : '#d1d5db'),
+                              }}
+                            />
+                            {/* Suggestions d'adresse */}
+                            {showAddressSuggestions && addressSuggestions.length > 0 && (
+                              <div className="absolute z-50 w-full mt-1 bg-secondary-800 [data-theme='light']:bg-white rounded-lg shadow-xl border border-secondary-700 [data-theme='light']:border-secondary-300 max-h-60 overflow-y-auto">
+                                {addressSuggestions.map((suggestion, idx) => (
+                                  <button
+                                    key={idx}
+                                    type="button"
+                                    onClick={() => selectAddress(suggestion.place_id)}
+                                    className="w-full text-left px-4 py-3 hover:bg-primary-500/10 transition-colors border-b border-secondary-700/50 [data-theme='light']:border-secondary-200/50 last:border-b-0"
+                                  >
+                                    <p className="text-sm text-white [data-theme='light']:text-dark-500 font-medium">
+                                      {suggestion.structured_formatting.main_text}
+                                    </p>
+                                    <p className="text-xs text-secondary-400 [data-theme='light']:text-secondary-600 mt-0.5">
+                                      {suggestion.structured_formatting.secondary_text}
+                                    </p>
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                           {fieldErrors.shipping_address && (
                             <p className="mt-1 text-sm text-accent-500">{fieldErrors.shipping_address}</p>
                           )}
@@ -1331,10 +1638,284 @@ const Checkout = () => {
                           </div>
                         </div>
                       </div>
-                    </div>
+                      
+                      {/* Section Localisation et Livraison - Étape 2 */}
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="glass-effect rounded-xl p-4 md:p-6 mt-6"
+                      >
+                        <h2 className="text-xl sm:text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-3 md:mb-4 flex items-center space-x-2">
+                          <MapPin className="w-6 h-6 text-primary-400" />
+                          <span>Localisation et mode de livraison</span>
+                        </h2>
 
-                    {/* Mode de paiement */}
-                    <div>
+                        {/* Carte Google Maps */}
+                        <div className="mb-6">
+                          <div ref={mapRef} className="w-full h-64 rounded-lg overflow-hidden border [data-theme='dark']:border-secondary-700 [data-theme='light']:border-secondary-300 relative">
+                            {!import.meta.env.VITE_GOOGLE_MAPS_API_KEY && (
+                              <div className="absolute inset-0 flex items-center justify-center bg-secondary-800/50 [data-theme='light']:bg-secondary-100/50">
+                                <div className="text-center p-4">
+                                  <MapPin className="w-12 h-12 text-secondary-400 mx-auto mb-2" />
+                                  <p className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
+                                    Carte non disponible
+                                  </p>
+                                  <p className="text-xs text-secondary-500 mt-1">
+                                    La géolocalisation fonctionne toujours
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Avertissement Google Maps */}
+                          {mapsWarning && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -10 }}
+                              className="mt-3 p-3 rounded-lg bg-secondary-500/10 border border-secondary-500/30"
+                            >
+                              <div className="flex items-start justify-between space-x-2">
+                                <div className="flex items-start space-x-2 flex-1">
+                                  <MapPin className="w-4 h-4 text-secondary-400 flex-shrink-0 mt-0.5" />
+                                  <p className="text-xs text-secondary-400 [data-theme='light']:text-secondary-600 flex-1">
+                                    {mapsWarning}
+                                  </p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => setMapsWarning(null)}
+                                  className="text-secondary-500 hover:text-secondary-400 transition-colors flex-shrink-0"
+                                  aria-label="Fermer"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </motion.div>
+                          )}
+                          
+                          {/* Erreurs de localisation */}
+                          {locationError && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="mt-3 p-4 rounded-lg bg-accent-500/10 border border-accent-500/30"
+                            >
+                              <div className="flex items-start space-x-2 mb-3">
+                                <AlertCircle className="w-5 h-5 text-accent-500 flex-shrink-0 mt-0.5" />
+                                <p className="text-sm text-accent-500 flex-1">{locationError}</p>
+                              </div>
+                              
+                              {(locationError.includes('refusé') || locationError.includes('imprécise') || locationError.includes('désactivée')) && (
+                                <div className="mt-3 pt-3 border-t border-accent-500/20">
+                                  {(locationError.includes('refusé') || locationError.includes('désactivée')) && (
+                                    <>
+                                      <p className="text-xs text-secondary-400 [data-theme='light']:text-secondary-600 mb-2">
+                                        <strong className="text-accent-400">🔧 Comment activer la géolocalisation :</strong>
+                                      </p>
+                                      <ul className="text-xs text-secondary-400 [data-theme='light']:text-secondary-600 space-y-1 ml-4 list-disc mb-3">
+                                        <li><strong>Chrome/Edge :</strong> Cliquez sur l'icône de cadenas 🔒 dans la barre d'adresse → Autoriser la localisation</li>
+                                        <li><strong>Firefox :</strong> Cliquez sur l'icône de cadenas → Autorisations → Localisation → Autoriser</li>
+                                        <li><strong>Safari :</strong> Safari → Préférences → Confidentialité → Services de localisation → Autoriser</li>
+                                        <li><strong>Mobile :</strong> Paramètres de l'appareil → Localisation → Activez pour ce navigateur</li>
+                                      </ul>
+                                      <p className="text-xs text-primary-400 mb-3 font-semibold">
+                                        💡 Après avoir activé, cliquez sur "Réessayer" ci-dessous
+                                      </p>
+                                    </>
+                                  )}
+                                  
+                                  {locationError.includes('imprécise') && (
+                                    <p className="text-xs text-secondary-400 [data-theme='light']:text-secondary-600 mb-3">
+                                      <strong className="text-accent-400">💡 Solution recommandée :</strong> Utilisez votre adresse de livraison pour obtenir une position précise. Remplissez votre adresse ci-dessus, puis cliquez sur "Utiliser mon adresse".
+                                    </p>
+                                  )}
+                                  
+                                  <div className="mt-3 flex flex-wrap gap-2">
+                                    {(locationError.includes('refusé') || locationError.includes('désactivée')) && (
+                                      <button
+                                        type="button"
+                                        onClick={getCustomerLocation}
+                                        className="text-xs px-3 py-1.5 rounded-lg bg-primary-500/20 hover:bg-primary-500/30 text-primary-400 border border-primary-500/30 transition-colors font-semibold"
+                                      >
+                                        🔄 Réessayer après activation
+                                      </button>
+                                    )}
+                                    {formData.shipping_address && formData.city && (
+                                      <button
+                                        type="button"
+                                        onClick={geocodeAddress}
+                                        disabled={isLoadingLocation}
+                                        className="text-xs px-3 py-1.5 rounded-lg bg-primary-500/20 hover:bg-primary-500/30 text-primary-400 border border-primary-500/30 transition-colors disabled:opacity-50 font-semibold"
+                                      >
+                                        ✓ Utiliser mon adresse de livraison
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </motion.div>
+                          )}
+                        </div>
+
+                        <div className="mt-4 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 md:gap-4">
+                          <button
+                            type="button"
+                            onClick={getCustomerLocation}
+                            disabled={isLoadingLocation}
+                            className="btn-secondary flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {isLoadingLocation ? (
+                              <>
+                                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                <span>Chargement...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Navigation className="w-4 h-4" />
+                                <span>Obtenir ma position</span>
+                              </>
+                            )}
+                          </button>
+                          
+                          {!customerLocation && formData.shipping_address && formData.city && (
+                            <button
+                              type="button"
+                              onClick={geocodeAddress}
+                              disabled={isLoadingLocation}
+                              className="btn-secondary flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                            >
+                              <MapPin className="w-4 h-4" />
+                              <span>Utiliser mon adresse</span>
+                            </button>
+                          )}
+                          
+                          {customerLocation && distance !== null && (
+                            <div className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-primary-500/10 border border-primary-500/30">
+                              <MapPin className="w-4 h-4 text-primary-400" />
+                              <span className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
+                                Distance: <strong className="text-primary-400 font-semibold">{distance} km</strong>
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Options de livraison */}
+                        <div className="space-y-4 mt-6">
+                          <label className="block text-sm font-medium text-white [data-theme='light']:text-dark-500 mb-3">
+                            Choisissez votre mode de livraison *
+                          </label>
+                          
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                            {/* Option Retrait sur place */}
+                            <button
+                              type="button"
+                              onClick={() => setDeliveryType('pickup')}
+                              className={`p-4 rounded-xl border-2 transition-all text-left ${
+                                deliveryType === 'pickup'
+                                  ? 'border-primary-500 bg-primary-500/10'
+                                  : '[data-theme="dark"]:border-secondary-700 [data-theme="light"]:border-secondary-300 hover:border-primary-400'
+                              }`}
+                            >
+                              <div className="flex items-start space-x-3">
+                                <div className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                                  deliveryType === 'pickup'
+                                    ? 'border-primary-500 bg-primary-500'
+                                    : '[data-theme="dark"]:border-secondary-600 [data-theme="light"]:border-secondary-400'
+                                }`}>
+                                  {deliveryType === 'pickup' && (
+                                    <div className="w-3 h-3 rounded-full bg-white" />
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  <div className="flex items-center space-x-2 mb-1">
+                                    <MapPin className="w-5 h-5 text-primary-400" />
+                                    <h3 className="font-semibold text-white [data-theme='light']:text-dark-500">
+                                      Retrait sur place
+                                    </h3>
+                                  </div>
+                                  <p className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
+                                    Récupérez votre commande directement au magasin
+                                  </p>
+                                  <p className="text-xs text-primary-400 mt-1 font-semibold">
+                                    Gratuit
+                                  </p>
+                                </div>
+                              </div>
+                            </button>
+                            
+                            {/* Option Livraison */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (!customerLocation) {
+                                  setLocationError('Veuillez d\'abord obtenir votre position pour calculer les frais de livraison.')
+                                  return
+                                }
+                                setDeliveryType('delivery')
+                              }}
+                              disabled={!customerLocation}
+                              className={`p-4 rounded-xl border-2 transition-all text-left ${
+                                deliveryType === 'delivery'
+                                  ? 'border-primary-500 bg-primary-500/10'
+                                  : '[data-theme="dark"]:border-secondary-700 [data-theme="light"]:border-secondary-300 hover:border-primary-400'
+                              } ${!customerLocation ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                              <div className="flex items-start space-x-3">
+                                <div className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                                  deliveryType === 'delivery'
+                                    ? 'border-primary-500 bg-primary-500'
+                                    : '[data-theme="dark"]:border-secondary-600 [data-theme="light"]:border-secondary-400'
+                                }`}>
+                                  {deliveryType === 'delivery' && (
+                                    <div className="w-3 h-3 rounded-full bg-white" />
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  <div className="flex items-center space-x-2 mb-1">
+                                    <Package className="w-5 h-5 text-primary-400" />
+                                    <h3 className="font-semibold text-white [data-theme='light']:text-dark-500">
+                                      Livraison à domicile
+                                    </h3>
+                                  </div>
+                                  <p className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
+                                    Livraison à votre adresse
+                                  </p>
+                                  {customerLocation && distance !== null ? (
+                                    <div className="text-xs text-primary-400 mt-1 font-semibold">
+                                      <div>{formatPrice(deliveryFee)}</div>
+                                      <div className="text-xs mt-0.5 opacity-80">
+                                        {distance <= DELIVERY_BASE_DISTANCE 
+                                          ? `(${distance} km - tarif de base)`
+                                          : `(${DELIVERY_BASE_DISTANCE} km à ${DELIVERY_BASE_FEE} F + ${(distance - DELIVERY_BASE_DISTANCE).toFixed(1)} km × ${DELIVERY_FEE_PER_KM} F/km)`
+                                        }
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <p className="text-xs text-accent-500 mt-1">
+                                      Obtenez votre position pour voir les frais
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </button>
+                          </div>
+                        </div>
+                      </motion.div>
+                          </motion.div>
+                      )}
+
+                      {/* Étape 3: Mode de paiement */}
+                      {currentStep === 3 && (
+                        <motion.div
+                          key="step3"
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 20 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <div>
                       <h2 className="text-xl sm:text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-3 md:mb-4 flex items-center space-x-2">
                         <CreditCard className="w-6 h-6 text-primary-400" />
                         <span>Mode de paiement</span>
@@ -1368,10 +1949,45 @@ const Checkout = () => {
                           <p className="mt-1 text-sm text-accent-500">{fieldErrors.payment_method}</p>
                         )}
                       </div>
-                    </div>
+                      
+                      {/* Code promo */}
+                      <div className="mt-6">
+                        <label className="block text-sm font-medium text-white [data-theme='light']:text-dark-500 mb-2 flex items-center space-x-2">
+                          <Tag className="w-4 h-4" />
+                          <span>Code promo (optionnel)</span>
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={promoCode}
+                            onChange={handlePromoCodeChange}
+                            placeholder="Entrez votre code promo"
+                            className="flex-1 px-4 py-3 rounded-xl border [data-theme='dark']:bg-secondary-800/50 [data-theme='dark']:border-secondary-700 [data-theme='dark']:text-white [data-theme='light']:bg-white [data-theme='light']:border-secondary-300 [data-theme='light']:text-dark-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all uppercase"
+                            style={{
+                              color: isDark ? '#ffffff' : '#111827',
+                              WebkitTextFillColor: isDark ? '#ffffff' : '#111827',
+                              backgroundColor: isDark ? '#1f2937' : '#ffffff',
+                              borderColor: promoError ? '#ef4444' : (isDark ? '#374151' : '#d1d5db'),
+                            }}
+                          />
+                          {isValidatingPromo && (
+                            <div className="flex items-center px-4">
+                              <div className="w-5 h-5 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+                            </div>
+                          )}
+                        </div>
+                        {promoError && (
+                          <p className="mt-1 text-sm text-accent-500">{promoError}</p>
+                        )}
+                        {promoDiscount > 0 && (
+                          <p className="mt-2 text-sm text-primary-400 font-semibold">
+                            ✓ Réduction de {formatPrice(promoDiscount)} appliquée !
+                          </p>
+                        )}
+                      </div>
 
                     {/* Notes */}
-                    <div>
+                    <div className="mt-6">
                       <label className="block text-sm font-medium text-white [data-theme='light']:text-dark-500 mb-2">
                         Notes (optionnel)
                       </label>
@@ -1390,13 +2006,97 @@ const Checkout = () => {
                         }}
                       />
                     </div>
+                          </div>
+                      </motion.div>
+                      )}
 
-                    {/* Section Localisation et Livraison */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="glass-effect rounded-xl p-4 md:p-6"
-                    >
+                      {/* Étape 4: Récapitulatif */}
+                      {currentStep === 4 && (
+                        <motion.div
+                          key="step4"
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 20 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <div>
+                            <h2 className="text-xl sm:text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-4 flex items-center space-x-2">
+                              <FileText className="w-6 h-6 text-primary-400" />
+                              <span>Récapitulatif de votre commande</span>
+                            </h2>
+                            
+                            <div className="space-y-4 mb-6">
+                              <div className="glass-effect rounded-lg p-4 border border-primary-500/20">
+                                <h3 className="font-semibold text-white [data-theme='light']:text-dark-500 mb-3">Informations client</h3>
+                                <div className="space-y-1 text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
+                                  <p><strong className="text-white [data-theme='light']:text-dark-500">Nom:</strong> {formData.customer_name}</p>
+                                  <p><strong className="text-white [data-theme='light']:text-dark-500">Email:</strong> {formData.customer_email}</p>
+                                  <p><strong className="text-white [data-theme='light']:text-dark-500">Téléphone:</strong> {formData.customer_phone}</p>
+                                </div>
+                              </div>
+                              
+                              <div className="glass-effect rounded-lg p-4 border border-primary-500/20">
+                                <h3 className="font-semibold text-white [data-theme='light']:text-dark-500 mb-3">Adresse de livraison</h3>
+                                <div className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
+                                  <p>{formData.shipping_address}</p>
+                                  <p>{formData.city}, {formData.country}</p>
+                                  {deliveryType === 'pickup' && (
+                                    <p className="mt-2 text-primary-400 font-semibold">✓ Retrait sur place</p>
+                                  )}
+                                  {deliveryType === 'delivery' && distance !== null && (
+                                    <p className="mt-2 text-primary-400 font-semibold">✓ Livraison à domicile ({distance} km)</p>
+                                  )}
+                                </div>
+                              </div>
+                              
+                              <div className="glass-effect rounded-lg p-4 border border-primary-500/20">
+                                <h3 className="font-semibold text-white [data-theme='light']:text-dark-500 mb-3">Mode de paiement</h3>
+                                <p className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
+                                  {formData.payment_method === 'cash' && 'Espèces'}
+                                  {formData.payment_method === 'mobile_money' && 'Mobile Money'}
+                                  {formData.payment_method === 'bank_transfer' && 'Virement bancaire'}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Boutons de navigation */}
+                    <div className="flex justify-between items-center pt-6 border-t [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200">
+                      <button
+                        type="button"
+                        onClick={prevStep}
+                        disabled={currentStep === 1}
+                        className="btn-secondary flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                        <span>Précédent</span>
+                      </button>
+                      
+                      {currentStep < steps.length ? (
+                        <button
+                          type="button"
+                          onClick={nextStep}
+                          className="btn-primary flex items-center space-x-2"
+                        >
+                          <span>Suivant</span>
+                          <ChevronRight className="w-5 h-5" />
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmModal(true)}
+                          className="btn-primary flex items-center space-x-2"
+                        >
+                          <CheckCircle className="w-5 h-5" />
+                          <span>Confirmer la commande</span>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Ancienne section supprimée - maintenant dans l'étape 2 */}
                       <h2 className="text-xl sm:text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-3 md:mb-4 flex items-center space-x-2">
                         <MapPin className="w-6 h-6 text-primary-400" />
                         <span>Localisation et mode de livraison</span>
@@ -1763,6 +2463,17 @@ const Checkout = () => {
                               </span>
                             </div>
                           )}
+                          
+                          {promoDiscount > 0 && (
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
+                                Réduction code promo
+                              </span>
+                              <span className="text-sm font-semibold text-primary-400">
+                                -{formatPrice(promoDiscount)}
+                              </span>
+                            </div>
+                          )}
 
                           <div className="flex items-center justify-between pt-2 border-t [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200">
                             <span className="text-lg font-semibold text-white [data-theme='light']:text-dark-500">
@@ -1776,24 +2487,6 @@ const Checkout = () => {
                       </motion.div>
                     </div>
 
-                    {/* Bouton de soumission */}
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full btn-primary flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {loading ? (
-                        <>
-                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          <span>Traitement en cours...</span>
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle className="w-5 h-5" />
-                          <span>Confirmer la commande</span>
-                        </>
-                      )}
-                    </button>
                   </motion.form>
                 </div>
 
@@ -1898,6 +2591,17 @@ const Checkout = () => {
                           </span>
                         </div>
                       )}
+                      
+                      {promoDiscount > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-secondary-400 [data-theme='light']:text-secondary-600">
+                            Réduction code promo
+                          </span>
+                          <span className="text-sm font-semibold text-primary-400">
+                            -{formatPrice(promoDiscount)}
+                          </span>
+                        </div>
+                      )}
 
                       <div className="flex items-center justify-between pt-3 border-t-2 [data-theme='dark']:border-primary-500/30 [data-theme='light']:border-primary-500/20">
                         <span className="text-lg font-bold text-white [data-theme='light']:text-dark-500">
@@ -1913,6 +2617,152 @@ const Checkout = () => {
               </div>
             </>
           )}
+          
+          {/* Modal de confirmation */}
+          <AnimatePresence>
+            {showConfirmModal && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+                onClick={() => setShowConfirmModal(false)}
+              >
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.9, opacity: 0 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="glass-effect rounded-xl p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto border-2 border-primary-500/30"
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl md:text-3xl font-display font-bold text-white [data-theme='light']:text-dark-500 flex items-center space-x-2">
+                      <CheckCircle className="w-8 h-8 text-primary-400" />
+                      <span>Confirmer votre commande</span>
+                    </h2>
+                    <button
+                      onClick={() => setShowConfirmModal(false)}
+                      className="text-secondary-400 hover:text-white transition-colors"
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-6">
+                    {/* Récapitulatif produits */}
+                    <div>
+                      <h3 className="text-lg font-semibold text-white [data-theme='light']:text-dark-500 mb-3">Produits</h3>
+                      <div className="space-y-3">
+                        {cart.map((item) => {
+                          const productImage = (item.product.images && item.product.images.length > 0)
+                            ? item.product.images[0]
+                            : item.product.image
+                          
+                          return (
+                            <div key={item.product.id} className="flex items-center space-x-3 p-3 rounded-lg bg-secondary-800/50 [data-theme='light']:bg-secondary-100/50">
+                              {productImage && (
+                                <img
+                                  src={productImage}
+                                  alt={item.product.name}
+                                  className="w-16 h-16 rounded-lg object-cover"
+                                />
+                              )}
+                              <div className="flex-1">
+                                <p className="font-semibold text-white [data-theme='light']:text-dark-500 text-sm">
+                                  {item.product.name}
+                                </p>
+                                <p className="text-xs text-secondary-400 [data-theme='light']:text-secondary-600">
+                                  Qté: {item.quantity} × {formatPrice(getCurrentPrice(item.product))}
+                                </p>
+                              </div>
+                              <p className="font-bold text-white [data-theme='light']:text-dark-500">
+                                {formatPrice(getCurrentPrice(item.product) * item.quantity)}
+                              </p>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                    
+                    {/* Informations */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <h3 className="text-lg font-semibold text-white [data-theme='light']:text-dark-500 mb-2">Livraison</h3>
+                        <p className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
+                          {formData.shipping_address}<br />
+                          {formData.city}, {formData.country}
+                        </p>
+                        <p className="text-sm text-primary-400 mt-2 font-semibold">
+                          {deliveryType === 'pickup' ? 'Retrait sur place' : `Livraison à domicile${distance !== null ? ` (${distance} km)` : ''}`}
+                        </p>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-white [data-theme='light']:text-dark-500 mb-2">Paiement</h3>
+                        <p className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
+                          {formData.payment_method === 'cash' && 'Espèces'}
+                          {formData.payment_method === 'mobile_money' && 'Mobile Money'}
+                          {formData.payment_method === 'bank_transfer' && 'Virement bancaire'}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Total */}
+                    <div className="border-t-2 [data-theme='dark']:border-primary-500/30 [data-theme='light']:border-primary-500/20 pt-4 space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-secondary-400 [data-theme='light']:text-secondary-600">Sous-total</span>
+                        <span className="text-white [data-theme='light']:text-dark-500 font-semibold">{formatPrice(getSubtotal())}</span>
+                      </div>
+                      {deliveryType === 'delivery' && deliveryFee > 0 && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-secondary-400 [data-theme='light']:text-secondary-600">Frais de livraison</span>
+                          <span className="text-white [data-theme='light']:text-dark-500 font-semibold">{formatPrice(deliveryFee)}</span>
+                        </div>
+                      )}
+                      {promoDiscount > 0 && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-secondary-400 [data-theme='light']:text-secondary-600">Réduction</span>
+                          <span className="text-primary-400 font-semibold">-{formatPrice(promoDiscount)}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between pt-2 border-t [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200">
+                        <span className="text-xl font-bold text-white [data-theme='light']:text-dark-500">Total</span>
+                        <span className="text-2xl font-black gradient-text">{formatPrice(getTotalPrice())}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row gap-3 mt-6">
+                    <button
+                      onClick={() => setShowConfirmModal(false)}
+                      className="btn-secondary flex-1"
+                    >
+                      Modifier
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowConfirmModal(false)
+                        handleSubmit()
+                      }}
+                      disabled={loading}
+                      className="btn-primary flex-1 flex items-center justify-center space-x-2 disabled:opacity-50"
+                    >
+                      {loading ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <span>Traitement...</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="w-5 h-5" />
+                          <span>Confirmer et commander</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </>
