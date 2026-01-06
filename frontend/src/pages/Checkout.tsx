@@ -1524,11 +1524,11 @@ const Checkout = () => {
                           transition={{ duration: 0.3 }}
                         >
                           <div>
-                      <h2 className="text-xl sm:text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-3 md:mb-4 flex items-center space-x-2">
-                        <MapPin className="w-6 h-6 text-primary-400" />
-                        <span>Adresse de livraison</span>
-                      </h2>
-                      <div className="space-y-4">
+                            <h2 className="text-xl sm:text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-3 md:mb-4 flex items-center space-x-2">
+                              <MapPin className="w-6 h-6 text-primary-400" />
+                              <span>Adresse de livraison</span>
+                            </h2>
+                            <div className="space-y-4">
                         <div>
                           <label className="block text-sm font-medium text-white [data-theme='light']:text-dark-500 mb-2">
                             Adresse complète *
@@ -1635,12 +1635,12 @@ const Checkout = () => {
                                 borderColor: isDark ? '#374151' : '#d1d5db',
                               }}
                             />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      
-                      {/* Section Localisation et Livraison - Étape 2 */}
-                      <motion.div
+                        
+                        {/* Section Localisation et Livraison - Étape 2 */}
+                        <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="glass-effect rounded-xl p-4 md:p-6 mt-6"
@@ -1903,7 +1903,8 @@ const Checkout = () => {
                           </div>
                         </div>
                       </motion.div>
-                          </motion.div>
+                          </div>
+                        </motion.div>
                       )}
 
                       {/* Étape 3: Mode de paiement */}
@@ -1916,11 +1917,11 @@ const Checkout = () => {
                           transition={{ duration: 0.3 }}
                         >
                           <div>
-                      <h2 className="text-xl sm:text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-3 md:mb-4 flex items-center space-x-2">
-                        <CreditCard className="w-6 h-6 text-primary-400" />
-                        <span>Mode de paiement</span>
-                      </h2>
-                      <div>
+                            <h2 className="text-xl sm:text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-3 md:mb-4 flex items-center space-x-2">
+                              <CreditCard className="w-6 h-6 text-primary-400" />
+                              <span>Mode de paiement</span>
+                            </h2>
+                            <div>
                         <label className="block text-sm font-medium text-white [data-theme='light']:text-dark-500 mb-2">
                           Sélectionnez un mode de paiement *
                         </label>
@@ -1945,13 +1946,13 @@ const Checkout = () => {
                           <option value="mobile_money">Mobile Money</option>
                           <option value="bank_transfer">Virement bancaire</option>
                         </select>
-                        {fieldErrors.payment_method && (
-                          <p className="mt-1 text-sm text-accent-500">{fieldErrors.payment_method}</p>
-                        )}
-                      </div>
-                      
-                      {/* Code promo */}
-                      <div className="mt-6">
+                              {fieldErrors.payment_method && (
+                                <p className="mt-1 text-sm text-accent-500">{fieldErrors.payment_method}</p>
+                              )}
+                            </div>
+                            
+                            {/* Code promo */}
+                            <div className="mt-6">
                         <label className="block text-sm font-medium text-white [data-theme='light']:text-dark-500 mb-2 flex items-center space-x-2">
                           <Tag className="w-4 h-4" />
                           <span>Code promo (optionnel)</span>
@@ -1979,15 +1980,15 @@ const Checkout = () => {
                         {promoError && (
                           <p className="mt-1 text-sm text-accent-500">{promoError}</p>
                         )}
-                        {promoDiscount > 0 && (
-                          <p className="mt-2 text-sm text-primary-400 font-semibold">
-                            ✓ Réduction de {formatPrice(promoDiscount)} appliquée !
-                          </p>
-                        )}
-                      </div>
+                              {promoDiscount > 0 && (
+                                <p className="mt-2 text-sm text-primary-400 font-semibold">
+                                  ✓ Réduction de {formatPrice(promoDiscount)} appliquée !
+                                </p>
+                              )}
+                            </div>
 
-                    {/* Notes */}
-                    <div className="mt-6">
+                            {/* Notes */}
+                            <div className="mt-6">
                       <label className="block text-sm font-medium text-white [data-theme='light']:text-dark-500 mb-2">
                         Notes (optionnel)
                       </label>
@@ -2005,9 +2006,9 @@ const Checkout = () => {
                           borderColor: isDark ? '#374151' : '#d1d5db',
                         }}
                       />
-                    </div>
+                            </div>
                           </div>
-                      </motion.div>
+                        </motion.div>
                       )}
 
                       {/* Étape 4: Récapitulatif */}
@@ -2096,288 +2097,6 @@ const Checkout = () => {
                       )}
                     </div>
 
-                    {/* Ancienne section supprimée - maintenant dans l'étape 2 */}
-                      <h2 className="text-xl sm:text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-3 md:mb-4 flex items-center space-x-2">
-                        <MapPin className="w-6 h-6 text-primary-400" />
-                        <span>Localisation et mode de livraison</span>
-                      </h2>
-
-                      {/* Carte Google Maps */}
-                      <div className="mb-6">
-                        <div ref={mapRef} className="w-full h-64 rounded-lg overflow-hidden border [data-theme='dark']:border-secondary-700 [data-theme='light']:border-secondary-300 relative">
-                          {!import.meta.env.VITE_GOOGLE_MAPS_API_KEY && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-secondary-800/50 [data-theme='light']:bg-secondary-100/50">
-                              <div className="text-center p-4">
-                                <MapPin className="w-12 h-12 text-secondary-400 mx-auto mb-2" />
-                                <p className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
-                                  Carte non disponible
-                                </p>
-                                <p className="text-xs text-secondary-500 mt-1">
-                                  La géolocalisation fonctionne toujours
-                                </p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Avertissement Google Maps (non bloquant) */}
-                        {mapsWarning && (
-                          <motion.div
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            className="mt-3 p-3 rounded-lg bg-secondary-500/10 border border-secondary-500/30"
-                          >
-                            <div className="flex items-start justify-between space-x-2">
-                              <div className="flex items-start space-x-2 flex-1">
-                                <MapPin className="w-4 h-4 text-secondary-400 flex-shrink-0 mt-0.5" />
-                                <p className="text-xs text-secondary-400 [data-theme='light']:text-secondary-600 flex-1">
-                                  {mapsWarning}
-                                </p>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => setMapsWarning(null)}
-                                className="text-secondary-500 hover:text-secondary-400 transition-colors flex-shrink-0"
-                                aria-label="Fermer"
-                              >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                              </button>
-                            </div>
-                          </motion.div>
-                        )}
-                        
-                        {/* Erreurs de localisation */}
-                        {locationError && (
-                          <motion.div
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="mt-3 p-4 rounded-lg bg-accent-500/10 border border-accent-500/30"
-                          >
-                            <div className="flex items-start space-x-2 mb-3">
-                              <AlertCircle className="w-5 h-5 text-accent-500 flex-shrink-0 mt-0.5" />
-                              <p className="text-sm text-accent-500 flex-1">{locationError}</p>
-                            </div>
-                            
-                      {(locationError.includes('refusé') || locationError.includes('imprécise') || locationError.includes('désactivée')) && (
-                        <div className="mt-3 pt-3 border-t border-accent-500/20">
-                          {(locationError.includes('refusé') || locationError.includes('désactivée')) && (
-                            <>
-                              <p className="text-xs text-secondary-400 [data-theme='light']:text-secondary-600 mb-2">
-                                <strong className="text-accent-400">🔧 Comment activer la géolocalisation :</strong>
-                              </p>
-                              <ul className="text-xs text-secondary-400 [data-theme='light']:text-secondary-600 space-y-1 ml-4 list-disc mb-3">
-                                <li><strong>Chrome/Edge :</strong> Cliquez sur l'icône de cadenas 🔒 dans la barre d'adresse → Autoriser la localisation</li>
-                                <li><strong>Firefox :</strong> Cliquez sur l'icône de cadenas → Autorisations → Localisation → Autoriser</li>
-                                <li><strong>Safari :</strong> Safari → Préférences → Confidentialité → Services de localisation → Autoriser</li>
-                                <li><strong>Mobile :</strong> Paramètres de l'appareil → Localisation → Activez pour ce navigateur</li>
-                              </ul>
-                              <p className="text-xs text-primary-400 mb-3 font-semibold">
-                                💡 Après avoir activé, cliquez sur "Réessayer" ci-dessous
-                              </p>
-                            </>
-                          )}
-                          
-                          {locationError.includes('imprécise') && (
-                            <p className="text-xs text-secondary-400 [data-theme='light']:text-secondary-600 mb-3">
-                              <strong className="text-accent-400">💡 Solution recommandée :</strong> Utilisez votre adresse de livraison pour obtenir une position précise. Remplissez votre adresse ci-dessus, puis cliquez sur "Utiliser mon adresse".
-                            </p>
-                          )}
-                          
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            {(locationError.includes('refusé') || locationError.includes('désactivée')) && (
-                              <button
-                                type="button"
-                                onClick={getCustomerLocation}
-                                className="text-xs px-3 py-1.5 rounded-lg bg-primary-500/20 hover:bg-primary-500/30 text-primary-400 border border-primary-500/30 transition-colors font-semibold"
-                              >
-                                🔄 Réessayer après activation
-                              </button>
-                            )}
-                            {formData.shipping_address && formData.city && (
-                              <button
-                                type="button"
-                                onClick={geocodeAddress}
-                                disabled={isLoadingLocation}
-                                className="text-xs px-3 py-1.5 rounded-lg bg-primary-500/20 hover:bg-primary-500/30 text-primary-400 border border-primary-500/30 transition-colors disabled:opacity-50 font-semibold"
-                              >
-                                ✓ Utiliser mon adresse de livraison
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                          </motion.div>
-                        )}
-
-                        <div className="mt-4 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 md:gap-4">
-                          <button
-                            type="button"
-                            onClick={getCustomerLocation}
-                            disabled={isLoadingLocation}
-                            className="btn-secondary flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            {isLoadingLocation ? (
-                              <>
-                                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                                <span>Chargement...</span>
-                              </>
-                            ) : (
-                              <>
-                                <Navigation className="w-4 h-4" />
-                                <span>Obtenir ma position</span>
-                              </>
-                            )}
-                          </button>
-                          
-                          {!customerLocation && formData.shipping_address && formData.city && (
-                            <button
-                              type="button"
-                              onClick={geocodeAddress}
-                              disabled={isLoadingLocation}
-                              className="btn-secondary flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                            >
-                              <MapPin className="w-4 h-4" />
-                              <span>Utiliser mon adresse</span>
-                            </button>
-                          )}
-                          
-                          {customerLocation && distance !== null && (
-                            <div className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-primary-500/10 border border-primary-500/30">
-                              <MapPin className="w-4 h-4 text-primary-400" />
-                              <span className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
-                                Distance: <strong className="text-primary-400 font-semibold">{distance} km</strong>
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Options de livraison */}
-                      <div className="space-y-4">
-                        <label className="block text-sm font-medium text-white [data-theme='light']:text-dark-500 mb-3">
-                          Choisissez votre mode de livraison *
-                        </label>
-                        
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-                          {/* Option Retrait sur place */}
-                          <button
-                            type="button"
-                            onClick={() => setDeliveryType('pickup')}
-                            className={`p-4 rounded-xl border-2 transition-all text-left ${
-                              deliveryType === 'pickup'
-                                ? 'border-primary-500 bg-primary-500/10'
-                                : '[data-theme="dark"]:border-secondary-700 [data-theme="light"]:border-secondary-300 hover:border-primary-400'
-                            }`}
-                          >
-                            <div className="flex items-start space-x-3">
-                              <div className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                                deliveryType === 'pickup'
-                                  ? 'border-primary-500 bg-primary-500'
-                                  : '[data-theme="dark"]:border-secondary-600 [data-theme="light"]:border-secondary-400'
-                              }`}>
-                                {deliveryType === 'pickup' && (
-                                  <div className="w-3 h-3 rounded-full bg-white" />
-                                )}
-                              </div>
-                              <div className="flex-1">
-                                <div className="flex items-center space-x-2 mb-1">
-                                  <MapPin className="w-5 h-5 text-primary-400" />
-                                  <h3 className="font-semibold text-white [data-theme='light']:text-dark-500">
-                                    Retrait sur place
-                                  </h3>
-                                </div>
-                                <p className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
-                                  Récupérez votre commande directement au magasin
-                                </p>
-                                <p className="text-xs text-primary-400 mt-1 font-semibold">
-                                  Gratuit
-                                </p>
-                              </div>
-                            </div>
-                          </button>
-                          
-                          {/* Bouton Itinéraire - affiché quand retrait sur place est sélectionné */}
-                          {deliveryType === 'pickup' && (
-                            <div className="mt-4 col-span-1 sm:col-span-2">
-                              <a
-                                href={`https://www.google.com/maps/dir/?api=1&destination=${STORE_LOCATION.latitude},${STORE_LOCATION.longitude}${customerLocation ? `&origin=${customerLocation.lat},${customerLocation.lng}` : ''}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="btn-primary flex items-center justify-center space-x-2 w-full sm:w-auto"
-                              >
-                                <Route className="w-5 h-5" />
-                                <span>Voir l'itinéraire vers le magasin</span>
-                              </a>
-                              <p className="text-xs text-secondary-400 [data-theme='light']:text-secondary-600 mt-2">
-                                {customerLocation 
-                                  ? 'Itinéraire depuis votre position actuelle'
-                                  : 'Itinéraire vers le magasin (obtenez votre position pour un itinéraire personnalisé)'
-                                }
-                              </p>
-                            </div>
-                          )}
-
-                          {/* Option Livraison */}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (!customerLocation) {
-                                setLocationError('Veuillez d\'abord obtenir votre position pour calculer les frais de livraison.')
-                                return
-                              }
-                              setDeliveryType('delivery')
-                            }}
-                            disabled={!customerLocation}
-                            className={`p-4 rounded-xl border-2 transition-all text-left ${
-                              deliveryType === 'delivery'
-                                ? 'border-primary-500 bg-primary-500/10'
-                                : '[data-theme="dark"]:border-secondary-700 [data-theme="light"]:border-secondary-300 hover:border-primary-400'
-                            } ${!customerLocation ? 'opacity-50 cursor-not-allowed' : ''}`}
-                          >
-                            <div className="flex items-start space-x-3">
-                              <div className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                                deliveryType === 'delivery'
-                                  ? 'border-primary-500 bg-primary-500'
-                                  : '[data-theme="dark"]:border-secondary-600 [data-theme="light"]:border-secondary-400'
-                              }`}>
-                                {deliveryType === 'delivery' && (
-                                  <div className="w-3 h-3 rounded-full bg-white" />
-                                )}
-                              </div>
-                              <div className="flex-1">
-                                <div className="flex items-center space-x-2 mb-1">
-                                  <Package className="w-5 h-5 text-primary-400" />
-                                  <h3 className="font-semibold text-white [data-theme='light']:text-dark-500">
-                                    Livraison à domicile
-                                  </h3>
-                                </div>
-                                <p className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
-                                  Livraison à votre adresse
-                                </p>
-                                {customerLocation && distance !== null ? (
-                                  <div className="text-xs text-primary-400 mt-1 font-semibold">
-                                    <div>{formatPrice(deliveryFee)}</div>
-                                    <div className="text-xs mt-0.5 opacity-80">
-                                      {distance <= DELIVERY_BASE_DISTANCE 
-                                        ? `(${distance} km - tarif de base)`
-                                        : `(${DELIVERY_BASE_DISTANCE} km à ${DELIVERY_BASE_FEE} F + ${(distance - DELIVERY_BASE_DISTANCE).toFixed(1)} km × ${DELIVERY_FEE_PER_KM} F/km)`
-                                      }
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <p className="text-xs text-accent-500 mt-1">
-                                    Obtenez votre position pour voir les frais
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          </button>
-                        </div>
-                      </div>
-                    </motion.div>
 
                     {/* Récapitulatif - Affiché en bas sur mobile, à droite sur desktop */}
                     <div className="lg:hidden">
