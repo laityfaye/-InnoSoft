@@ -1801,7 +1801,7 @@ const Checkout = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="glass-effect rounded-xl p-6 sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto shadow-2xl border-2 border-primary-500/20 hover:border-primary-500/40 transition-all"
+                    className="glass-effect rounded-xl p-6 sticky top-24 shadow-2xl border-2 border-primary-500/20 hover:border-primary-500/40 transition-all"
                   >
                     <div className="flex items-center justify-between mb-6 pb-4 border-b [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200">
                       <h2 className="text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 flex items-center space-x-2">
@@ -1812,7 +1812,7 @@ const Checkout = () => {
                       </h2>
                     </div>
 
-                    <div className="space-y-3 mb-6 max-h-[calc(100vh-450px)] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-primary-500/30 scrollbar-track-transparent">
+                    <div className="space-y-3 mb-6">
                       {cart.map((item) => {
                         const productImage = (item.product.images && item.product.images.length > 0)
                           ? item.product.images[0]
