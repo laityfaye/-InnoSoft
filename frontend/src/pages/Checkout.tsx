@@ -1801,7 +1801,8 @@ const Checkout = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="glass-effect rounded-xl p-6 sticky top-24 shadow-2xl border-2 border-primary-500/20 hover:border-primary-500/40 transition-all"
+                    className="glass-effect rounded-xl p-6 sticky top-24 self-start max-h-[calc(100vh-8rem)] overflow-y-auto shadow-2xl border-2 border-primary-500/20 hover:border-primary-500/40 transition-all z-10"
+                    style={{ scrollbarWidth: 'thin' }}
                   >
                     <div className="flex items-center justify-between mb-6 pb-4 border-b [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200">
                       <h2 className="text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 flex items-center space-x-2">
