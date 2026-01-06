@@ -96,9 +96,20 @@ class OrderController extends Controller
                     $storeLongitude
                 );
                 
-                // Calculer les frais de livraison (250 F par km)
-                $feePerKm = config('store.delivery_fee_per_km', 250);
-                $deliveryFee = round($distance * $feePerKm);
+                // Calculer les frais de livraison
+                // Tarif : 500 F pour les 3 premiers km, puis 167 F par km supplémentaire (proportionnel)
+                $baseFee = config('store.delivery_base_fee', 500); // Frais de base pour 3 km
+                $baseDistance = config('store.delivery_base_distance', 3); // Distance de base (3 km)
+                $feePerKm = config('store.delivery_fee_per_km', 167); // Frais par km supplémentaire (500/3 ≈ 167 F/km)
+                
+                if ($distance <= $baseDistance) {
+                    // Distance ≤ 3 km : frais de base
+                    $deliveryFee = $baseFee;
+                } else {
+                    // Distance > 3 km : frais de base + (distance - 3) × 167 F
+                    $additionalKm = $distance - $baseDistance;
+                    $deliveryFee = $baseFee + round($additionalKm * $feePerKm);
+                }
             }
 
             // Créer la commande

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { ShoppingCart, MapPin, User, CreditCard, CheckCircle, AlertCircle, ArrowLeft, Navigation, Package } from 'lucide-react'
+import { ShoppingCart, MapPin, User, CreditCard, CheckCircle, AlertCircle, ArrowLeft, Navigation, Package, Route } from 'lucide-react'
 import { useTheme } from '../hooks/useTheme'
 import { ordersApi } from '../services/api'
 import SEO from '../components/SEO'
@@ -50,7 +50,22 @@ const STORE_LOCATION = {
   address: '',
 }
 
-const DELIVERY_FEE_PER_KM = 250 // Frais de livraison par kilomètre en FCFA
+// Configuration des frais de livraison
+const DELIVERY_BASE_FEE = 500 // Frais de base pour les 3 premiers km en FCFA
+const DELIVERY_BASE_DISTANCE = 3 // Distance de base (3 km)
+const DELIVERY_FEE_PER_KM = 167 // Frais par kilomètre supplémentaire en FCFA (500/3 ≈ 167 F/km)
+
+// Calculer les frais de livraison selon la distance
+const calculateDeliveryFee = (distance: number): number => {
+  if (distance <= DELIVERY_BASE_DISTANCE) {
+    // Distance ≤ 3 km : frais de base
+    return DELIVERY_BASE_FEE
+  } else {
+    // Distance > 3 km : frais de base + (distance - 3) × 167 F
+    const additionalKm = distance - DELIVERY_BASE_DISTANCE
+    return DELIVERY_BASE_FEE + Math.round(additionalKm * DELIVERY_FEE_PER_KM)
+  }
+}
 
 const Checkout = () => {
   const { isDark } = useTheme()
@@ -389,11 +404,11 @@ const Checkout = () => {
     console.log('⏳ Attente du verrouillage GPS (cela peut prendre 10-30 secondes)...')
     console.log('💡 Assurez-vous que le GPS est activé sur votre appareil et que vous êtes à l\'extérieur ou près d\'une fenêtre')
 
-    // Options très agressives pour forcer l'utilisation du GPS
+    // Options optimisées pour mobile (équilibre entre précision et vitesse)
     const geolocationOptions: PositionOptions = {
-      enableHighAccuracy: true, // FORCER l'utilisation du GPS
-      timeout: 60000, // 60 secondes de timeout (augmenté pour laisser le temps au GPS)
-      maximumAge: 0 // Ne JAMAIS utiliser de position en cache
+      enableHighAccuracy: true, // Utiliser le GPS si disponible
+      timeout: 30000, // 30 secondes de timeout (réduit pour être plus rapide)
+      maximumAge: 5000 // Accepter une position récente (5 secondes) pour être plus rapide
     }
     
     console.log('⚙️ Options de géolocalisation:', geolocationOptions)
@@ -402,11 +417,11 @@ const Checkout = () => {
     let bestPosition: GeolocationPosition | null = null
     let bestAccuracy = Infinity
     let attempts = 0
-    const maxAttempts = 50 // Maximum 50 mises à jour (environ 2-3 minutes)
-    const targetAccuracy = 100 // Objectif : précision de 100 mètres ou moins
-    const maxAcceptableAccuracy = 1000 // Maximum acceptable : 1 km
+    const maxAttempts = 20 // Maximum 20 mises à jour (environ 30-60 secondes)
+    const targetAccuracy = 200 // Objectif : précision de 200 mètres ou moins (plus rapide)
+    const maxAcceptableAccuracy = 500 // Maximum acceptable : 500 mètres (plus rapide)
 
-    // Timeout global pour arrêter après 2 minutes maximum
+    // Timeout global pour arrêter après 45 secondes maximum (réduit de 2 minutes)
     const globalTimeout = setTimeout(() => {
       if (watchPositionIdRef.current !== null && navigator.geolocation) {
         navigator.geolocation.clearWatch(watchPositionIdRef.current)
@@ -477,7 +492,7 @@ const Checkout = () => {
           }
         }
       }
-    }, 120000) // 2 minutes maximum
+    }, 45000) // 45 secondes maximum (optimisé pour mobile)
 
     // Utiliser watchPosition pour surveiller les mises à jour de position
     // Cela permet d'attendre que le GPS se verrouille et améliore sa précision
@@ -502,7 +517,7 @@ const Checkout = () => {
           console.log(`✨ Nouvelle meilleure position (précision: ${bestAccuracy.toFixed(0)} m)`)
         }
 
-        // Si la précision est excellente (< 100m), utiliser immédiatement
+        // Si la précision est excellente (< 200m), utiliser immédiatement
         if (accuracy <= targetAccuracy) {
           console.log(`✅ GPS verrouillé avec précision excellente (${accuracy.toFixed(0)} m) !`)
           
@@ -520,9 +535,27 @@ const Checkout = () => {
           return
         }
 
-        // Si la précision est acceptable (< 1km) et qu'on a fait plusieurs tentatives, utiliser
-        if (accuracy <= maxAcceptableAccuracy && attempts >= 5) {
+        // Si la précision est acceptable (< 500m) et qu'on a fait au moins 2 tentatives, utiliser rapidement
+        if (accuracy <= maxAcceptableAccuracy && attempts >= 2) {
           console.log(`✅ GPS verrouillé avec précision acceptable (${accuracy.toFixed(0)} m) après ${attempts} tentatives`)
+          
+          // Arrêter la surveillance
+          if (watchPositionIdRef.current !== null && navigator.geolocation) {
+            navigator.geolocation.clearWatch(watchPositionIdRef.current)
+            watchPositionIdRef.current = null
+          }
+          clearTimeout(globalTimeout)
+          
+          setCustomerLocation({ lat, lng })
+          const distance = calculateDistance(lat, lng)
+          console.log('📏 Distance calculée:', distance, 'km')
+          setIsLoadingLocation(false)
+          return
+        }
+
+        // Si la précision est raisonnable (< 1km) après 5 tentatives, utiliser
+        if (accuracy <= 1000 && attempts >= 5) {
+          console.log(`✅ GPS verrouillé avec précision raisonnable (${accuracy.toFixed(0)} m) après ${attempts} tentatives`)
           
           // Arrêter la surveillance
           if (watchPositionIdRef.current !== null && navigator.geolocation) {
@@ -742,7 +775,7 @@ const Checkout = () => {
       const dist = calculateDistance(customerLocation.lat, customerLocation.lng)
       setDistance(dist)
       if (deliveryType === 'delivery') {
-        setDeliveryFee(Math.round(dist * DELIVERY_FEE_PER_KM))
+        setDeliveryFee(calculateDeliveryFee(dist))
       } else {
         setDeliveryFee(0)
       }
@@ -993,7 +1026,7 @@ const Checkout = () => {
                   <p className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600 mt-4">
                     Vous recevrez un email de confirmation à l'adresse {formData.customer_email}
                   </p>
-                  <div className="mt-6 flex gap-4">
+                  <div className="mt-4 md:mt-6 flex flex-col sm:flex-row gap-3 md:gap-4">
                     <button
                       onClick={() => navigate('/products')}
                       className="btn-primary"
@@ -1044,7 +1077,7 @@ const Checkout = () => {
                   <ArrowLeft className="w-5 h-5" />
                   <span>Retour aux produits</span>
                 </button>
-                <h1 className="text-4xl md:text-5xl font-display font-bold mb-4">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold mb-4">
                   Finaliser votre <span className="gradient-text">commande</span>
                 </h1>
                 <p className="text-secondary-400 [data-theme='light']:text-secondary-600">
@@ -1052,9 +1085,9 @@ const Checkout = () => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
                 {/* Formulaire */}
-                <div className="lg:col-span-2">
+                <div className="lg:col-span-2 order-2 lg:order-1">
                   <motion.form
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -1063,7 +1096,7 @@ const Checkout = () => {
                   >
                     {/* Informations client */}
                     <div>
-                      <h2 className="text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-4 flex items-center space-x-2">
+                      <h2 className="text-xl sm:text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-3 md:mb-4 flex items-center space-x-2">
                         <User className="w-6 h-6 text-primary-400" />
                         <span>Informations client</span>
                       </h2>
@@ -1096,7 +1129,7 @@ const Checkout = () => {
                           )}
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                           <div>
                             <label className="block text-sm font-medium text-white [data-theme='light']:text-dark-500 mb-2">
                               Email *
@@ -1158,7 +1191,7 @@ const Checkout = () => {
 
                     {/* Adresse de livraison */}
                     <div>
-                      <h2 className="text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-4 flex items-center space-x-2">
+                      <h2 className="text-xl sm:text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-3 md:mb-4 flex items-center space-x-2">
                         <MapPin className="w-6 h-6 text-primary-400" />
                         <span>Adresse de livraison</span>
                       </h2>
@@ -1191,7 +1224,7 @@ const Checkout = () => {
                           )}
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                           <div>
                             <label className="block text-sm font-medium text-white [data-theme='light']:text-dark-500 mb-2">
                               Ville *
@@ -1245,7 +1278,7 @@ const Checkout = () => {
 
                     {/* Mode de paiement */}
                     <div>
-                      <h2 className="text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-4 flex items-center space-x-2">
+                      <h2 className="text-xl sm:text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-3 md:mb-4 flex items-center space-x-2">
                         <CreditCard className="w-6 h-6 text-primary-400" />
                         <span>Mode de paiement</span>
                       </h2>
@@ -1305,9 +1338,9 @@ const Checkout = () => {
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="glass-effect rounded-xl p-6"
+                      className="glass-effect rounded-xl p-4 md:p-6"
                     >
-                      <h2 className="text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-4 flex items-center space-x-2">
+                      <h2 className="text-xl sm:text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-3 md:mb-4 flex items-center space-x-2">
                         <MapPin className="w-6 h-6 text-primary-400" />
                         <span>Localisation et mode de livraison</span>
                       </h2>
@@ -1422,7 +1455,7 @@ const Checkout = () => {
                           </motion.div>
                         )}
 
-                        <div className="mt-4 flex flex-wrap items-center gap-4">
+                        <div className="mt-4 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 md:gap-4">
                           <button
                             type="button"
                             onClick={getCustomerLocation}
@@ -1471,7 +1504,7 @@ const Checkout = () => {
                           Choisissez votre mode de livraison *
                         </label>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                           {/* Option Retrait sur place */}
                           <button
                             type="button"
@@ -1508,6 +1541,27 @@ const Checkout = () => {
                               </div>
                             </div>
                           </button>
+                          
+                          {/* Bouton Itinéraire - affiché quand retrait sur place est sélectionné */}
+                          {deliveryType === 'pickup' && (
+                            <div className="mt-4 col-span-1 sm:col-span-2">
+                              <a
+                                href={`https://www.google.com/maps/dir/?api=1&destination=${STORE_LOCATION.latitude},${STORE_LOCATION.longitude}${customerLocation ? `&origin=${customerLocation.lat},${customerLocation.lng}` : ''}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn-primary flex items-center justify-center space-x-2 w-full sm:w-auto"
+                              >
+                                <Route className="w-5 h-5" />
+                                <span>Voir l'itinéraire vers le magasin</span>
+                              </a>
+                              <p className="text-xs text-secondary-400 [data-theme='light']:text-secondary-600 mt-2">
+                                {customerLocation 
+                                  ? 'Itinéraire depuis votre position actuelle'
+                                  : 'Itinéraire vers le magasin (obtenez votre position pour un itinéraire personnalisé)'
+                                }
+                              </p>
+                            </div>
+                          )}
 
                           {/* Option Livraison */}
                           <button
@@ -1547,9 +1601,15 @@ const Checkout = () => {
                                   Livraison à votre adresse
                                 </p>
                                 {customerLocation && distance !== null ? (
-                                  <p className="text-xs text-primary-400 mt-1 font-semibold">
-                                    {formatPrice(deliveryFee)} ({distance} km × {DELIVERY_FEE_PER_KM} F/km)
-                                  </p>
+                                  <div className="text-xs text-primary-400 mt-1 font-semibold">
+                                    <div>{formatPrice(deliveryFee)}</div>
+                                    <div className="text-xs mt-0.5 opacity-80">
+                                      {distance <= DELIVERY_BASE_DISTANCE 
+                                        ? `(${distance} km - tarif de base)`
+                                        : `(${DELIVERY_BASE_DISTANCE} km à ${DELIVERY_BASE_FEE} F + ${(distance - DELIVERY_BASE_DISTANCE).toFixed(1)} km × ${DELIVERY_FEE_PER_KM} F/km)`
+                                      }
+                                    </div>
+                                  </div>
                                 ) : (
                                   <p className="text-xs text-accent-500 mt-1">
                                     Obtenez votre position pour voir les frais
@@ -1584,12 +1644,12 @@ const Checkout = () => {
                 </div>
 
                 {/* Récapitulatif */}
-                <div className="lg:col-span-1">
+                <div className="lg:col-span-1 order-1 lg:order-2">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="glass-effect rounded-xl p-6 sticky top-32"
+                    className="glass-effect rounded-xl p-4 md:p-6 sticky top-20 lg:top-32 mb-6 lg:mb-0"
                   >
                     <h2 className="text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-6 flex items-center space-x-2">
                       <ShoppingCart className="w-6 h-6 text-primary-400" />
@@ -1645,7 +1705,14 @@ const Checkout = () => {
                             Frais de livraison
                             {distance !== null && (
                               <span className="block text-xs mt-0.5">
-                                ({distance} km × {DELIVERY_FEE_PER_KM} F/km)
+                                {distance !== null && (
+                                  <span className="block text-xs mt-0.5">
+                                    {distance <= DELIVERY_BASE_DISTANCE 
+                                      ? `(${distance} km - tarif de base)`
+                                      : `(${DELIVERY_BASE_DISTANCE} km à ${DELIVERY_BASE_FEE} F + ${(distance - DELIVERY_BASE_DISTANCE).toFixed(1)} km × ${DELIVERY_FEE_PER_KM} F/km)`
+                                    }
+                                  </span>
+                                )}
                               </span>
                             )}
                           </span>
