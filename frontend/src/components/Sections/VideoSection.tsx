@@ -219,9 +219,7 @@ const VideoSection = () => {
                 Autres Vidéos
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-                {otherVideos.map((otherVideo, index) => {
-                  const otherVideoUrl = getVideoUrl(otherVideo)
-                  return (
+                {otherVideos.map((otherVideo, index) => (
                     <motion.div
                       key={otherVideo.id}
                       initial={{ opacity: 0, scale: 0.9 }}
@@ -262,8 +260,7 @@ const VideoSection = () => {
                         </div>
                       </div>
                     </motion.div>
-                  )
-                })}
+                ))}
               </div>
             </motion.div>
           )}
