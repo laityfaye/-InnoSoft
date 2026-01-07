@@ -25,7 +25,7 @@ export const useSectionNavigation = ({
   const transitionDirectionRef = useRef<'left' | 'right'>('left')
 
   // Fonction pour naviguer vers une section avec transition animée
-  const scrollToSection = useCallback((sectionId: string, direction: 'left' | 'right' = 'left') => {
+  const scrollToSection = useCallback((sectionId: string) => {
     // Empêcher le scroll pendant la transition
     setIsTransitioning(true)
     
@@ -180,7 +180,7 @@ export const useSectionNavigation = ({
       // Petit délai pour s'assurer que l'overlay est rendu avant le scroll
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          scrollToSection(sectionId, 'left')
+          scrollToSection(sectionId)
         })
       })
       
@@ -209,7 +209,7 @@ export const useSectionNavigation = ({
       // Petit délai pour s'assurer que l'overlay est rendu avant le scroll
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          scrollToSection(sectionId, 'right')
+          scrollToSection(sectionId)
         })
       })
       
