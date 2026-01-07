@@ -12,10 +12,10 @@ const Stats = () => {
   const [isHovered, setIsHovered] = useState(false)
 
   const stats = [
-    { icon: Users, value: '500+', label: 'Clients satisfaits', color: 'primary' },
-    { icon: Briefcase, value: '1000+', label: 'Projets réalisés', color: 'secondary' },
-    { icon: Award, value: '50+', label: 'Prix & Reconnaissances', color: 'accent' },
-    { icon: TrendingUp, value: '98%', label: 'Taux de satisfaction', color: 'primary' },
+    { icon: Users, value: '500+', label: 'Clients satisfaits' },
+    { icon: Briefcase, value: '1000+', label: 'Projets réalisés' },
+    { icon: Award, value: '50+', label: 'Prix & Reconnaissances' },
+    { icon: TrendingUp, value: '98%', label: 'Taux de satisfaction' },
   ]
 
   const Counter = ({ end, suffix = '', duration = 2 }: { end: number; suffix?: string; duration?: number }) => {
@@ -79,11 +79,8 @@ const Stats = () => {
         >
           {stats.map((stat, index) => {
             const Icon = stat.icon
-            const colorClasses = {
-              primary: 'bg-gradient-primary',
-              secondary: 'bg-gradient-secondary',
-              accent: 'bg-gradient-to-r from-accent-500 to-accent-400',
-            }
+            // Même rouge partout (charte) : identique aux boutons et aux textes en dégradé
+            const iconBgClass = 'bg-gradient-primary'
 
             return (
               <motion.div
@@ -97,7 +94,7 @@ const Stats = () => {
                 {/* Background Glow */}
                 <div className="absolute -inset-2 sm:-inset-3 md:-inset-4 bg-gradient-primary opacity-0 group-hover:opacity-10 blur-xl sm:blur-2xl transition-opacity duration-700 -z-10" />
                 
-                <div className={`w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 ${colorClasses[stat.color as keyof typeof colorClasses]} rounded-xl sm:rounded-2xl flex items-center justify-center mb-3 sm:mb-4 md:mb-6 mx-auto shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-500`}>
+                <div className={`w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 ${iconBgClass} rounded-xl sm:rounded-2xl flex items-center justify-center mb-3 sm:mb-4 md:mb-6 mx-auto shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-500`}>
                   <Icon className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 text-white relative z-10" />
                 </div>
                 <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-black gradient-text mb-2 sm:mb-3 tracking-tight">

@@ -75,23 +75,31 @@ const Home = () => {
       />
       <Hero />
       <Stats />
+      <div id="decouvrez-notre-histoire">
+        <VideoSection />
+      </div>
       <ServicesPreview />
+      <div id="nos-realisations">
+        <Portfolio />
+      </div>
       <TechStack />
-      <Portfolio />
       <Process />
       <Features />
-      <Team />
+      <div id="notre-equipe">
+        <Team />
+      </div>
       <Certifications />
       <Awards />
-      <Partners />
-      <VideoSection />
-      <BlogPreview />
+      <div id="actualites-conseils">
+        <BlogPreview />
+      </div>
       <Testimonials />
       <FAQ />
       <QuickContact />
       <SocialMedia />
-      <Newsletter />
       <CTA />
+      <Newsletter />
+      <Partners />
     </>
   )
 }

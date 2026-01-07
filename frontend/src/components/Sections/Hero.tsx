@@ -1,15 +1,59 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Sparkles, Code, Smartphone } from 'lucide-react'
 import { useInView } from 'react-intersection-observer'
 import BackgroundStars from './BackgroundStars'
 import SmallShootingStars from './SmallShootingStars'
+import { useSectionNavigation } from '../../hooks/useSectionNavigation'
 
 const Hero = () => {
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
+  })
+
+  // Sections cibles pour le swipe horizontal (dans l'ordre)
+  // Le Hero est inclus comme première section pour permettre de revenir en arrière
+  const sections = [
+    'hero', // Hero (point de départ)
+    'decouvrez-notre-histoire', // VideoSection
+    'nos-realisations', // Portfolio
+    'actualites-conseils', // BlogPreview
+    'notre-equipe', // Team
+  ]
+
+  const heroRef = useRef<HTMLElement | null>(null)
+
+  // Activer le swipe uniquement sur mobile
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  const [transitionDirection, setTransitionDirection] = useState<'left' | 'right'>('left')
+  const [isTransitioning, setIsTransitioning] = useState(false)
+
+  // Utiliser le hook de navigation globale
+  // Swipe gauche = section suivante, Swipe droite = section précédente
+  useSectionNavigation({
+    sections,
+    threshold: 80,
+    enabled: isMobile,
+    onSectionChange: (_index, direction) => {
+      setTransitionDirection(direction)
+      setIsTransitioning(true)
+      // Réinitialiser après la transition
+      setTimeout(() => {
+        setIsTransitioning(false)
+      }, 600)
+    },
   })
 
   const scrollingWords = [
@@ -53,11 +97,57 @@ const Hero = () => {
     },
   }
 
+  // Combiner les refs
+  const combinedRef = (node: HTMLElement | null) => {
+    ref(node) // ref de useInView est toujours une fonction
+    heroRef.current = node
+  }
+
   return (
-    <section
-      ref={ref}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 sm:pt-24 md:pt-28 lg:pt-32 pb-20 sm:pb-24 w-full"
-    >
+    <>
+      {/* Overlay de transition pour l'effet "pages d'un livre" - masque complètement le contenu */}
+      <AnimatePresence>
+        {isTransitioning && (
+          <motion.div
+            key="transition-overlay"
+            initial={{ 
+              x: transitionDirection === 'left' ? '100%' : '-100%',
+              opacity: 1,
+            }}
+            animate={{ 
+              x: 0,
+              opacity: 1,
+            }}
+            exit={{ 
+              x: transitionDirection === 'left' ? '-100%' : '100%',
+              opacity: 1,
+            }}
+            transition={{
+              type: 'tween',
+              ease: [0.4, 0, 0.2, 1],
+              duration: 0.15, // Animation rapide pour masquer immédiatement le contenu
+            }}
+            className="fixed inset-0 z-[9999] pointer-events-auto"
+            style={{
+              background: 'rgba(0, 0, 0, 1)',
+              willChange: 'transform',
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+            }}
+            onAnimationStart={() => {
+              // S'assurer que le scroll est bloqué dès que l'animation commence
+              document.body.style.overflow = 'hidden'
+              document.documentElement.style.overflow = 'hidden'
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <section
+        id="hero"
+        ref={combinedRef}
+        className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 sm:pt-24 md:pt-28 lg:pt-32 pb-20 sm:pb-24 w-full"
+      >
       {/* Enhanced Animated Background */}
       <div className="absolute inset-0 [data-theme='dark']:bg-gradient-to-br [data-theme='dark']:from-dark-500 [data-theme='dark']:via-dark-600 [data-theme='dark']:to-dark-500 [data-theme='light']:bg-gradient-to-br [data-theme='light']:from-white [data-theme='light']:via-secondary-50 [data-theme='light']:to-secondary-100">
         {/* Grid Pattern Overlay */}
@@ -240,7 +330,7 @@ const Hero = () => {
             <motion.div
               className="flex whitespace-nowrap"
               animate={{
-                x: [0, '-50%'],
+                x: ['0%', '-50%'],
               }}
               transition={{
                 x: {
@@ -415,6 +505,7 @@ const Hero = () => {
         </motion.div>
       </motion.div>
     </section>
+    </>
   )
 }
 
