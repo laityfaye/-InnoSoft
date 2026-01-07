@@ -270,6 +270,51 @@
     display: none;
   }
 
+  /* Horizontal scroll sections pour mobile */
+  .horizontal-scroll-mobile {
+    width: 100vw;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    position: relative;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    touch-action: pan-x;
+  }
+
+  .horizontal-scroll-mobile::-webkit-scrollbar {
+    display: none;
+  }
+
+  .horizontal-scroll-inner {
+    display: flex;
+    width: max-content;
+    height: 100%;
+  }
+
+  .horizontal-scroll-section {
+    flex: 0 0 100vw;
+    width: 100vw;
+    min-height: 100vh;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .horizontal-scroll-section > * {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .horizontal-scroll-section section {
+    width: 100% !important;
+    max-width: 100vw !important;
+  }
+
   /* Scrollbar personnalisée pour Dashboard */
   .scrollbar-thin {
     scrollbar-width: thin;
