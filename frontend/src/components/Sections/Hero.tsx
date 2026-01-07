@@ -240,7 +240,7 @@ const Hero = () => {
             <motion.div
               className="flex whitespace-nowrap"
               animate={{
-                x: ['0%', '-50%'],
+                x: [0, '-50%'],
               }}
               transition={{
                 x: {

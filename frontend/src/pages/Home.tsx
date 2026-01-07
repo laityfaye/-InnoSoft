@@ -18,7 +18,6 @@ import Awards from '../components/Sections/Awards'
 import VideoSection from '../components/Sections/VideoSection'
 import QuickContact from '../components/Sections/QuickContact'
 import SEO from '../components/SEO'
-import HorizontalScrollSections from '../components/HorizontalScrollSections'
 
 const Home = () => {
   // Données structurées LocalBusiness pour améliorer le SEO local
@@ -78,20 +77,15 @@ const Home = () => {
       <Stats />
       <ServicesPreview />
       <TechStack />
+      <Portfolio />
       <Process />
       <Features />
+      <Team />
       <Certifications />
       <Awards />
       <Partners />
-      
-      {/* Sections avec défilement horizontal sur mobile */}
-      <HorizontalScrollSections>
-        <VideoSection />
-        <Portfolio />
-        <BlogPreview />
-        <Team />
-      </HorizontalScrollSections>
-      
+      <VideoSection />
+      <BlogPreview />
       <Testimonials />
       <FAQ />
       <QuickContact />
