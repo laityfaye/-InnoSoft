@@ -25,23 +25,37 @@ const VideoSection = () => {
 
   const [isPlaying, setIsPlaying] = useState(false)
   const [video, setVideo] = useState<Video | null>(null)
+  const [otherVideos, setOtherVideos] = useState<Video[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchVideo = async () => {
+    const fetchVideos = async () => {
       try {
-        const response = await videosApi.getFeatured()
-        if (response.data.success && response.data.data) {
-          setVideo(response.data.data)
+        // Récupérer la vidéo featured
+        const featuredResponse = await videosApi.getFeatured()
+        if (featuredResponse.data.success && featuredResponse.data.data) {
+          setVideo(featuredResponse.data.data)
+        }
+
+        // Récupérer toutes les vidéos actives
+        const allVideosResponse = await videosApi.getAll()
+        if (allVideosResponse.data.success && allVideosResponse.data.data) {
+          const allVideos = allVideosResponse.data.data as Video[]
+          // Filtrer pour exclure la vidéo featured et ne garder que les actives
+          const featuredId = featuredResponse.data.data?.id
+          const other = allVideos
+            .filter(v => v.is_active && v.id !== featuredId)
+            .sort((a, b) => a.order - b.order)
+          setOtherVideos(other)
         }
       } catch (error) {
-        console.error('Error fetching featured video:', error)
+        console.error('Error fetching videos:', error)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchVideo()
+    fetchVideos()
   }, [])
 
   if (loading) {
@@ -52,19 +66,33 @@ const VideoSection = () => {
     return null
   }
 
-  const getVideoUrl = () => {
-    if (video.video_type === 'direct' && video.video_file) {
-      return video.video_file
+  const getVideoUrl = (videoItem: Video) => {
+    if (videoItem.video_type === 'direct' && videoItem.video_file) {
+      return videoItem.video_file
     }
-    if (video.video_url) {
+    if (videoItem.video_url) {
       // Le modèle retourne déjà l'URL embed complète, on ajoute juste autoplay
-      const separator = video.video_url.includes('?') ? '&' : '?'
-      return `${video.video_url}${separator}autoplay=1`
+      const separator = videoItem.video_url.includes('?') ? '&' : '?'
+      return `${videoItem.video_url}${separator}autoplay=1`
     }
     return null
   }
 
-  const videoUrl = getVideoUrl()
+  const handleVideoSelect = (selectedVideo: Video) => {
+    // Si une vidéo principale existe, la remettre dans la liste des autres vidéos
+    if (video) {
+      setOtherVideos(prev => {
+        const updated = prev.filter(v => v.id !== selectedVideo.id)
+        // Ajouter l'ancienne vidéo principale à la liste, triée par order
+        updated.push(video)
+        return updated.sort((a, b) => a.order - b.order)
+      })
+    }
+    setVideo(selectedVideo)
+    setIsPlaying(false)
+  }
+
+  const videoUrl = video ? getVideoUrl(video) : null
 
   return (
     <section ref={ref} className="section-padding relative overflow-hidden w-full">
@@ -122,9 +150,9 @@ const VideoSection = () => {
                     onClick={() => setIsPlaying(true)}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    className="relative z-10 w-24 h-24 rounded-full bg-gradient-primary flex items-center justify-center shadow-2xl group"
+                    className="relative z-30 w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-primary flex items-center justify-center shadow-2xl group pointer-events-auto"
                   >
-                    <Play className="w-12 h-12 text-white ml-1" fill="white" />
+                    <Play className="w-10 h-10 sm:w-12 sm:h-12 text-white ml-1" fill="white" />
                     <motion.div
                       animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
                       transition={{ duration: 2, repeat: Infinity }}
@@ -132,13 +160,25 @@ const VideoSection = () => {
                     />
                   </motion.button>
 
-                  {/* Overlay Text */}
-                  <div className="absolute bottom-8 left-8 right-8 z-10">
-                    <h3 className="text-2xl font-bold text-white mb-2">
+                  {/* Overlay Text - Masqué en mobile pour éviter le chevauchement avec le bouton play */}
+                  <div className="absolute bottom-8 left-8 right-8 z-10 hidden sm:block pointer-events-none">
+                    <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
                       {video.title}
                     </h3>
                     {video.description && (
-                      <p className="text-white/80">
+                      <p className="text-sm sm:text-base text-white/80">
+                        {video.description}
+                      </p>
+                    )}
+                  </div>
+                  
+                  {/* Texte pour mobile - Positionné en haut pour éviter le chevauchement */}
+                  <div className="absolute top-4 left-4 right-4 z-10 sm:hidden pointer-events-none">
+                    <h3 className="text-lg font-bold text-white mb-1 drop-shadow-lg">
+                      {video.title}
+                    </h3>
+                    {video.description && (
+                      <p className="text-xs text-white/90 drop-shadow-md line-clamp-2">
                         {video.description}
                       </p>
                     )}
@@ -166,6 +206,67 @@ const VideoSection = () => {
               </div>
             )}
           </motion.div>
+
+          {/* Other Videos Grid */}
+          {otherVideos.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.6, duration: 0.6 }}
+              className="mt-8"
+            >
+              <h3 className="text-xl sm:text-2xl font-bold text-white [data-theme='light']:text-dark-500 mb-4 sm:mb-6 text-center">
+                Autres Vidéos
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                {otherVideos.map((otherVideo, index) => {
+                  const otherVideoUrl = getVideoUrl(otherVideo)
+                  return (
+                    <motion.div
+                      key={otherVideo.id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={inView ? { opacity: 1, scale: 1 } : {}}
+                      transition={{ delay: 0.7 + index * 0.1, duration: 0.4 }}
+                      onClick={() => handleVideoSelect(otherVideo)}
+                      className="relative aspect-video rounded-lg sm:rounded-xl overflow-hidden glass-effect border-primary-500/20 cursor-pointer group hover:border-primary-500/40 transition-all duration-300"
+                    >
+                      {/* Thumbnail */}
+                      <div className="relative w-full h-full bg-gradient-to-br from-primary-500/20 to-secondary-500/20">
+                        {otherVideo.thumbnail ? (
+                          <div 
+                            className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-300" 
+                            style={{ backgroundImage: `url(${otherVideo.thumbnail})` }} 
+                          />
+                        ) : (
+                          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200')] bg-cover bg-center opacity-30 group-hover:scale-110 transition-transform duration-300" />
+                        )}
+                        
+                        {/* Overlay sombre au hover */}
+                        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-colors duration-300" />
+                        
+                        {/* Play Button */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <motion.div
+                            whileHover={{ scale: 1.1 }}
+                            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-primary flex items-center justify-center shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                          >
+                            <Play className="w-5 h-5 sm:w-6 sm:h-6 text-white ml-0.5" fill="white" />
+                          </motion.div>
+                        </div>
+                        
+                        {/* Title */}
+                        <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 bg-gradient-to-t from-black/80 to-transparent">
+                          <h4 className="text-xs sm:text-sm font-semibold text-white line-clamp-2 drop-shadow-lg">
+                            {otherVideo.title}
+                          </h4>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )
+                })}
+              </div>
+            </motion.div>
+          )}
 
           {/* Additional Info */}
           <motion.div
