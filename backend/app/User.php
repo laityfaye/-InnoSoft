@@ -28,4 +28,20 @@ class User extends Authenticatable
         'password' => 'hashed',
         'is_admin' => 'boolean',
     ];
+
+    /**
+     * Relation avec les boutiques possédées
+     */
+    public function boutiques()
+    {
+        return $this->hasMany(Boutique::class, 'owner_id');
+    }
+
+    /**
+     * Vérifier si l'utilisateur est propriétaire d'une boutique
+     */
+    public function isBoutiqueOwner()
+    {
+        return $this->boutiques()->exists();
+    }
 }

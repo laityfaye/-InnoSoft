@@ -137,10 +137,13 @@
 
         <div class="action-box">
             <h3>Action requise</h3>
-            <p style="margin: 0; color: #1976D2;">
+            <p style="margin: 0 0 15px 0; color: #1976D2;">
                 Veuillez réapprovisionner ce produit rapidement pour éviter une rupture de stock.
                 Connectez-vous au panneau d'administration pour mettre à jour le stock.
             </p>
+            <div style="text-align: center;">
+                <a href="https://innosft.com/admin/dashboard" style="display: inline-block; background: #2196F3; color: white; padding: 10px 25px; text-decoration: none; border-radius: 5px;">Accéder au panneau d'administration</a>
+            </div>
         </div>
 
         <div class="footer">

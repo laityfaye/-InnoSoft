@@ -20,6 +20,7 @@ const Header = () => {
     { path: '/', label: 'Accueil' },
     { path: '/services', label: 'Services' },
     { path: '/products', label: 'Nos produits' },
+    { path: '/boutiques', label: 'Boutique UIDT' },
     { path: '/portfolio', label: 'Portfolio' },
     { path: '/about', label: 'À propos' },
     { path: '/contact', label: 'Contact' },

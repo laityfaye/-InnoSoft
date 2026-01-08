@@ -498,17 +498,17 @@ const Products = () => {
       {/* Search and Filter Section */}
       <section ref={ref} className="container-custom mb-8">
         <div className="flex flex-col gap-4 mb-6">
-          {/* Top Row: Search, Sort, Filters, Cart */}
-          <div className="flex flex-col md:flex-row gap-4">
+          {/* Top Row: Search, Sort, Filters, Cart - All on same line */}
+          <div className="flex flex-row gap-2 sm:gap-3 md:gap-4">
             {/* Search Bar */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-secondary-400" />
+            <div className="flex-1 relative min-w-0">
+              <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-secondary-400" />
               <input
                 type="text"
-                placeholder="Rechercher un produit..."
+                placeholder="Rechercher..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 rounded-xl 
+                className="w-full pl-9 sm:pl-12 pr-3 sm:pr-4 py-2 sm:py-2.5 md:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base
                   [data-theme='dark']:bg-secondary-800/50 [data-theme='dark']:border-secondary-700 [data-theme='dark']:text-white [data-theme='dark']:placeholder-secondary-400
                   [data-theme='light']:bg-white [data-theme='light']:border-secondary-300 [data-theme='light']:text-dark-500 [data-theme='light']:border-2 [data-theme='light']:placeholder-secondary-400
                   border focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
@@ -519,60 +519,62 @@ const Products = () => {
                 }}
               />
               {searchTerm !== debouncedSearchTerm && (
-                <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                  <div className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+                <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2">
+                  <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
                 </div>
               )}
             </div>
 
             {/* Sort Dropdown */}
-            <div className="relative">
+            <div className="relative flex-shrink-0">
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="px-4 py-3 rounded-xl 
+                className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm md:text-base
                   [data-theme='dark']:bg-secondary-800/50 [data-theme='dark']:border-secondary-700 [data-theme='dark']:text-white
                   [data-theme='light']:bg-white [data-theme='light']:border-secondary-300 [data-theme='light']:text-dark-500 [data-theme='light']:border-2
-                  border focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all appearance-none pr-10"
+                  border focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all appearance-none pr-6 sm:pr-8 md:pr-10
+                  [data-theme='dark']:[&>option]:bg-secondary-800 [data-theme='dark']:[&>option]:text-white
+                  [data-theme='light']:[&>option]:bg-white [data-theme='light']:[&>option]:text-dark-500"
                 style={{
                   color: isDark ? '#ffffff' : '#111827',
                   backgroundColor: isDark ? '#1f2937' : '#ffffff',
                   borderColor: isDark ? '#374151' : '#d1d5db',
                 }}
               >
-                <option value="default">Trier par défaut</option>
-                <option value="price-asc">Prix croissant</option>
-                <option value="price-desc">Prix décroissant</option>
+                <option value="default">Trier</option>
+                <option value="price-asc">Prix ↑</option>
+                <option value="price-desc">Prix ↓</option>
                 <option value="name-asc">Nom A-Z</option>
                 <option value="name-desc">Nom Z-A</option>
-                <option value="rating-desc">Meilleures notes</option>
-                <option value="stock-desc">Stock disponible</option>
+                <option value="rating-desc">Note</option>
+                <option value="stock-desc">Stock</option>
               </select>
-              <ArrowUpDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-secondary-400 pointer-events-none" />
+              <ArrowUpDown className="absolute right-1.5 sm:right-2 md:right-3 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-secondary-400 pointer-events-none" />
             </div>
 
             {/* Filters Toggle Button */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`px-4 py-3 rounded-xl font-medium flex items-center space-x-2 transition-all ${
+              className={`px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 rounded-lg sm:rounded-xl font-medium flex items-center justify-center space-x-1 sm:space-x-2 transition-all flex-shrink-0 ${
                 showFilters
                   ? 'bg-gradient-primary text-white shadow-glow'
                   : 'glass-effect text-secondary-300 [data-theme="light"]:text-secondary-700 hover:text-primary-400'
               }`}
             >
-              <Filter className="w-5 h-5" />
-              <span className="hidden md:inline">Filtres</span>
+              <Filter className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">Filtres</span>
             </button>
 
             {/* Cart Button */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="relative px-6 py-3 rounded-xl bg-gradient-primary text-white font-semibold flex items-center space-x-2 hover:shadow-glow transition-all transform hover:scale-105"
+              className="relative px-2 sm:px-3 md:px-4 lg:px-6 py-2 sm:py-2.5 md:py-3 rounded-lg sm:rounded-xl bg-gradient-primary text-white font-semibold flex items-center justify-center space-x-1 sm:space-x-2 hover:shadow-glow transition-all transform hover:scale-105 flex-shrink-0"
             >
-              <ShoppingCart className="w-5 h-5" />
-              <span className="hidden md:inline">Panier</span>
+              <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden lg:inline">Panier</span>
               {cart.length > 0 && (
-                <span className="absolute -top-2 -right-2 w-6 h-6 bg-accent-500 rounded-full flex items-center justify-center text-xs font-bold animate-pulse">
+                <span className="absolute -top-1 -right-1 sm:-top-1.5 sm:-right-1.5 md:-top-2 md:-right-2 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 bg-accent-500 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold animate-pulse">
                   {cart.reduce((sum, item) => sum + item.quantity, 0)}
                 </span>
               )}
@@ -714,20 +716,20 @@ const Products = () => {
                   className="glass-effect rounded-2xl p-6 hover:shadow-glow-lg transition-all group cursor-pointer relative"
                   onClick={() => handleProductClick(product.id)}
                 >
+                {/* Product Image */}
+                <div className="relative w-full h-48 rounded-xl mb-4 overflow-hidden">
                   {/* Featured Badge */}
                   {product.is_featured && (
-                    <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-gradient-primary text-white text-xs font-bold z-10">
+                    <div className="absolute top-2 left-2 sm:top-3 sm:left-3 px-2 py-1 sm:px-3 sm:py-1 rounded-full bg-gradient-primary text-white text-[10px] sm:text-xs font-bold z-20 shadow-lg">
                       ⭐ Mis en avant
                     </div>
                   )}
                   {/* Promotion Badge */}
                   {isPromotionActive(product) && (
-                    <div className={`absolute top-3 ${product.is_featured ? 'right-3' : 'left-3'} px-3 py-1 rounded-full bg-accent-500 text-white text-xs font-bold z-10 shadow-lg`}>
+                    <div className={`absolute ${product.is_featured ? 'top-12 right-2 sm:top-14 sm:right-3' : 'top-2 right-2 sm:top-3 sm:right-3'} px-2 py-1 sm:px-3 sm:py-1 rounded-full bg-accent-500 text-white text-[10px] sm:text-xs font-bold z-20 shadow-lg`}>
                       🔥 Promotion
                     </div>
                   )}
-                {/* Product Image */}
-                <div className="relative w-full h-48 rounded-xl mb-4 overflow-hidden">
                   {(() => {
                     // Utiliser la première image du tableau images si disponible, sinon image
                     const displayImage = (product.images && product.images.length > 0) 
@@ -759,13 +761,13 @@ const Products = () => {
                   
                   {/* Badge nombre d'images si plusieurs */}
                   {product.images && product.images.length > 1 && (
-                    <div className="absolute top-3 left-3 px-2 py-1 rounded-full bg-black/60 text-white text-xs font-bold flex items-center space-x-1">
+                    <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 px-2 py-1 rounded-full bg-black/60 text-white text-[10px] sm:text-xs font-bold flex items-center space-x-1 z-20">
                       <span>📷</span>
                       <span>{product.images.length}</span>
                     </div>
                   )}
                     {product.stock > 0 && product.stock <= 5 && (
-                      <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-accent-500/90 text-white text-xs font-bold z-10">
+                      <div className={`absolute ${!product.is_featured && !isPromotionActive(product) ? 'top-2 right-2 sm:top-3 sm:right-3' : 'bottom-2 right-2 sm:bottom-3 sm:right-3'} px-2 py-1 sm:px-3 sm:py-1 rounded-full bg-accent-500/90 text-white text-[10px] sm:text-xs font-bold z-20 shadow-lg`}>
                         Bientôt épuisé
                       </div>
                     )}

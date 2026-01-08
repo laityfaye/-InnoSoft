@@ -72,12 +72,13 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  autoComplete="off"
                   className="w-full pl-10 pr-4 py-3 rounded-lg border
                     [data-theme='dark']:bg-secondary-800 [data-theme='dark']:border-secondary-700 [data-theme='dark']:text-white [data-theme='dark']:placeholder-secondary-400
                     [data-theme='dark']:hover:bg-secondary-700 [data-theme='dark']:hover:border-secondary-600
                     [data-theme='light']:bg-white [data-theme='light']:border-2 [data-theme='light']:border-secondary-300 [data-theme='light']:text-secondary-900 [data-theme='light']:placeholder-secondary-400
                     focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
-                  placeholder="admin@innosoft.com"
+                  placeholder="Entrez votre email"
                   style={{
                     color: isDark ? '#ffffff' : '#111827',
                     backgroundColor: isDark ? '#1f2937' : '#ffffff',
@@ -99,12 +100,13 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  autoComplete="new-password"
                   className="w-full pl-10 pr-4 py-3 rounded-lg border
                     [data-theme='dark']:bg-secondary-800 [data-theme='dark']:border-secondary-700 [data-theme='dark']:text-white [data-theme='dark']:placeholder-secondary-400
                     [data-theme='dark']:hover:bg-secondary-700 [data-theme='dark']:hover:border-secondary-600
                     [data-theme='light']:bg-white [data-theme='light']:border-2 [data-theme='light']:border-secondary-300 [data-theme='light']:text-secondary-900 [data-theme='light']:placeholder-secondary-400
                     focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
-                  placeholder="••••••••"
+                  placeholder="Entrez votre mot de passe"
                   style={{
                     color: isDark ? '#ffffff' : '#111827',
                     backgroundColor: isDark ? '#1f2937' : '#ffffff',

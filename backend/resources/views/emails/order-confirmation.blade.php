@@ -221,6 +221,10 @@
         </div>
         @endif
 
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="https://innosft.com/" style="display: inline-block; background: #0066FF; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0;">Visiter notre site web</a>
+        </div>
+
         <div class="footer">
             <p><strong>InnoSoft Creation</strong></p>
             <p>Ville verte, Thiès, Sénégal</p>

@@ -16,6 +16,8 @@ const Footer = () => {
     { name: 'Portfolio', path: '/portfolio' },
     { name: 'Contact', path: '/contact' },
     { name: 'Blog', path: '/blog' },
+    { name: 'Boutique UIDT', path: '/boutiques' },
+    { name: 'Ouvrir une boutique', path: '/boutique-request' },
   ]
 
   const socialLinks = [

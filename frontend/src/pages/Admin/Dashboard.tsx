@@ -2,12 +2,12 @@ import { useState, useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '../../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import { adminApi, projectsApi, productsApi, contactMessagesApi } from '../../services/api'
+import { adminApi, projectsApi, productsApi, contactMessagesApi, boutiqueRequestAdminApi } from '../../services/api'
 import { useTheme } from '../../hooks/useTheme'
 import RichTextEditor from '../../components/Admin/RichTextEditor'
 import { 
   LogOut, MessageSquare, FolderKanban, CheckCircle, XCircle, 
-  Edit, Trash2, Plus, Star, Eye, EyeOff, Upload, X, Image as ImageIcon, Video, ShoppingBag, Building2, Newspaper, Users, Mail, Linkedin, Github, Award, Shield, Trophy, Medal, TrendingUp, Share2, Send, MessageCircle, Menu, X as XIcon, Search, Phone, Clock, Copy, ArrowUpDown, RefreshCw
+  Edit, Trash2, Plus, Star, Eye, EyeOff, Upload, X, Image as ImageIcon, Video, ShoppingBag, Building2, Newspaper, Users, Mail, Linkedin, Github, Award, Shield, Trophy, Medal, TrendingUp, Share2, Send, MessageCircle, Menu, X as XIcon, Search, Phone, Clock, Copy, ArrowUpDown, RefreshCw, Store, AlertCircle
 } from 'lucide-react'
 
 interface Testimonial {
@@ -210,11 +210,26 @@ interface ContactMessage {
   updated_at: string
 }
 
+interface BoutiqueRequest {
+  id: number
+  name: string
+  email: string
+  phone?: string
+  boutique_name: string
+  description?: string
+  status: 'pending' | 'approved' | 'rejected'
+  admin_notes?: string
+  processed_at?: string
+  processed_by?: number
+  created_at: string
+  updated_at: string
+}
+
 const Dashboard = () => {
   const { isDark } = useTheme()
   const { user, logout, isAuthenticated, loading: authLoading } = useAuth()
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState<'testimonials' | 'projects' | 'products' | 'partners' | 'news' | 'team' | 'certifications' | 'awards' | 'videos' | 'socialLinks' | 'chat' | 'contactMessages'>('testimonials')
+  const [activeTab, setActiveTab] = useState<'testimonials' | 'projects' | 'products' | 'partners' | 'news' | 'team' | 'certifications' | 'awards' | 'videos' | 'socialLinks' | 'chat' | 'contactMessages' | 'boutiqueRequests'>('testimonials')
   const [showMetrics, setShowMetrics] = useState(true)
   const [testimonials, setTestimonials] = useState<Testimonial[]>([])
   const [projects, setProjects] = useState<Project[]>([])
@@ -237,6 +252,12 @@ const Dashboard = () => {
   const [contactMessageFilter, setContactMessageFilter] = useState<'all' | 'unread' | 'replied' | 'unreplied'>('all')
   const [contactMessageSearch, setContactMessageSearch] = useState('')
   const [contactMessageSort, setContactMessageSort] = useState<'newest' | 'oldest' | 'name'>('newest')
+  const [boutiqueRequests, setBoutiqueRequests] = useState<BoutiqueRequest[]>([])
+  const [selectedBoutiqueRequest, setSelectedBoutiqueRequest] = useState<BoutiqueRequest | null>(null)
+  const [boutiqueRequestFilter, setBoutiqueRequestFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all')
+  const [boutiqueRequestSearch, setBoutiqueRequestSearch] = useState('')
+  const [rejectNotes, setRejectNotes] = useState('')
+  const [isProcessingRequest, setIsProcessingRequest] = useState(false)
   const [productSearch, setProductSearch] = useState('')
   const [productCategoryFilter, setProductCategoryFilter] = useState<string>('all')
   const [productStockFilter, setProductStockFilter] = useState<string>('all')
@@ -426,7 +447,8 @@ const Dashboard = () => {
         videosRes,
         socialLinksRes,
         conversationsRes,
-        contactMessagesRes
+        contactMessagesRes,
+        boutiqueRequestsRes
       ] = await Promise.all([
         adminApi.testimonials.getAll().catch(() => ({ data: { data: [] } })),
         projectsApi.getAll().catch(() => ({ data: { data: [] } })),
@@ -439,7 +461,8 @@ const Dashboard = () => {
         adminApi.videos.getAll().catch(() => ({ data: { data: [] } })),
         adminApi.socialLinks.getAll().catch(() => ({ data: { data: [] } })),
         adminApi.chat.getAllConversations().catch(() => ({ data: { data: [] } })),
-        contactMessagesApi.getAll().catch(() => ({ data: { data: [] } }))
+        contactMessagesApi.getAll().catch(() => ({ data: { data: [] } })),
+        boutiqueRequestAdminApi.getAll().catch(() => ({ data: { data: [] } }))
       ])
 
       const allTestimonials = testimonialsRes.data.data || []
@@ -454,11 +477,13 @@ const Dashboard = () => {
       const allSocialLinks = socialLinksRes.data.data || []
       const allConversations = conversationsRes.data.data || []
       const allContactMessages = contactMessagesRes.data.data || []
+      const allBoutiqueRequests = boutiqueRequestsRes.data.data || []
 
       const pendingTestimonials = allTestimonials.filter((t: Testimonial) => !t.is_approved).length
       const publishedNews = allNews.filter((n: News) => n.is_published).length
       const activeTeamMembers = allTeamMembers.filter((m: TeamMember) => m.is_active).length
       const unreadMessages = allConversations.reduce((sum: number, conv: any) => sum + (conv.unread_count || 0), 0)
+      const pendingBoutiqueRequests = allBoutiqueRequests.filter((r: BoutiqueRequest) => r.status === 'pending').length
       
       // Mettre à jour les états pour que les compteurs de la sidebar soient corrects
       setTestimonials(allTestimonials)
@@ -473,6 +498,7 @@ const Dashboard = () => {
       setSocialLinks(allSocialLinks)
       setConversations(allConversations)
       setContactMessages(allContactMessages)
+      setBoutiqueRequests(allBoutiqueRequests)
       
       setMetrics({
         totalTestimonials: allTestimonials.length,
@@ -530,6 +556,10 @@ const Dashboard = () => {
       } else if (activeTab === 'contactMessages') {
         const response = await contactMessagesApi.getAll()
         setContactMessages(response.data.data || [])
+      } else if (activeTab === 'boutiqueRequests') {
+        const status = boutiqueRequestFilter === 'all' ? undefined : boutiqueRequestFilter
+        const response = await boutiqueRequestAdminApi.getAll(status)
+        setBoutiqueRequests(response.data.data || [])
       }
     } catch (error) {
       console.error('Error loading data:', error)
@@ -1702,6 +1732,79 @@ const Dashboard = () => {
     return filtered
   }, [contactMessages, contactMessageFilter, contactMessageSearch, contactMessageSort])
 
+  const filteredBoutiqueRequests = useMemo(() => {
+    let filtered = boutiqueRequests.filter((req) => {
+      if (boutiqueRequestFilter !== 'all' && req.status !== boutiqueRequestFilter) return false
+
+      if (boutiqueRequestSearch.trim()) {
+        const searchLower = boutiqueRequestSearch.toLowerCase()
+        return (
+          req.name.toLowerCase().includes(searchLower) ||
+          req.email.toLowerCase().includes(searchLower) ||
+          req.boutique_name.toLowerCase().includes(searchLower) ||
+          (req.description && req.description.toLowerCase().includes(searchLower))
+        )
+      }
+
+      return true
+    })
+
+    // Tri par date de création (plus récent en premier)
+    return filtered.sort((a, b) => {
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    })
+  }, [boutiqueRequests, boutiqueRequestFilter, boutiqueRequestSearch])
+
+  const handleApproveRequest = async (id: number) => {
+    if (!confirm('Êtes-vous sûr de vouloir approuver cette demande ? La boutique sera créée et des identifiants seront envoyés au demandeur.')) return
+    
+    setIsProcessingRequest(true)
+    try {
+      await boutiqueRequestAdminApi.approve(id)
+      await loadData()
+      setSelectedBoutiqueRequest(null)
+      alert('La demande a été approuvée avec succès. La boutique a été créée et les identifiants ont été envoyés par email.')
+    } catch (error: any) {
+      console.error('Error approving request:', error)
+      alert(error.response?.data?.message || 'Erreur lors de l\'approbation de la demande')
+    } finally {
+      setIsProcessingRequest(false)
+    }
+  }
+
+  const handleRejectRequest = async (id: number) => {
+    if (!confirm('Êtes-vous sûr de vouloir rejeter cette demande ?')) return
+    
+    setIsProcessingRequest(true)
+    try {
+      await boutiqueRequestAdminApi.reject(id, rejectNotes || undefined)
+      setRejectNotes('')
+      await loadData()
+      setSelectedBoutiqueRequest(null)
+      alert('La demande a été rejetée.')
+    } catch (error: any) {
+      console.error('Error rejecting request:', error)
+      alert(error.response?.data?.message || 'Erreur lors du rejet de la demande')
+    } finally {
+      setIsProcessingRequest(false)
+    }
+  }
+
+  const handleDeleteRequest = async (id: number) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette demande ? Cette action est irréversible.')) return
+    
+    try {
+      await boutiqueRequestAdminApi.delete(id)
+      await loadData()
+      if (selectedBoutiqueRequest?.id === id) {
+        setSelectedBoutiqueRequest(null)
+      }
+    } catch (error: any) {
+      console.error('Error deleting request:', error)
+      alert(error.response?.data?.message || 'Erreur lors de la suppression de la demande')
+    }
+  }
+
   const handleSendReply = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!chatMessage.trim() || !selectedConversation) return
@@ -1771,6 +1874,7 @@ const Dashboard = () => {
       items: [
         { id: 'chat', label: 'Chat', icon: MessageCircle, count: conversations.length, badge: conversations.some((c: any) => (c.unread_count || 0) > 0) },
         { id: 'contactMessages', label: 'Messages', icon: Mail, count: contactMessages.length, badge: contactMessages.filter((m: ContactMessage) => !m.is_read).length > 0 },
+        { id: 'boutiqueRequests', label: 'Demandes Boutique', icon: Store, count: boutiqueRequests.length, badge: boutiqueRequests.filter((r: BoutiqueRequest) => r.status === 'pending').length > 0 },
         { id: 'testimonials', label: 'Témoignages', icon: MessageSquare, count: testimonials.length },
       ],
     },
@@ -2014,6 +2118,7 @@ const Dashboard = () => {
               {activeTab === 'socialLinks' && 'Réseaux sociaux'}
               {activeTab === 'chat' && 'Chat'}
               {activeTab === 'contactMessages' && 'Messages de Contact'}
+              {activeTab === 'boutiqueRequests' && 'Demandes de Boutique'}
             </h2>
           </div>
 
@@ -6846,6 +6951,382 @@ const Dashboard = () => {
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Boutique Requests Tab */}
+        {activeTab === 'boutiqueRequests' && (
+          <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0 overflow-hidden">
+            {/* Liste des demandes */}
+            <div className="w-full lg:w-1/3 xl:w-1/4 flex flex-col border-r border-primary-500/20 pr-0 lg:pr-6 min-h-0">
+              {/* Statistiques rapides */}
+              <div className="grid grid-cols-2 gap-2 mb-3 flex-shrink-0">
+                <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-2.5 text-center">
+                  <div className="text-xl font-bold text-orange-400">{boutiqueRequests.filter(r => r.status === 'pending').length}</div>
+                  <div className="text-xs text-secondary-400">En attente</div>
+                </div>
+                <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-2.5 text-center">
+                  <div className="text-xl font-bold text-green-400">{boutiqueRequests.filter(r => r.status === 'approved').length}</div>
+                  <div className="text-xs text-secondary-400">Approuvées</div>
+                </div>
+              </div>
+
+              {/* Header avec recherche et filtres */}
+              <div className="mb-3 space-y-3 flex-shrink-0">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-white [data-theme='light']:text-dark-500">
+                    Demandes ({boutiqueRequests.length})
+                  </h3>
+                  <button
+                    onClick={() => {
+                      loadData()
+                      setSelectedBoutiqueRequest(null)
+                    }}
+                    className="text-secondary-400 hover:text-primary-400 transition-colors p-1.5 hover:bg-primary-500/10 rounded-lg"
+                    title="Actualiser"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Barre de recherche */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-secondary-400" />
+                  <input
+                    type="text"
+                    value={boutiqueRequestSearch}
+                    onChange={(e) => setBoutiqueRequestSearch(e.target.value)}
+                    placeholder="Rechercher..."
+                    className="w-full pl-10 pr-10 py-2 rounded-lg glass-effect border border-primary-500/20 focus:border-primary-500/50 focus:outline-none text-white [data-theme='light']:text-dark-500 placeholder:text-secondary-400 text-sm transition-all"
+                    style={{
+                      backgroundColor: isDark ? 'rgba(31, 41, 55, 0.5)' : 'rgba(255, 255, 255, 0.5)',
+                    }}
+                  />
+                  {boutiqueRequestSearch && (
+                    <button
+                      onClick={() => setBoutiqueRequestSearch('')}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-secondary-400 hover:text-white transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Filtres */}
+                <div className="flex flex-wrap gap-1.5">
+                  <button
+                    onClick={() => {
+                      setBoutiqueRequestFilter('all')
+                      loadData()
+                    }}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
+                      boutiqueRequestFilter === 'all'
+                        ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/30'
+                        : 'bg-secondary-700/50 [data-theme="light"]:bg-secondary-200 text-secondary-300 [data-theme="light"]:text-secondary-700 hover:bg-primary-500/20'
+                    }`}
+                  >
+                    Toutes ({boutiqueRequests.length})
+                  </button>
+                  <button
+                    onClick={() => {
+                      setBoutiqueRequestFilter('pending')
+                      loadData()
+                    }}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center space-x-1 whitespace-nowrap ${
+                      boutiqueRequestFilter === 'pending'
+                        ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/30'
+                        : 'bg-secondary-700/50 [data-theme="light"]:bg-secondary-200 text-secondary-300 [data-theme="light"]:text-secondary-700 hover:bg-orange-500/20'
+                    }`}
+                  >
+                    <Clock className="w-3 h-3" />
+                    <span>En attente ({boutiqueRequests.filter(r => r.status === 'pending').length})</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setBoutiqueRequestFilter('approved')
+                      loadData()
+                    }}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center space-x-1 whitespace-nowrap ${
+                      boutiqueRequestFilter === 'approved'
+                        ? 'bg-green-500 text-white shadow-lg shadow-green-500/30'
+                        : 'bg-secondary-700/50 [data-theme="light"]:bg-secondary-200 text-secondary-300 [data-theme="light"]:text-secondary-700 hover:bg-green-500/20'
+                    }`}
+                  >
+                    <CheckCircle className="w-3 h-3" />
+                    <span>Approuvées ({boutiqueRequests.filter(r => r.status === 'approved').length})</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setBoutiqueRequestFilter('rejected')
+                      loadData()
+                    }}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center space-x-1 whitespace-nowrap ${
+                      boutiqueRequestFilter === 'rejected'
+                        ? 'bg-red-500 text-white shadow-lg shadow-red-500/30'
+                        : 'bg-secondary-700/50 [data-theme="light"]:bg-secondary-200 text-secondary-300 [data-theme="light"]:text-secondary-700 hover:bg-red-500/20'
+                    }`}
+                  >
+                    <XCircle className="w-3 h-3" />
+                    <span>Rejetées ({boutiqueRequests.filter(r => r.status === 'rejected').length})</span>
+                  </button>
+                </div>
+              </div>
+              
+              {/* Liste des demandes filtrées */}
+              <div className="flex-1 overflow-y-auto min-h-0 pr-2 -mr-2 scrollbar-thin scrollbar-thumb-primary-500/20 scrollbar-track-transparent">
+                {loading ? (
+                  <div className="text-center py-12">
+                    <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto" />
+                    <p className="text-secondary-400 mt-4 text-sm">Chargement...</p>
+                  </div>
+                ) : filteredBoutiqueRequests.length === 0 ? (
+                  <div className="text-center py-12 text-secondary-400">
+                    <Store className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                    <p className="text-sm">
+                      {boutiqueRequestSearch 
+                        ? 'Aucune demande trouvée' 
+                        : boutiqueRequestFilter !== 'all'
+                        ? `Aucune demande ${boutiqueRequestFilter === 'pending' ? 'en attente' : boutiqueRequestFilter === 'approved' ? 'approuvée' : 'rejetée'}`
+                        : 'Aucune demande'}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2.5 pb-2">
+                    {filteredBoutiqueRequests.map((req) => (
+                      <motion.div
+                        key={req.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={`group relative p-3 rounded-lg cursor-pointer transition-all ${
+                          selectedBoutiqueRequest?.id === req.id
+                            ? 'glass-effect border-primary-500/50 border-2 shadow-lg shadow-primary-500/20'
+                            : 'glass-effect border-primary-500/0 border hover:border-primary-500/20 hover:shadow-md'
+                        }`}
+                        onClick={() => setSelectedBoutiqueRequest(req)}
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-white [data-theme='light']:text-dark-500 text-sm truncate">
+                              {req.boutique_name}
+                            </h4>
+                            <p className="text-xs text-secondary-400 truncate">{req.name}</p>
+                          </div>
+                          <div className={`px-2 py-0.5 rounded text-xs font-medium ml-2 flex-shrink-0 ${
+                            req.status === 'pending' ? 'bg-orange-500/20 text-orange-400' :
+                            req.status === 'approved' ? 'bg-green-500/20 text-green-400' :
+                            'bg-red-500/20 text-red-400'
+                          }`}>
+                            {req.status === 'pending' ? 'En attente' :
+                             req.status === 'approved' ? 'Approuvée' : 'Rejetée'}
+                          </div>
+                        </div>
+                        <p className="text-xs text-secondary-500 mb-2 line-clamp-2">
+                          {req.description || 'Pas de description'}
+                        </p>
+                        <p className="text-xs text-secondary-600">
+                          {formatRelativeTime(req.created_at)}
+                        </p>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Détails de la demande sélectionnée */}
+            {selectedBoutiqueRequest ? (
+              <div className="flex-1 flex flex-col min-h-0">
+                <div className="flex-1 overflow-y-auto pr-2 -mr-2 scrollbar-thin scrollbar-thumb-primary-500/20 scrollbar-track-transparent">
+                  <div className="glass-effect rounded-xl p-6 space-y-6">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-2">
+                          {selectedBoutiqueRequest.boutique_name}
+                        </h3>
+                        <div className={`inline-flex px-3 py-1 rounded-lg text-sm font-medium ${
+                          selectedBoutiqueRequest.status === 'pending' ? 'bg-orange-500/20 text-orange-400' :
+                          selectedBoutiqueRequest.status === 'approved' ? 'bg-green-500/20 text-green-400' :
+                          'bg-red-500/20 text-red-400'
+                        }`}>
+                          {selectedBoutiqueRequest.status === 'pending' ? 'En attente' :
+                           selectedBoutiqueRequest.status === 'approved' ? 'Approuvée' : 'Rejetée'}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setSelectedBoutiqueRequest(null)}
+                        className="text-secondary-400 hover:text-white transition-colors p-2 hover:bg-primary-500/10 rounded-lg"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-xs font-medium text-secondary-400 [data-theme='light']:text-secondary-600 uppercase tracking-wide mb-1 block">
+                          Nom du demandeur
+                        </label>
+                        <p className="text-white [data-theme='light']:text-dark-500 font-medium">{selectedBoutiqueRequest.name}</p>
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-secondary-400 [data-theme='light']:text-secondary-600 uppercase tracking-wide mb-1 block">
+                          Email
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <a href={`mailto:${selectedBoutiqueRequest.email}`} className="text-primary-400 hover:text-primary-300 break-all">
+                            {selectedBoutiqueRequest.email}
+                          </a>
+                          <button
+                            onClick={async () => {
+                              await navigator.clipboard.writeText(selectedBoutiqueRequest.email)
+                              alert('Email copié dans le presse-papiers')
+                            }}
+                            className="text-secondary-400 hover:text-primary-400 transition-colors p-1"
+                            title="Copier l'email"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      {selectedBoutiqueRequest.phone && (
+                        <div>
+                          <label className="text-xs font-medium text-secondary-400 [data-theme='light']:text-secondary-600 uppercase tracking-wide mb-1 block">
+                            Téléphone
+                          </label>
+                          <a href={`tel:${selectedBoutiqueRequest.phone}`} className="text-primary-400 hover:text-primary-300">
+                            {selectedBoutiqueRequest.phone}
+                          </a>
+                        </div>
+                      )}
+                      <div>
+                        <label className="text-xs font-medium text-secondary-400 [data-theme='light']:text-secondary-600 uppercase tracking-wide mb-1 block">
+                          Date de soumission
+                        </label>
+                        <div className="space-y-1">
+                          <p className="text-white [data-theme='light']:text-dark-500">{formatRelativeTime(selectedBoutiqueRequest.created_at)}</p>
+                          <p className="text-xs text-secondary-500">
+                            {new Date(selectedBoutiqueRequest.created_at).toLocaleString('fr-FR', {
+                              day: '2-digit',
+                              month: 'long',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {selectedBoutiqueRequest.description && (
+                      <div>
+                        <label className="text-xs font-medium text-secondary-400 [data-theme='light']:text-secondary-600 uppercase tracking-wide mb-2 block">
+                          Description
+                        </label>
+                        <div className="glass-effect rounded-lg p-4">
+                          <p className="text-white [data-theme='light']:text-dark-500 whitespace-pre-wrap">
+                            {selectedBoutiqueRequest.description}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedBoutiqueRequest.admin_notes && (
+                      <div>
+                        <label className="text-xs font-medium text-secondary-400 [data-theme='light']:text-secondary-600 uppercase tracking-wide mb-2 block">
+                          Notes de l'administrateur
+                        </label>
+                        <div className="glass-effect rounded-lg p-4 bg-blue-500/10 border border-blue-500/20">
+                          <p className="text-white [data-theme='light']:text-dark-500 whitespace-pre-wrap">
+                            {selectedBoutiqueRequest.admin_notes}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedBoutiqueRequest.status === 'pending' && (
+                      <div className="flex flex-col gap-3 pt-4 border-t border-primary-500/20">
+                        <button
+                          onClick={() => handleApproveRequest(selectedBoutiqueRequest.id)}
+                          disabled={isProcessingRequest}
+                          className="btn-primary flex items-center justify-center space-x-2"
+                        >
+                          {isProcessingRequest ? (
+                            <>
+                              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              <span>Traitement...</span>
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle className="w-5 h-5" />
+                              <span>Approuver la demande</span>
+                            </>
+                          )}
+                        </button>
+                        <div className="space-y-2">
+                          <textarea
+                            value={rejectNotes}
+                            onChange={(e) => setRejectNotes(e.target.value)}
+                            placeholder="Notes pour le rejet (optionnel)..."
+                            rows={3}
+                            className="w-full px-4 py-3 rounded-lg 
+                              [data-theme='dark']:bg-secondary-800 [data-theme='dark']:text-white [data-theme='dark']:placeholder-secondary-400
+                              [data-theme='dark']:hover:bg-secondary-700
+                              [data-theme='light']:bg-white [data-theme='light']:text-dark-500 [data-theme='light']:border-2 [data-theme='light']:placeholder-secondary-400
+                              border
+                              focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition-all resize-none
+                              [data-theme='dark']:border-secondary-700 [data-theme='dark']:focus:border-primary-500 [data-theme='light']:border-secondary-300 [data-theme='light']:focus:border-primary-500"
+                            style={{
+                              color: isDark ? '#ffffff' : '#111827',
+                              WebkitTextFillColor: isDark ? '#ffffff' : '#111827',
+                              backgroundColor: isDark ? '#1f2937' : '#ffffff',
+                              borderColor: isDark ? '#374151' : '#d1d5db',
+                            }}
+                          />
+                          <button
+                            onClick={() => handleRejectRequest(selectedBoutiqueRequest.id)}
+                            disabled={isProcessingRequest}
+                            className="btn-secondary w-full flex items-center justify-center space-x-2 text-red-400 hover:text-red-300 hover:border-red-400"
+                          >
+                            {isProcessingRequest ? (
+                              <>
+                                <div className="w-5 h-5 border-2 border-red-400 border-t-transparent rounded-full animate-spin" />
+                                <span>Traitement...</span>
+                              </>
+                            ) : (
+                              <>
+                                <XCircle className="w-5 h-5" />
+                                <span>Rejeter la demande</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex justify-end pt-4 border-t border-primary-500/20">
+                      <button
+                        onClick={() => handleDeleteRequest(selectedBoutiqueRequest.id)}
+                        className="text-red-400 hover:text-red-300 text-sm flex items-center space-x-1 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span>Supprimer</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 flex items-center justify-center text-center p-12">
+                <div className="max-w-md">
+                  <Store className="w-20 h-20 mx-auto mb-6 text-secondary-400 opacity-50" />
+                  <h3 className="text-xl font-semibold text-white [data-theme='light']:text-dark-500 mb-2">
+                    Sélectionnez une demande
+                  </h3>
+                  <p className="text-secondary-400 text-sm">
+                    Cliquez sur une demande dans la liste pour voir ses détails et la traiter
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

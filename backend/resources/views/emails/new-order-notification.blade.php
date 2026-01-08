@@ -236,6 +236,10 @@
         </div>
         @endif
 
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="https://innosft.com/admin/dashboard" style="display: inline-block; background: #F44336; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0;">Accéder au panneau d'administration</a>
+        </div>
+
         <div class="footer">
             <p><strong>Action requise :</strong> Veuillez traiter cette commande dans le panneau d'administration.</p>
             <p style="margin-top: 10px; font-size: 12px; color: #999;">

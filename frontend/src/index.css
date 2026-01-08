@@ -93,6 +93,15 @@
     }
   }
 
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
   .glass-effect {
     @apply backdrop-blur-xl border;
   }

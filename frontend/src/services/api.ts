@@ -11,7 +11,9 @@ const api = axios.create({
 })
 
 // Add token to requests if available
-const token = localStorage.getItem('admin_token')
+const adminToken = localStorage.getItem('admin_token')
+const boutiqueToken = localStorage.getItem('boutique_token')
+const token = adminToken || boutiqueToken
 if (token) {
   api.defaults.headers.common['Authorization'] = `Bearer ${token}`
 }
@@ -19,7 +21,9 @@ if (token) {
 // Request interceptor to add token dynamically
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('admin_token')
+    const adminToken = localStorage.getItem('admin_token')
+    const boutiqueToken = localStorage.getItem('boutique_token')
+    const token = adminToken || boutiqueToken
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -36,12 +40,21 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Token expired or invalid
-      localStorage.removeItem('admin_token')
-      delete api.defaults.headers.common['Authorization']
-      // Redirect to login if not already there
-      if (window.location.pathname !== '/admin/login') {
-        window.location.href = '/admin/login'
+      const isAdminRoute = window.location.pathname.startsWith('/admin')
+      const isBoutiqueRoute = window.location.pathname.startsWith('/boutique')
+      
+      if (isAdminRoute) {
+        localStorage.removeItem('admin_token')
+        if (window.location.pathname !== '/admin/login') {
+          window.location.href = '/admin/login'
+        }
+      } else if (isBoutiqueRoute) {
+        localStorage.removeItem('boutique_token')
+        if (window.location.pathname !== '/boutique/login') {
+          window.location.href = '/boutique/login'
+        }
       }
+      delete api.defaults.headers.common['Authorization']
     }
     return Promise.reject(error)
   }
@@ -167,6 +180,109 @@ export const contactMessagesApi = {
   reply: (id: number, replyMessage: string) => 
     api.post(`/admin/contact-messages/${id}/reply`, { reply_message: replyMessage }),
   delete: (id: number) => api.delete(`/admin/contact-messages/${id}`),
+}
+
+// Boutique_UIDT APIs
+export const boutiqueRequestApi = {
+  create: (data: {
+    name: string
+    email: string
+    phone?: string
+    boutique_name: string
+    description?: string
+  }) => api.post('/boutique-requests', data),
+}
+
+export const boutiquesApi = {
+  getAll: (search?: string) => {
+    const params = search ? { search } : {}
+    return api.get('/boutiques', { params })
+  },
+  getById: (id: number) => api.get(`/boutiques/${id}`),
+  getBySlug: (slug: string) => api.get(`/boutiques/slug/${slug}`),
+  getProducts: (id: number, category?: string, search?: string) => {
+    const params: any = {}
+    if (category && category !== 'all') params.category = category
+    if (search) params.search = search
+    return api.get(`/boutiques/${id}/products`, { params })
+  },
+  getProduct: (boutiqueId: number, productId: number) => 
+    api.get(`/boutiques/${boutiqueId}/products/${productId}`),
+  createOrder: (id: number, data: {
+    customer_name: string
+    customer_email: string
+    customer_phone?: string
+    shipping_address: string
+    city?: string
+    country?: string
+    payment_method?: string
+    notes?: string
+    items: Array<{ product_id: number; quantity: number }>
+  }) => api.post(`/boutiques/${id}/orders`, data),
+}
+
+export const boutiqueAuthApi = {
+  login: (email: string, password: string) => 
+    api.post('/boutique/login', { email, password }),
+  logout: () => api.post('/boutique/logout'),
+  me: () => api.get('/boutique/me'),
+  changePassword: (currentPassword: string, newPassword: string, newPasswordConfirmation: string) =>
+    api.post('/boutique/change-password', {
+      current_password: currentPassword,
+      new_password: newPassword,
+      new_password_confirmation: newPasswordConfirmation,
+    }),
+}
+
+export const boutiqueRequestAdminApi = {
+  getAll: (status?: string) => {
+    const params = status ? { status } : {}
+    return api.get('/admin/boutique-requests', { params })
+  },
+  getById: (id: number) => api.get(`/admin/boutique-requests/${id}`),
+  approve: (id: number) => api.post(`/admin/boutique-requests/${id}/approve`),
+  reject: (id: number, adminNotes?: string) => 
+    api.post(`/admin/boutique-requests/${id}/reject`, { admin_notes: adminNotes }),
+  delete: (id: number) => api.delete(`/admin/boutique-requests/${id}`),
+}
+
+export const boutiqueOwnerApi = {
+  getMyBoutique: () => api.get('/boutique/my-boutique'),
+  updateMyBoutique: (data: any) => {
+    if (data instanceof FormData) {
+      data.append('_method', 'PUT')
+      return api.post('/boutique/my-boutique', data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+    }
+    return api.put('/boutique/my-boutique', data)
+  },
+  getMyProducts: () => api.get('/boutique/products'),
+  createProduct: (data: any) => {
+    if (data instanceof FormData) {
+      return api.post('/boutique/products', data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+    }
+    return api.post('/boutique/products', data)
+  },
+  updateProduct: (productId: number, data: any) => {
+    if (data instanceof FormData) {
+      data.append('_method', 'PUT')
+      return api.post(`/boutique/products/${productId}`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+    }
+    return api.put(`/boutique/products/${productId}`, data)
+  },
+  deleteProduct: (productId: number) => api.delete(`/boutique/products/${productId}`),
+  getMyOrders: (status?: string) => {
+    const params = status ? { status } : {}
+    return api.get('/boutique/orders', { params })
+  },
+  getOrder: (orderId: number) => api.get(`/boutique/orders/${orderId}`),
+  updateOrderStatus: (orderId: number, status: string) =>
+    api.put(`/boutique/orders/${orderId}/status`, { status }),
 }
 
 // Admin APIs (will require authentication token)

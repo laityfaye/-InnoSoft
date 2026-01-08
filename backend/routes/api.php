@@ -19,6 +19,9 @@ use App\Http\Controllers\Api\VideoController;
 use App\Http\Controllers\Api\QRCodeController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\Admin\ContactMessageController;
+use App\Http\Controllers\Api\BoutiqueRequestController;
+use App\Http\Controllers\Api\BoutiqueController;
+use App\Http\Controllers\Api\BoutiqueAuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -95,6 +98,19 @@ Route::middleware('api')->group(function () {
     
     // Auth routes
     Route::post('/admin/login', [AuthController::class, 'login']);
+    
+    // Boutique_UIDT - Auth routes (public)
+    Route::post('/boutique/login', [BoutiqueAuthController::class, 'login']);
+    
+    // Boutique_UIDT - Public routes
+    Route::post('/boutique-requests', [BoutiqueRequestController::class, 'store']); // Créer une demande
+    
+    Route::get('/boutiques', [BoutiqueController::class, 'index']); // Liste des boutiques
+    Route::get('/boutiques/{id}', [BoutiqueController::class, 'show']); // Afficher une boutique
+    Route::get('/boutiques/slug/{slug}', [BoutiqueController::class, 'showBySlug']); // Afficher par slug
+    Route::get('/boutiques/{id}/products', [BoutiqueController::class, 'products']); // Produits d'une boutique
+    Route::get('/boutiques/{boutiqueId}/products/{productId}', [BoutiqueController::class, 'showProduct']); // Produit spécifique
+    Route::post('/boutiques/{id}/orders', [BoutiqueController::class, 'createOrder']); // Créer une commande
 });
 
 // Protected routes (admin panel)
@@ -177,5 +193,27 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/admin/contact-messages/{id}/mark-read', [ContactMessageController::class, 'markAsRead']);
     Route::post('/admin/contact-messages/{id}/reply', [ContactMessageController::class, 'reply']);
     Route::delete('/admin/contact-messages/{id}', [ContactMessageController::class, 'destroy']);
+    
+    // Boutique_UIDT - Admin routes
+    Route::get('/admin/boutique-requests', [BoutiqueRequestController::class, 'index']);
+    Route::get('/admin/boutique-requests/{id}', [BoutiqueRequestController::class, 'show']);
+    Route::post('/admin/boutique-requests/{id}/approve', [BoutiqueRequestController::class, 'approve']);
+    Route::post('/admin/boutique-requests/{id}/reject', [BoutiqueRequestController::class, 'reject']);
+    Route::delete('/admin/boutique-requests/{id}', [BoutiqueRequestController::class, 'destroy']);
+    
+    // Boutique_UIDT - Propriétaire routes (authentification via email/password temporaire)
+    Route::post('/boutique/logout', [BoutiqueAuthController::class, 'logout']);
+    Route::get('/boutique/me', [BoutiqueAuthController::class, 'me']);
+    Route::post('/boutique/change-password', [BoutiqueAuthController::class, 'changePassword']);
+    
+    Route::get('/boutique/my-boutique', [BoutiqueController::class, 'myBoutique']);
+    Route::match(['put', 'post'], '/boutique/my-boutique', [BoutiqueController::class, 'updateMyBoutique']);
+    Route::get('/boutique/products', [BoutiqueController::class, 'myProducts']);
+    Route::post('/boutique/products', [BoutiqueController::class, 'storeProduct']);
+    Route::put('/boutique/products/{productId}', [BoutiqueController::class, 'updateProduct']);
+    Route::delete('/boutique/products/{productId}', [BoutiqueController::class, 'destroyProduct']);
+    Route::get('/boutique/orders', [BoutiqueController::class, 'myOrders']);
+    Route::get('/boutique/orders/{orderId}', [BoutiqueController::class, 'showOrder']);
+    Route::put('/boutique/orders/{orderId}/status', [BoutiqueController::class, 'updateOrderStatus']);
 });
 

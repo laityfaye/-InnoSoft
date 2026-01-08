@@ -22,9 +22,17 @@
     </div>
     @endif
     
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="https://innosft.com/" style="display: inline-block; background: #3b82f6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0;">Visiter notre site web</a>
+    </div>
+
     <p style="margin-top: 30px;">
         Cordialement,<br>
         <strong>L'équipe InnoSoft Creation</strong>
+    </p>
+    
+    <p style="margin-top: 20px; font-size: 12px; color: #666; text-align: center;">
+        <a href="https://innosft.com/" style="color: #3b82f6; text-decoration: none;">https://innosft.com/</a>
     </p>
 </body>
 </html>

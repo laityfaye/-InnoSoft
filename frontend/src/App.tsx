@@ -19,6 +19,13 @@ const Blog = lazy(() => import('./pages/Blog'))
 const BlogPost = lazy(() => import('./pages/BlogPost'))
 const AdminLogin = lazy(() => import('./pages/Admin/Login'))
 const AdminDashboard = lazy(() => import('./pages/Admin/Dashboard'))
+const Boutiques = lazy(() => import('./pages/Boutiques'))
+const BoutiqueDetail = lazy(() => import('./pages/BoutiqueDetail'))
+const BoutiqueRequest = lazy(() => import('./pages/BoutiqueRequest'))
+const BoutiqueLogin = lazy(() => import('./pages/Boutique/Login'))
+const BoutiqueDashboard = lazy(() => import('./pages/Boutique/Dashboard'))
+const BoutiqueProductDetail = lazy(() => import('./pages/BoutiqueProductDetail'))
+const BoutiqueCheckout = lazy(() => import('./pages/BoutiqueCheckout'))
 
 // Loading component
 const PageLoader = () => (
@@ -51,9 +58,20 @@ function App() {
               <Route path="/blog" element={<Layout><Blog /></Layout>} />
               <Route path="/blog/:slug" element={<Layout><BlogPost /></Layout>} />
               
+              {/* Boutique UIDT routes */}
+              <Route path="/boutiques" element={<Layout><Boutiques /></Layout>} />
+              <Route path="/boutiques/:slugOrId" element={<Layout><BoutiqueDetail /></Layout>} />
+              <Route path="/boutiques/:slugOrId/products/:productId" element={<Layout><BoutiqueProductDetail /></Layout>} />
+              <Route path="/boutiques/:slugOrId/checkout" element={<Layout><BoutiqueCheckout /></Layout>} />
+              <Route path="/boutique-request" element={<Layout><BoutiqueRequest /></Layout>} />
+              
               {/* Admin routes without layout */}
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              
+              {/* Boutique owner routes without layout */}
+              <Route path="/boutique/login" element={<BoutiqueLogin />} />
+              <Route path="/boutique/dashboard" element={<BoutiqueDashboard />} />
             </Routes>
           </Suspense>
         </Router>
