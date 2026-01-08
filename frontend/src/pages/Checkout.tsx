@@ -120,6 +120,8 @@ const Checkout = () => {
   const [mapsWarning, setMapsWarning] = useState<string | null>(null)
   const [isLoadingLocation, setIsLoadingLocation] = useState(false)
   const [currentStep, setCurrentStep] = useState(1)
+  const [isReturningCustomer, setIsReturningCustomer] = useState(false)
+  const [isEditingFromSummary, setIsEditingFromSummary] = useState(false)
   const [promoCode, setPromoCode] = useState('')
   const [promoDiscount, setPromoDiscount] = useState(0)
   const [promoError, setPromoError] = useState<string | null>(null)
@@ -206,6 +208,24 @@ const Checkout = () => {
     }
   }, [navigate])
 
+  // Vérifier si l'utilisateur a déjà passé une commande et passer directement au récapitulatif
+  useEffect(() => {
+    const savedCustomerInfo = localStorage.getItem(CUSTOMER_INFO_KEY)
+    if (savedCustomerInfo) {
+      try {
+        const customerInfo = JSON.parse(savedCustomerInfo)
+        // Vérifier que les informations essentielles sont présentes
+        if (customerInfo.customer_name && customerInfo.customer_email && customerInfo.customer_phone) {
+          setIsReturningCustomer(true)
+          // Passer directement à l'étape 4 (Récapitulatif)
+          setCurrentStep(4)
+        }
+      } catch (error) {
+        console.error('Erreur lors de la vérification des informations client:', error)
+      }
+    }
+  }, [])
+
 
   // Charger Google Maps API
   useEffect(() => {
@@ -243,7 +263,12 @@ const Checkout = () => {
         setTimeout(() => {
           clearInterval(checkInterval)
           if (!window.google || !window.google.maps) {
-            setLocationError('Le chargement de Google Maps prend trop de temps. Veuillez réessayer.')
+            // Ne pas afficher d'erreur - l'utilisateur peut utiliser les boutons disponibles
+            const deviceType = detectDeviceType()
+            if (deviceType.isDesktop) {
+              setLocationError('Cliquez sur "Obtenir ma position" ou "Utiliser mon adresse" pour continuer.')
+            }
+            // Sur mobile, ne rien afficher - la géolocalisation peut fonctionner sans la carte
           }
         }, 10000)
         
@@ -261,13 +286,24 @@ const Checkout = () => {
             initMap()
           } else {
             console.error('Google Maps API non disponible après chargement')
-            setLocationError('Erreur lors de l\'initialisation de Google Maps. Veuillez réessayer.')
+            // Ne pas afficher d'erreur - l'utilisateur peut utiliser les boutons "Obtenir ma position" ou "Utiliser mon adresse"
+            const deviceType = detectDeviceType()
+            if (deviceType.isDesktop) {
+              // Sur PC, inviter à utiliser les boutons disponibles
+              setLocationError('Cliquez sur "Obtenir ma position" ou "Utiliser mon adresse" pour continuer.')
+            }
+            // Sur mobile, ne rien afficher - la géolocalisation peut fonctionner sans la carte
           }
         }, 100)
       }
       script.onerror = () => {
         console.error('Erreur lors du chargement de Google Maps')
-        setLocationError('Impossible de charger Google Maps. Vérifiez votre connexion internet et que la clé API est valide.')
+        // Ne pas afficher d'erreur - l'utilisateur peut utiliser les boutons disponibles
+        const deviceType = detectDeviceType()
+        if (deviceType.isDesktop) {
+          setLocationError('Cliquez sur "Obtenir ma position" ou "Utiliser mon adresse" pour continuer.')
+        }
+        // Sur mobile, ne rien afficher - la géolocalisation peut fonctionner sans la carte
       }
       document.head.appendChild(script)
     }
@@ -285,7 +321,12 @@ const Checkout = () => {
           setTimeout(initMap, 100)
         } else {
           console.error('Google Maps API n\'a pas pu être chargée après plusieurs tentatives')
-          setLocationError('Impossible de charger Google Maps. Vérifiez votre connexion et que la clé API est valide.')
+          // Ne pas afficher d'erreur - l'utilisateur peut utiliser les boutons disponibles
+          const deviceType = detectDeviceType()
+          if (deviceType.isDesktop) {
+            setLocationError('Cliquez sur "Obtenir ma position" ou "Utiliser mon adresse" pour continuer.')
+          }
+          // Sur mobile, ne rien afficher - la géolocalisation peut fonctionner sans la carte
         }
         return
       }
@@ -353,7 +394,12 @@ const Checkout = () => {
       }
       } catch (error) {
         console.error('Erreur lors de l\'initialisation de la carte Google Maps:', error)
-        setLocationError('Erreur lors de l\'initialisation de la carte. Veuillez réessayer.')
+        // Ne pas afficher d'erreur - l'utilisateur peut utiliser les boutons disponibles
+        const deviceType = detectDeviceType()
+        if (deviceType.isDesktop) {
+          setLocationError('Cliquez sur "Obtenir ma position" ou "Utiliser mon adresse" pour continuer.')
+        }
+        // Sur mobile, ne rien afficher - la géolocalisation peut fonctionner sans la carte
       }
     }
 
@@ -1059,6 +1105,14 @@ const Checkout = () => {
   // Aller à l'étape suivante
   const nextStep = () => {
     if (validateStep(currentStep)) {
+      // Si c'est un client récurrent qui modifie depuis le récapitulatif, retourner directement au récapitulatif
+      if (isReturningCustomer && isEditingFromSummary && currentStep < 4) {
+        setCurrentStep(4)
+        setIsEditingFromSummary(false) // Réinitialiser le flag après retour au récapitulatif
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        return
+      }
+      
       if (currentStep < steps.length) {
         setCurrentStep(currentStep + 1)
         window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -1076,10 +1130,23 @@ const Checkout = () => {
   // Aller à l'étape précédente
   const prevStep = () => {
     if (currentStep > 1) {
+      // Si c'est un client récurrent qui modifie depuis le récapitulatif, retourner directement au récapitulatif
+      if (isReturningCustomer && isEditingFromSummary) {
+        setCurrentStep(4)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        return
+      }
       setCurrentStep(currentStep - 1)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }
+
+  // Réinitialiser le flag lorsqu'on arrive au récapitulatif (étape 4)
+  useEffect(() => {
+    if (currentStep === 4) {
+      setIsEditingFromSummary(false)
+    }
+  }, [currentStep])
 
   // Calculer le sous-total (sans frais de livraison)
   const getSubtotal = () => {
@@ -1976,9 +2043,31 @@ const Checkout = () => {
                               <span>Récapitulatif de votre commande</span>
                             </h2>
                             
+                            {/* Message pour les clients récurrents */}
+                            {isReturningCustomer && (
+                              <div className="mb-6 p-4 rounded-lg bg-green-500/10 border border-green-500/30">
+                                <p className="text-sm text-green-400 [data-theme='light']:text-green-600 flex items-center space-x-2">
+                                  <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                                  <span>Cliquez sur une information ci-dessous si vous souhaitez la modifier.</span>
+                                </p>
+                              </div>
+                            )}
+                            
                             <div className="space-y-4 mb-6">
-                              <div className="glass-effect rounded-lg p-4 border border-primary-500/20">
-                                <h3 className="font-semibold text-white [data-theme='light']:text-dark-500 mb-3">Informations client</h3>
+                              <div 
+                                className={`glass-effect rounded-lg p-4 border border-primary-500/20 ${isReturningCustomer ? 'cursor-pointer hover:border-primary-500/50 transition-all hover:bg-primary-500/5' : ''}`}
+                                onClick={isReturningCustomer ? () => {
+                                  setIsEditingFromSummary(true)
+                                  setCurrentStep(1)
+                                } : undefined}
+                                title={isReturningCustomer ? 'Cliquez pour modifier les informations client' : undefined}
+                              >
+                                <h3 className="font-semibold text-white [data-theme='light']:text-dark-500 mb-3 flex items-center justify-between">
+                                  <span>Informations client</span>
+                                  {isReturningCustomer && (
+                                    <span className="text-xs text-primary-400 font-normal">Cliquer pour modifier</span>
+                                  )}
+                                </h3>
                                 <div className="space-y-1 text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
                                   <p><strong className="text-white [data-theme='light']:text-dark-500">Nom:</strong> {formData.customer_name}</p>
                                   <p><strong className="text-white [data-theme='light']:text-dark-500">Email:</strong> {formData.customer_email}</p>
@@ -1986,8 +2075,20 @@ const Checkout = () => {
                                 </div>
                               </div>
                               
-                              <div className="glass-effect rounded-lg p-4 border border-primary-500/20">
-                                <h3 className="font-semibold text-white [data-theme='light']:text-dark-500 mb-3">Adresse de livraison</h3>
+                              <div 
+                                className={`glass-effect rounded-lg p-4 border border-primary-500/20 ${isReturningCustomer ? 'cursor-pointer hover:border-primary-500/50 transition-all hover:bg-primary-500/5' : ''}`}
+                                onClick={isReturningCustomer ? () => {
+                                  setIsEditingFromSummary(true)
+                                  setCurrentStep(2)
+                                } : undefined}
+                                title={isReturningCustomer ? 'Cliquez pour modifier l\'adresse de livraison' : undefined}
+                              >
+                                <h3 className="font-semibold text-white [data-theme='light']:text-dark-500 mb-3 flex items-center justify-between">
+                                  <span>Adresse de livraison</span>
+                                  {isReturningCustomer && (
+                                    <span className="text-xs text-primary-400 font-normal">Cliquer pour modifier</span>
+                                  )}
+                                </h3>
                                 <div className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
                                   <p>{formData.shipping_address}</p>
                                   {deliveryType === 'pickup' && (
@@ -1999,8 +2100,20 @@ const Checkout = () => {
                                 </div>
                               </div>
                               
-                              <div className="glass-effect rounded-lg p-4 border border-primary-500/20">
-                                <h3 className="font-semibold text-white [data-theme='light']:text-dark-500 mb-3">Mode de paiement</h3>
+                              <div 
+                                className={`glass-effect rounded-lg p-4 border border-primary-500/20 ${isReturningCustomer ? 'cursor-pointer hover:border-primary-500/50 transition-all hover:bg-primary-500/5' : ''}`}
+                                onClick={isReturningCustomer ? () => {
+                                  setIsEditingFromSummary(true)
+                                  setCurrentStep(3)
+                                } : undefined}
+                                title={isReturningCustomer ? 'Cliquez pour modifier le mode de paiement' : undefined}
+                              >
+                                <h3 className="font-semibold text-white [data-theme='light']:text-dark-500 mb-3 flex items-center justify-between">
+                                  <span>Mode de paiement</span>
+                                  {isReturningCustomer && (
+                                    <span className="text-xs text-primary-400 font-normal">Cliquer pour modifier</span>
+                                  )}
+                                </h3>
                                 <p className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
                                   {formData.payment_method === 'cash' && 'Espèces'}
                                   {formData.payment_method === 'mobile_money' && 'Mobile Money'}
@@ -2109,17 +2222,17 @@ const Checkout = () => {
                           type="button"
                           onClick={handleSubmit}
                           disabled={loading}
-                          className="btn-primary flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="btn-primary flex items-center space-x-1 sm:space-x-2 disabled:opacity-50 disabled:cursor-not-allowed px-3 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-[11px] sm:text-sm md:text-base leading-tight"
                         >
                           {loading ? (
                             <>
-                              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              <div className="w-3.5 h-3.5 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                               <span>Traitement...</span>
                             </>
                           ) : (
                             <>
-                              <CheckCircle className="w-5 h-5" />
-                              <span>Confirmer la commande</span>
+                              <CheckCircle className="w-3.5 h-3.5 sm:w-5 sm:h-5 flex-shrink-0" />
+                              <span className="whitespace-nowrap">Confirmer la commande</span>
                             </>
                           )}
                         </button>
@@ -2127,120 +2240,12 @@ const Checkout = () => {
                     </div>
 
 
-                    {/* Récapitulatif - Affiché en bas sur mobile, à droite sur desktop */}
-                    {currentStep !== 4 && (
-                    <div className="lg:hidden">
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="glass-effect rounded-xl p-4 md:p-6 mb-6"
-                      >
-                        <h2 className="text-2xl font-display font-bold text-white [data-theme='light']:text-dark-500 mb-6 flex items-center space-x-2">
-                          <ShoppingCart className="w-6 h-6 text-primary-400" />
-                          <span>Récapitulatif</span>
-                        </h2>
-
-                        <div className="space-y-4 mb-6">
-                          {cart.map((item) => {
-                            const productImage = (item.product.images && item.product.images.length > 0)
-                              ? item.product.images[0]
-                              : item.product.image
-
-                            return (
-                              <div key={item.product.id} className="flex items-start space-x-3 pb-4 border-b [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200">
-                                {productImage && (
-                                  <img
-                                    src={productImage}
-                                    alt={item.product.name}
-                                    className="w-16 h-16 rounded-lg object-cover"
-                                  />
-                                )}
-                                <div className="flex-1 min-w-0">
-                                  <h4 className="font-semibold text-white [data-theme='light']:text-dark-500 text-sm line-clamp-2">
-                                    {item.product.name}
-                                  </h4>
-                                  <p className="text-xs text-secondary-400 [data-theme='light']:text-secondary-600 mt-1">
-                                    Qté: {item.quantity} × {formatPrice(getCurrentPrice(item.product))}
-                                  </p>
-                                </div>
-                                <div className="text-right">
-                                  <p className="font-bold text-white [data-theme='light']:text-dark-500">
-                                    {formatPrice(getCurrentPrice(item.product) * item.quantity)}
-                                  </p>
-                                </div>
-                              </div>
-                            )
-                          })}
-                        </div>
-
-                        <div className="border-t [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200 pt-4 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
-                              Sous-total
-                            </span>
-                            <span className="text-sm font-semibold text-white [data-theme='light']:text-dark-500">
-                              {formatPrice(getSubtotal())}
-                            </span>
-                          </div>
-                          
-                          {deliveryType === 'delivery' && deliveryFee > 0 && (
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
-                                Frais de livraison
-                                {distance !== null && (
-                                  <span className="block text-xs mt-0.5">
-                                    {distance <= DELIVERY_BASE_DISTANCE 
-                                      ? `(${distance} km - tarif de base)`
-                                      : `(${DELIVERY_BASE_DISTANCE} km à ${DELIVERY_BASE_FEE} F + ${(distance - DELIVERY_BASE_DISTANCE).toFixed(1)} km × ${DELIVERY_FEE_PER_KM} F/km)`
-                                    }
-                                  </span>
-                                )}
-                              </span>
-                              <span className="text-sm font-semibold text-primary-400">
-                                {formatPrice(deliveryFee)}
-                              </span>
-                            </div>
-                          )}
-                          
-                          {deliveryType === 'pickup' && (
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
-                                Retrait sur place
-                              </span>
-                              <span className="text-sm font-semibold text-primary-400">
-                                Gratuit
-                              </span>
-                            </div>
-                          )}
-                          
-                          {promoDiscount > 0 && (
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
-                                Réduction code promo
-                              </span>
-                              <span className="text-sm font-semibold text-primary-400">
-                                -{formatPrice(promoDiscount)}
-                              </span>
-                            </div>
-                          )}
-
-                          <div className="flex items-center justify-between pt-2 border-t [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200">
-                            <span className="text-lg font-semibold text-white [data-theme='light']:text-dark-500">
-                              Total
-                            </span>
-                            <span className="text-2xl font-bold gradient-text">
-                              {formatPrice(getTotalPrice())}
-                            </span>
-                          </div>
-                        </div>
-                      </motion.div>
-                    </div>
-                    )}
+                    {/* Récapitulatif - Masqué sur mobile, affiché uniquement sur desktop */}
 
                   </motion.form>
                 </div>
 
-                {/* Récapitulatif - Affiché à droite sur desktop uniquement, sticky pour rester visible */}
+                {/* Récapitulatif - Affiché à droite sur desktop uniquement, sticky pour rester visible - MASQUÉ sur mobile */}
                 {currentStep !== 4 && (
                 <div 
                   ref={summaryRef}

@@ -902,7 +902,13 @@ const ProductDetail = () => {
                           {formatPrice(getTotalPrice())}
                         </span>
                       </div>
-                      <button className="w-full btn-primary flex items-center justify-center space-x-2">
+                      <button 
+                        onClick={() => {
+                          setIsCartOpen(false)
+                          navigate('/checkout')
+                        }}
+                        className="w-full btn-primary flex items-center justify-center space-x-2"
+                      >
                         <Check className="w-5 h-5" />
                         <span>Passer la commande</span>
                       </button>
