@@ -35,7 +35,6 @@ interface FieldErrors {
   customer_email?: string
   customer_phone?: string
   shipping_address?: string
-  city?: string
   payment_method?: string
   promo_code?: string
 }
@@ -121,7 +120,6 @@ const Checkout = () => {
   const [mapsWarning, setMapsWarning] = useState<string | null>(null)
   const [isLoadingLocation, setIsLoadingLocation] = useState(false)
   const [currentStep, setCurrentStep] = useState(1)
-  const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [promoCode, setPromoCode] = useState('')
   const [promoDiscount, setPromoDiscount] = useState(0)
   const [promoError, setPromoError] = useState<string | null>(null)
@@ -445,7 +443,7 @@ const Checkout = () => {
       setIsLoadingLocation(false)
       
       // Proposer automatiquement d'utiliser l'adresse
-      if (formData.shipping_address && formData.city) {
+      if (formData.shipping_address) {
         setTimeout(() => {
           if (window.confirm('Les ordinateurs de bureau n\'ont généralement pas de GPS. Voulez-vous utiliser votre adresse de livraison pour obtenir une position précise ?')) {
             geocodeAddress()
@@ -472,7 +470,7 @@ const Checkout = () => {
         setIsLoadingLocation(false)
         
         // Si l'adresse est remplie, proposer automatiquement de l'utiliser
-        if (formData.shipping_address && formData.city) {
+        if (formData.shipping_address) {
           setTimeout(() => {
             if (window.confirm('La géolocalisation est désactivée. Voulez-vous utiliser votre adresse de livraison à la place ?')) {
               geocodeAddress()
@@ -553,7 +551,7 @@ const Checkout = () => {
             setLocationError(errorMsg)
             setCustomerLocation(null)
             
-            if (formData.shipping_address && formData.city) {
+            if (formData.shipping_address) {
               setTimeout(() => {
                 const confirmMsg = deviceType.isDesktop 
                   ? 'Les ordinateurs de bureau n\'ont pas de GPS. Voulez-vous utiliser votre adresse de livraison pour obtenir une position exacte ?'
@@ -569,7 +567,7 @@ const Checkout = () => {
           setLocationError('Le GPS n\'a pas pu se verrouiller dans les temps. Vérifiez que le GPS est activé sur votre appareil et que vous êtes à l\'extérieur ou près d\'une fenêtre. Sinon, utilisez votre adresse de livraison.')
           setCustomerLocation(null)
           
-          if (formData.shipping_address && formData.city) {
+          if (formData.shipping_address) {
             setTimeout(() => {
               if (window.confirm('Le GPS n\'a pas pu se verrouiller. Voulez-vous utiliser votre adresse de livraison pour obtenir une position exacte ?')) {
                 geocodeAddress()
@@ -681,7 +679,7 @@ const Checkout = () => {
           setCustomerLocation(null)
           setIsLoadingLocation(false)
           
-          if (formData.shipping_address && formData.city) {
+          if (formData.shipping_address) {
             setTimeout(() => {
               const confirmMsg = deviceType.isDesktop 
                 ? 'Les ordinateurs de bureau n\'ont pas de GPS. Voulez-vous utiliser votre adresse de livraison pour obtenir une position exacte ?'
@@ -728,7 +726,7 @@ const Checkout = () => {
             setCustomerLocation(null)
             setIsLoadingLocation(false)
             
-            if (formData.shipping_address && formData.city) {
+            if (formData.shipping_address) {
               setTimeout(() => {
                 const confirmMsg = deviceType.isDesktop 
                   ? 'Les ordinateurs de bureau n\'ont pas de GPS. Voulez-vous utiliser votre adresse de livraison pour obtenir une position exacte ?'
@@ -789,7 +787,7 @@ const Checkout = () => {
         // Si permission refusée, proposer d'utiliser l'adresse
         if (error.code === PERMISSION_DENIED) {
           // Essayer d'utiliser l'adresse de livraison si elle est remplie
-          if (formData.shipping_address && formData.city) {
+          if (formData.shipping_address) {
             geocodeAddress()
           }
         }
@@ -800,7 +798,7 @@ const Checkout = () => {
 
   // Géocoder l'adresse de livraison pour obtenir les coordonnées
   const geocodeAddress = async () => {
-    if (!formData.shipping_address || !formData.city) {
+    if (!formData.shipping_address) {
       setLocationError('Veuillez remplir votre adresse de livraison pour calculer la distance.')
       return
     }
@@ -817,7 +815,7 @@ const Checkout = () => {
 
     try {
       const geocoder = new window.google.maps.Geocoder()
-      const address = `${formData.shipping_address}, ${formData.city}, ${formData.country || 'Sénégal'}`
+      const address = `${formData.shipping_address}, Sénégal`
 
       geocoder.geocode({ address }, (results: any, status: string) => {
         setIsLoadingLocation(false)
@@ -998,18 +996,9 @@ const Checkout = () => {
     placesService.getDetails({ placeId }, (place: any, status: string) => {
       if (status === 'OK' && place) {
         const address = place.formatted_address || ''
-        const city = place.address_components?.find((comp: any) =>
-          comp.types.includes('locality')
-        )?.long_name || ''
-        const country = place.address_components?.find((comp: any) =>
-          comp.types.includes('country')
-        )?.long_name || 'Sénégal'
-        
         setFormData((prev: FormData) => ({
           ...prev,
           shipping_address: address,
-          city: city || prev.city,
-          country: country || prev.country,
         }))
         
         setShowAddressSuggestions(false)
@@ -1057,7 +1046,6 @@ const Checkout = () => {
         break
       case 2:
         if (!formData.shipping_address.trim()) errors.shipping_address = 'L\'adresse est requise'
-        if (!formData.city.trim()) errors.city = 'La ville est requise'
         break
       case 3:
         if (!formData.payment_method) errors.payment_method = 'Le mode de paiement est requis'
@@ -1128,9 +1116,6 @@ const Checkout = () => {
         if (!value.trim()) return 'L\'adresse de livraison est requise'
         if (value.trim().length < 10) return 'L\'adresse doit contenir au moins 10 caractères'
         return undefined
-      case 'city':
-        if (!value.trim()) return 'La ville est requise'
-        return undefined
       case 'payment_method':
         if (!value) return 'Veuillez sélectionner un mode de paiement'
         return undefined
@@ -1200,27 +1185,18 @@ const Checkout = () => {
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault()
     
-    // Si on est à la dernière étape, ouvrir la modal de confirmation
-    if (currentStep === steps.length && !showConfirmModal) {
-      // Valider toutes les étapes
-      let allValid = true
-      for (let i = 1; i <= steps.length - 1; i++) {
-        if (!validateStep(i)) {
-          allValid = false
-          setCurrentStep(i)
-          break
-        }
-      }
-      
-      if (allValid) {
-        setShowConfirmModal(true)
-        return
+    // Valider toutes les étapes avant de soumettre
+    let allValid = true
+    for (let i = 1; i <= steps.length; i++) {
+      if (!validateStep(i)) {
+        allValid = false
+        setCurrentStep(i)
+        break
       }
     }
     
-    // Si la modal est confirmée, procéder à la soumission
-    if (showConfirmModal) {
-      setShowConfirmModal(false)
+    if (!allValid) {
+      return
     }
     
     setLoading(true)
@@ -1232,7 +1208,6 @@ const Checkout = () => {
       customer_email: true,
       customer_phone: true,
       shipping_address: true,
-      city: true,
       payment_method: true,
     }
     setTouched(allTouched)
@@ -1277,8 +1252,8 @@ const Checkout = () => {
         customer_email: formData.customer_email.trim(),
         customer_phone: formData.customer_phone.trim(),
         shipping_address: formData.shipping_address.trim(),
-        city: formData.city.trim(),
-        country: formData.country,
+        city: '',
+        country: '',
         payment_method: formData.payment_method,
         delivery_type: deliveryType,
         customer_latitude: customerLocation?.lat,
@@ -1297,8 +1272,6 @@ const Checkout = () => {
           customer_email: formData.customer_email.trim(),
           customer_phone: formData.customer_phone.trim(),
           shipping_address: formData.shipping_address.trim(),
-          city: formData.city.trim(),
-          country: formData.country,
         }
         try {
           localStorage.setItem(CUSTOMER_INFO_KEY, JSON.stringify(customerInfo))
@@ -1575,8 +1548,8 @@ const Checkout = () => {
                                   setShowAddressSuggestions(true)
                                 }
                               }}
-                              rows={3}
-                              className={`w-full px-4 py-3 rounded-xl border transition-all resize-none ${
+                              rows={2}
+                              className={`w-full px-4 py-2.5 rounded-xl border transition-all resize-none ${
                                 fieldErrors.shipping_address
                                   ? 'border-accent-500 focus:border-accent-500 focus:ring-accent-500/20'
                                   : '[data-theme="dark"]:bg-secondary-800/50 [data-theme="dark"]:border-secondary-700 [data-theme="dark"]:text-white [data-theme="light"]:bg-white [data-theme="light"]:border-secondary-300 [data-theme="light"]:text-dark-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20'
@@ -1613,57 +1586,6 @@ const Checkout = () => {
                           {fieldErrors.shipping_address && (
                             <p className="mt-1 text-sm text-accent-500">{fieldErrors.shipping_address}</p>
                           )}
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-white [data-theme='light']:text-dark-500 mb-2">
-                              Ville *
-                            </label>
-                            <input
-                              type="text"
-                              name="city"
-                              value={formData.city}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              className={`w-full px-4 py-3 rounded-xl border transition-all ${
-                                fieldErrors.city
-                                  ? 'border-accent-500 focus:border-accent-500 focus:ring-accent-500/20'
-                                  : '[data-theme="dark"]:bg-secondary-800/50 [data-theme="dark"]:border-secondary-700 [data-theme="dark"]:text-white [data-theme="light"]:bg-white [data-theme="light"]:border-secondary-300 [data-theme="light"]:text-dark-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20'
-                              }`}
-                              placeholder="Thiès"
-                              style={{
-                                color: isDark ? '#ffffff' : '#111827',
-                                WebkitTextFillColor: isDark ? '#ffffff' : '#111827',
-                                backgroundColor: isDark ? '#1f2937' : '#ffffff',
-                                borderColor: fieldErrors.city ? '#ef4444' : (isDark ? '#374151' : '#d1d5db'),
-                              }}
-                            />
-                            {fieldErrors.city && (
-                              <p className="mt-1 text-sm text-accent-500">{fieldErrors.city}</p>
-                            )}
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-medium text-white [data-theme='light']:text-dark-500 mb-2">
-                              Pays
-                            </label>
-                            <input
-                              type="text"
-                              name="country"
-                              value={formData.country}
-                              onChange={handleChange}
-                              className="w-full px-4 py-3 rounded-xl border [data-theme='dark']:bg-secondary-800/50 [data-theme='dark']:border-secondary-700 [data-theme='dark']:text-white [data-theme='light']:bg-white [data-theme='light']:border-secondary-300 [data-theme='light']:text-dark-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
-                              placeholder="Sénégal"
-                              style={{
-                                color: isDark ? '#ffffff' : '#111827',
-                                WebkitTextFillColor: isDark ? '#ffffff' : '#111827',
-                                backgroundColor: isDark ? '#1f2937' : '#ffffff',
-                                borderColor: isDark ? '#374151' : '#d1d5db',
-                              }}
-                            />
-                            </div>
-                          </div>
                         </div>
                         
                         {/* Section Localisation et Livraison - Étape 2 */}
@@ -1769,7 +1691,7 @@ const Checkout = () => {
                                         🔄 Réessayer après activation
                                       </button>
                                     )}
-                                    {formData.shipping_address && formData.city && (
+                                    {formData.shipping_address && (
                                       <button
                                         type="button"
                                         onClick={geocodeAddress}
@@ -1806,7 +1728,7 @@ const Checkout = () => {
                             )}
                           </button>
                           
-                          {!customerLocation && formData.shipping_address && formData.city && (
+                          {!customerLocation && formData.shipping_address && (
                             <button
                               type="button"
                               onClick={geocodeAddress}
@@ -1930,6 +1852,7 @@ const Checkout = () => {
                           </div>
                         </div>
                       </motion.div>
+                            </div>
                           </div>
                         </motion.div>
                       )}
@@ -2067,7 +1990,6 @@ const Checkout = () => {
                                 <h3 className="font-semibold text-white [data-theme='light']:text-dark-500 mb-3">Adresse de livraison</h3>
                                 <div className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
                                   <p>{formData.shipping_address}</p>
-                                  <p>{formData.city}, {formData.country}</p>
                                   {deliveryType === 'pickup' && (
                                     <p className="mt-2 text-primary-400 font-semibold">✓ Retrait sur place</p>
                                   )}
@@ -2084,6 +2006,76 @@ const Checkout = () => {
                                   {formData.payment_method === 'mobile_money' && 'Mobile Money'}
                                   {formData.payment_method === 'bank_transfer' && 'Virement bancaire'}
                                 </p>
+                              </div>
+                              
+                              {/* Produits */}
+                              <div className="glass-effect rounded-lg p-4 border border-primary-500/20">
+                                <h3 className="font-semibold text-white [data-theme='light']:text-dark-500 mb-3">Produits</h3>
+                                <div className="space-y-3">
+                                  {cart.map((item) => {
+                                    const productImage = (item.product.images && item.product.images.length > 0)
+                                      ? item.product.images[0]
+                                      : item.product.image
+
+                                    return (
+                                      <div key={item.product.id} className="flex items-start space-x-3 pb-3 border-b [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200 last:border-b-0 last:pb-0">
+                                        {productImage && (
+                                          <img
+                                            src={productImage}
+                                            alt={item.product.name}
+                                            className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
+                                          />
+                                        )}
+                                        <div className="flex-1 min-w-0">
+                                          <h4 className="font-semibold text-white [data-theme='light']:text-dark-500 text-sm line-clamp-2">
+                                            {item.product.name}
+                                          </h4>
+                                          <p className="text-xs text-secondary-400 [data-theme='light']:text-secondary-600 mt-1">
+                                            Qté: {item.quantity} × {formatPrice(getCurrentPrice(item.product))}
+                                          </p>
+                                        </div>
+                                        <div className="text-right">
+                                          <p className="font-bold text-white [data-theme='light']:text-dark-500">
+                                            {formatPrice(getCurrentPrice(item.product) * item.quantity)}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    )
+                                  })}
+                                </div>
+                              </div>
+                              
+                              {/* Total */}
+                              <div className="glass-effect rounded-lg p-4 border border-primary-500/20">
+                                <h3 className="font-semibold text-white [data-theme='light']:text-dark-500 mb-3">Total</h3>
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-between text-sm">
+                                    <span className="text-secondary-400 [data-theme='light']:text-secondary-600">Sous-total</span>
+                                    <span className="text-white [data-theme='light']:text-dark-500 font-semibold">{formatPrice(getSubtotal())}</span>
+                                  </div>
+                                  {deliveryType === 'delivery' && deliveryFee > 0 && (
+                                    <div className="flex items-center justify-between text-sm">
+                                      <span className="text-secondary-400 [data-theme='light']:text-secondary-600">Frais de livraison</span>
+                                      <span className="text-white [data-theme='light']:text-dark-500 font-semibold">{formatPrice(deliveryFee)}</span>
+                                    </div>
+                                  )}
+                                  {deliveryType === 'pickup' && (
+                                    <div className="flex items-center justify-between text-sm">
+                                      <span className="text-secondary-400 [data-theme='light']:text-secondary-600">Retrait sur place</span>
+                                      <span className="text-primary-400 font-semibold">Gratuit</span>
+                                    </div>
+                                  )}
+                                  {promoDiscount > 0 && (
+                                    <div className="flex items-center justify-between text-sm">
+                                      <span className="text-secondary-400 [data-theme='light']:text-secondary-600">Réduction code promo</span>
+                                      <span className="text-primary-400 font-semibold">-{formatPrice(promoDiscount)}</span>
+                                    </div>
+                                  )}
+                                  <div className="flex items-center justify-between pt-2 border-t [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200">
+                                    <span className="text-lg font-bold text-white [data-theme='light']:text-dark-500">Total</span>
+                                    <span className="text-2xl font-black gradient-text">{formatPrice(getTotalPrice())}</span>
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -2115,17 +2107,28 @@ const Checkout = () => {
                       ) : (
                         <button
                           type="button"
-                          onClick={() => setShowConfirmModal(true)}
-                          className="btn-primary flex items-center space-x-2"
+                          onClick={handleSubmit}
+                          disabled={loading}
+                          className="btn-primary flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          <CheckCircle className="w-5 h-5" />
-                          <span>Confirmer la commande</span>
+                          {loading ? (
+                            <>
+                              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              <span>Traitement...</span>
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle className="w-5 h-5" />
+                              <span>Confirmer la commande</span>
+                            </>
+                          )}
                         </button>
                       )}
                     </div>
 
 
                     {/* Récapitulatif - Affiché en bas sur mobile, à droite sur desktop */}
+                    {currentStep !== 4 && (
                     <div className="lg:hidden">
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -2232,11 +2235,13 @@ const Checkout = () => {
                         </div>
                       </motion.div>
                     </div>
+                    )}
 
                   </motion.form>
                 </div>
 
                 {/* Récapitulatif - Affiché à droite sur desktop uniquement, sticky pour rester visible */}
+                {currentStep !== 4 && (
                 <div 
                   ref={summaryRef}
                   className="hidden lg:block lg:col-span-1 order-2"
@@ -2360,155 +2365,12 @@ const Checkout = () => {
                     </div>
                   </motion.div>
                 </div>
+                )}
               </div>
             </>
           )}
           
           {/* Modal de confirmation */}
-          <AnimatePresence>
-            {showConfirmModal && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-                onClick={() => setShowConfirmModal(false)}
-              >
-                <motion.div
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.9, opacity: 0 }}
-                  onClick={(e) => e.stopPropagation()}
-                  className="glass-effect rounded-xl p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto border-2 border-primary-500/30"
-                >
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl md:text-3xl font-display font-bold text-white [data-theme='light']:text-dark-500 flex items-center space-x-2">
-                      <CheckCircle className="w-8 h-8 text-primary-400" />
-                      <span>Confirmer votre commande</span>
-                    </h2>
-                    <button
-                      onClick={() => setShowConfirmModal(false)}
-                      className="text-secondary-400 hover:text-white transition-colors"
-                    >
-                      <X className="w-6 h-6" />
-                    </button>
-                  </div>
-                  
-                  <div className="space-y-6">
-                    {/* Récapitulatif produits */}
-                    <div>
-                      <h3 className="text-lg font-semibold text-white [data-theme='light']:text-dark-500 mb-3">Produits</h3>
-                      <div className="space-y-3">
-                        {cart.map((item) => {
-                          const productImage = (item.product.images && item.product.images.length > 0)
-                            ? item.product.images[0]
-                            : item.product.image
-                          
-                          return (
-                            <div key={item.product.id} className="flex items-center space-x-3 p-3 rounded-lg bg-secondary-800/50 [data-theme='light']:bg-secondary-100/50">
-                              {productImage && (
-                                <img
-                                  src={productImage}
-                                  alt={item.product.name}
-                                  className="w-16 h-16 rounded-lg object-cover"
-                                />
-                              )}
-                              <div className="flex-1">
-                                <p className="font-semibold text-white [data-theme='light']:text-dark-500 text-sm">
-                                  {item.product.name}
-                                </p>
-                                <p className="text-xs text-secondary-400 [data-theme='light']:text-secondary-600">
-                                  Qté: {item.quantity} × {formatPrice(getCurrentPrice(item.product))}
-                                </p>
-                              </div>
-                              <p className="font-bold text-white [data-theme='light']:text-dark-500">
-                                {formatPrice(getCurrentPrice(item.product) * item.quantity)}
-                              </p>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    </div>
-                    
-                    {/* Informations */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <h3 className="text-lg font-semibold text-white [data-theme='light']:text-dark-500 mb-2">Livraison</h3>
-                        <p className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
-                          {formData.shipping_address}<br />
-                          {formData.city}, {formData.country}
-                        </p>
-                        <p className="text-sm text-primary-400 mt-2 font-semibold">
-                          {deliveryType === 'pickup' ? 'Retrait sur place' : `Livraison à domicile${distance !== null ? ` (${distance} km)` : ''}`}
-                        </p>
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-white [data-theme='light']:text-dark-500 mb-2">Paiement</h3>
-                        <p className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600">
-                          {formData.payment_method === 'cash' && 'Espèces'}
-                          {formData.payment_method === 'mobile_money' && 'Mobile Money'}
-                          {formData.payment_method === 'bank_transfer' && 'Virement bancaire'}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    {/* Total */}
-                    <div className="border-t-2 [data-theme='dark']:border-primary-500/30 [data-theme='light']:border-primary-500/20 pt-4 space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-secondary-400 [data-theme='light']:text-secondary-600">Sous-total</span>
-                        <span className="text-white [data-theme='light']:text-dark-500 font-semibold">{formatPrice(getSubtotal())}</span>
-                      </div>
-                      {deliveryType === 'delivery' && deliveryFee > 0 && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-secondary-400 [data-theme='light']:text-secondary-600">Frais de livraison</span>
-                          <span className="text-white [data-theme='light']:text-dark-500 font-semibold">{formatPrice(deliveryFee)}</span>
-                        </div>
-                      )}
-                      {promoDiscount > 0 && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-secondary-400 [data-theme='light']:text-secondary-600">Réduction</span>
-                          <span className="text-primary-400 font-semibold">-{formatPrice(promoDiscount)}</span>
-                        </div>
-                      )}
-                      <div className="flex justify-between pt-2 border-t [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200">
-                        <span className="text-xl font-bold text-white [data-theme='light']:text-dark-500">Total</span>
-                        <span className="text-2xl font-black gradient-text">{formatPrice(getTotalPrice())}</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-col sm:flex-row gap-3 mt-6">
-                    <button
-                      onClick={() => setShowConfirmModal(false)}
-                      className="btn-secondary flex-1"
-                    >
-                      Modifier
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowConfirmModal(false)
-                        handleSubmit()
-                      }}
-                      disabled={loading}
-                      className="btn-primary flex-1 flex items-center justify-center space-x-2 disabled:opacity-50"
-                    >
-                      {loading ? (
-                        <>
-                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          <span>Traitement...</span>
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle className="w-5 h-5" />
-                          <span>Confirmer et commander</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
       </div>
     </>

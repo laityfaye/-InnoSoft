@@ -1,5 +1,55 @@
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
+import * as SimpleIcons from 'simple-icons'
+
+// Fonction helper pour convertir un slug en nom d'icône simple-icons
+const slugToIconName = (slug: string): string => {
+  // Convertir nextdotjs -> Nextdotjs, vuedotjs -> Vuedotjs, etc.
+  // Remplacer "dot" par "Dot" et mettre la première lettre en majuscule
+  return slug
+    .replace(/dot/g, 'Dot')
+    .charAt(0)
+    .toUpperCase() + slug.replace(/dot/g, 'Dot').slice(1)
+}
+
+// Fonction helper pour obtenir l'icône Simple Icons
+const getIcon = (slug: string) => {
+  try {
+    const iconName = `si${slugToIconName(slug)}`
+    return (SimpleIcons as any)[iconName] || null
+  } catch {
+    return null
+  }
+}
+
+// Composant pour afficher le logo SVG
+const TechIcon = ({ iconName, name }: { iconName: string; name: string }) => {
+  const icon = getIcon(iconName)
+  
+  if (!icon) {
+    // Fallback si l'icône n'est pas trouvée
+    return (
+      <div className="w-6 h-6 rounded bg-primary-500/20 flex items-center justify-center">
+        <span className="text-xs text-primary-400 font-bold">
+          {name.charAt(0).toUpperCase()}
+        </span>
+      </div>
+    )
+  }
+
+  // Remplacer le SVG pour ajouter les attributs nécessaires
+  const svgContent = icon.svg
+    .replace('<svg', `<svg width="24" height="24"`)
+    .replace(/fill="[^"]*"/g, `fill="#${icon.hex}"`)
+    .replace(/<svg([^>]*)>/, `<svg$1 fill="#${icon.hex}">`)
+
+  return (
+    <div 
+      className="w-6 h-6 flex items-center justify-center flex-shrink-0 [&_svg]:w-full [&_svg]:h-full"
+      dangerouslySetInnerHTML={{ __html: svgContent }}
+    />
+  )
+}
 
 const TechStack = () => {
   const [ref, inView] = useInView({
@@ -9,31 +59,31 @@ const TechStack = () => {
 
   const technologies = {
     frontend: [
-      { name: 'React', icon: '⚛️' },
-      { name: 'TypeScript', icon: '📘' },
-      { name: 'Next.js', icon: '▲' },
-      { name: 'Vue.js', icon: '💚' },
-      { name: 'Tailwind CSS', icon: '🎨' },
+      { name: 'React', iconKey: 'react' },
+      { name: 'TypeScript', iconKey: 'typescript' },
+      { name: 'Next.js', iconKey: 'nextdotjs' },
+      { name: 'Vue.js', iconKey: 'vuedotjs' },
+      { name: 'Tailwind CSS', iconKey: 'tailwindcss' },
     ],
     backend: [
-      { name: 'Node.js', icon: '🟢' },
-      { name: 'Python', icon: '🐍' },
-      { name: 'PHP', icon: '🐘' },
-      { name: 'PostgreSQL', icon: '🐘' },
-      { name: 'MongoDB', icon: '🍃' },
+      { name: 'Node.js', iconKey: 'nodedotjs' },
+      { name: 'Python', iconKey: 'python' },
+      { name: 'PHP', iconKey: 'php' },
+      { name: 'PostgreSQL', iconKey: 'postgresql' },
+      { name: 'MongoDB', iconKey: 'mongodb' },
     ],
     mobile: [
-      { name: 'React Native', icon: '📱' },
-      { name: 'Flutter', icon: '💙' },
-      { name: 'Swift', icon: '🍎' },
-      { name: 'Kotlin', icon: '🟠' },
+      { name: 'React Native', iconKey: 'react' },
+      { name: 'Flutter', iconKey: 'flutter' },
+      { name: 'Swift', iconKey: 'swift' },
+      { name: 'Kotlin', iconKey: 'kotlin' },
     ],
     tools: [
-      { name: 'Docker', icon: '🐳' },
-      { name: 'Git', icon: '📦' },
-      { name: 'AWS', icon: '☁️' },
-      { name: 'Firebase', icon: '🔥' },
-      { name: 'Figma', icon: '🎨' },
+      { name: 'Docker', iconKey: 'docker' },
+      { name: 'Git', iconKey: 'git' },
+      { name: 'AWS', iconKey: 'amazonaws' },
+      { name: 'Firebase', iconKey: 'firebase' },
+      { name: 'Figma', iconKey: 'figma' },
     ],
   }
 
@@ -83,7 +133,7 @@ const TechStack = () => {
                       transition={{ delay: categoryIndex * 0.1 + techIndex * 0.05, duration: 0.4 }}
                       className="flex items-center gap-3 p-3 rounded-lg bg-dark-600/50 hover:bg-primary-500/10 transition-colors group/item"
                     >
-                      <span className="text-2xl">{tech.icon}</span>
+                      <TechIcon iconName={tech.iconKey} name={tech.name} />
                       <span className="text-white font-medium group-hover/item:text-primary-400 transition-colors">
                         {tech.name}
                       </span>
