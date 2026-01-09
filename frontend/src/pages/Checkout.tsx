@@ -2197,12 +2197,12 @@ const Checkout = () => {
                     </AnimatePresence>
 
                     {/* Boutons de navigation */}
-                    <div className="flex justify-between items-center pt-6 border-t [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200">
+                    <div className="flex justify-between items-center gap-3 sm:gap-4 pt-6 border-t [data-theme='dark']:border-white/10 [data-theme='light']:border-secondary-200">
                       <button
                         type="button"
                         onClick={prevStep}
                         disabled={currentStep === 1}
-                        className="btn-secondary flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="btn-secondary flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <ChevronLeft className="w-5 h-5" />
                         <span>Précédent</span>
@@ -2219,20 +2219,21 @@ const Checkout = () => {
                         </button>
                       ) : (
                         <button
-                          type="button"
+                          type="submit"
                           onClick={handleSubmit}
                           disabled={loading}
-                          className="btn-primary flex items-center space-x-1 sm:space-x-2 disabled:opacity-50 disabled:cursor-not-allowed px-3 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 text-[11px] sm:text-sm md:text-base leading-tight"
+                          className="btn-primary flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed px-3 py-4 sm:px-4 sm:py-4 md:px-6 md:py-5 text-sm sm:text-base md:text-lg font-semibold w-full sm:w-auto min-h-[48px] sm:min-h-[52px]"
                         >
                           {loading ? (
                             <>
-                              <div className="w-3.5 h-3.5 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                               <span>Traitement...</span>
                             </>
                           ) : (
                             <>
-                              <CheckCircle className="w-3.5 h-3.5 sm:w-5 sm:h-5 flex-shrink-0" />
-                              <span className="whitespace-nowrap">Confirmer la commande</span>
+                              <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+                              <span className="hidden sm:inline whitespace-nowrap">Confirmer la commande</span>
+                              <span className="sm:hidden whitespace-nowrap">Confirmer</span>
                             </>
                           )}
                         </button>
