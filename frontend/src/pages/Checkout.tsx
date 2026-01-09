@@ -1080,6 +1080,22 @@ const Checkout = () => {
     { id: 4, title: 'Récapitulatif', icon: FileText },
   ]
   
+  // Vérifier si l'étape est valide (sans modifier l'état)
+  const isStepValid = (step: number): boolean => {
+    switch (step) {
+      case 1:
+        return formData.customer_name.trim() !== '' && 
+               formData.customer_email.trim() !== '' && 
+               formData.customer_phone.trim() !== ''
+      case 2:
+        return formData.shipping_address.trim() !== ''
+      case 3:
+        return formData.payment_method !== ''
+      default:
+        return true
+    }
+  }
+
   // Valider l'étape actuelle
   const validateStep = (step: number): boolean => {
     const errors: FieldErrors = {}
@@ -1181,7 +1197,6 @@ const Checkout = () => {
         return undefined
       case 'shipping_address':
         if (!value.trim()) return 'L\'adresse de livraison est requise'
-        if (value.trim().length < 10) return 'L\'adresse doit contenir au moins 10 caractères'
         return undefined
       case 'payment_method':
         if (!value) return 'Veuillez sélectionner un mode de paiement'
@@ -2212,7 +2227,8 @@ const Checkout = () => {
                         <button
                           type="button"
                           onClick={nextStep}
-                          className="btn-primary flex items-center space-x-2"
+                          disabled={!isStepValid(currentStep)}
+                          className="btn-primary flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <span>Suivant</span>
                           <ChevronRight className="w-5 h-5" />
