@@ -159,9 +159,9 @@ const ChatWidget = () => {
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 w-16 h-16 rounded-full bg-gradient-primary flex items-center justify-center shadow-2xl z-50 hover:shadow-primary-500/50 transition-shadow"
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-primary flex items-center justify-center shadow-2xl z-50 hover:shadow-primary-500/50 transition-shadow"
         >
-          <MessageSquare className="w-8 h-8 text-white" />
+          <MessageSquare className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
         </motion.button>
       )}
 
@@ -172,7 +172,7 @@ const ChatWidget = () => {
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className={`fixed bottom-6 right-6 w-96 h-[600px] rounded-2xl glass-effect border border-primary-500/20 shadow-2xl z-50 flex flex-col ${
+            className={`fixed bottom-0 right-0 sm:bottom-6 sm:right-6 w-full sm:w-96 h-[calc(100vh-4rem)] sm:h-[600px] max-h-[600px] rounded-t-2xl sm:rounded-2xl glass-effect border border-primary-500/20 shadow-2xl z-50 flex flex-col ${
               isMinimized ? 'h-16' : ''
             }`}
             style={{
@@ -180,25 +180,27 @@ const ChatWidget = () => {
             }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-primary-500/20">
+            <div className="flex items-center justify-between p-3 sm:p-4 border-b border-primary-500/20 flex-shrink-0">
               <div className="flex items-center space-x-2">
-                <MessageSquare className="w-5 h-5 text-primary-400" />
-                <h3 className="font-bold text-white [data-theme='light']:text-dark-500">
+                <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 text-primary-400 flex-shrink-0" />
+                <h3 className="font-bold text-white [data-theme='light']:text-dark-500 text-sm sm:text-base">
                   Chat Rapide
                 </h3>
               </div>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => setIsMinimized(!isMinimized)}
-                  className="p-1 hover:bg-primary-500/20 rounded transition-colors"
+                  className="p-2 sm:p-1 hover:bg-primary-500/20 rounded transition-colors touch-manipulation"
+                  aria-label="Minimiser"
                 >
-                  <Minimize2 className="w-4 h-4 text-secondary-400" />
+                  <Minimize2 className="w-5 h-5 sm:w-4 sm:h-4 text-secondary-400" />
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-1 hover:bg-primary-500/20 rounded transition-colors"
+                  className="p-2 sm:p-1 hover:bg-primary-500/20 rounded transition-colors touch-manipulation"
+                  aria-label="Fermer"
                 >
-                  <X className="w-4 h-4 text-secondary-400" />
+                  <X className="w-5 h-5 sm:w-4 sm:h-4 text-secondary-400" />
                 </button>
               </div>
             </div>
@@ -206,20 +208,20 @@ const ChatWidget = () => {
             {!isMinimized && (
               <>
                 {showNameForm ? (
-                  <div className="flex-1 p-6 flex flex-col justify-center">
-                    <h4 className="text-lg font-semibold text-white [data-theme='light']:text-dark-500 mb-2">
+                  <div className="flex-1 p-4 sm:p-6 flex flex-col justify-center overflow-y-auto">
+                    <h4 className="text-base sm:text-lg font-semibold text-white [data-theme='light']:text-dark-500 mb-2">
                       Commencer une conversation
                     </h4>
-                    <p className="text-sm text-secondary-400 [data-theme='light']:text-secondary-600 mb-4">
+                    <p className="text-xs sm:text-sm text-secondary-400 [data-theme='light']:text-secondary-600 mb-4">
                       Optionnel : vos informations nous aident à vous identifier et à vous répondre de manière personnalisée
                     </p>
-                    <div className="space-y-4">
+                    <div className="space-y-3 sm:space-y-4">
                       <input
                         type="text"
                         value={visitorName}
                         onChange={(e) => setVisitorName(e.target.value)}
                         placeholder="Votre nom (optionnel)"
-                        className="w-full px-4 py-2 rounded-lg glass-effect border border-primary-500/20 focus:border-primary-500/50 focus:outline-none text-white [data-theme='light']:text-dark-500 placeholder:text-secondary-400"
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base rounded-lg glass-effect border border-primary-500/20 focus:border-primary-500/50 focus:outline-none text-white [data-theme='light']:text-dark-500 placeholder:text-secondary-400"
                         style={{
                           backgroundColor: isDark ? 'rgba(31, 41, 55, 0.5)' : 'rgba(255, 255, 255, 0.5)',
                         }}
@@ -229,15 +231,15 @@ const ChatWidget = () => {
                         value={visitorEmail}
                         onChange={(e) => setVisitorEmail(e.target.value)}
                         placeholder="Votre email (optionnel)"
-                        className="w-full px-4 py-2 rounded-lg glass-effect border border-primary-500/20 focus:border-primary-500/50 focus:outline-none text-white [data-theme='light']:text-dark-500 placeholder:text-secondary-400"
+                        className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base rounded-lg glass-effect border border-primary-500/20 focus:border-primary-500/50 focus:outline-none text-white [data-theme='light']:text-dark-500 placeholder:text-secondary-400"
                         style={{
                           backgroundColor: isDark ? 'rgba(31, 41, 55, 0.5)' : 'rgba(255, 255, 255, 0.5)',
                         }}
                       />
-                      <div className="flex space-x-2">
+                      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                         <button
                           onClick={handleStartChat}
-                          className="flex-1 btn-primary py-2"
+                          className="w-full sm:flex-1 btn-primary py-2 text-sm sm:text-base"
                         >
                           Commencer
                         </button>
@@ -247,7 +249,7 @@ const ChatWidget = () => {
                             setVisitorEmail('')
                             handleStartChat()
                           }}
-                          className="btn-secondary py-2 px-4"
+                          className="w-full sm:w-auto btn-secondary py-2 px-4 text-sm sm:text-base"
                           title="Commencer sans informations"
                         >
                           Passer
@@ -258,7 +260,7 @@ const ChatWidget = () => {
                 ) : (
                   <>
                     {/* Messages */}
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                    <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 min-h-0">
                       {isLoading ? (
                         <div className="flex justify-center py-8">
                           <div className="w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
@@ -274,7 +276,7 @@ const ChatWidget = () => {
                             className={`flex ${msg.sender_type === 'visitor' ? 'justify-end' : 'justify-start'}`}
                           >
                             <div
-                              className={`max-w-[75%] rounded-2xl px-4 py-2 ${
+                              className={`max-w-[85%] sm:max-w-[75%] rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2 text-sm sm:text-base ${
                                 msg.sender_type === 'visitor'
                                   ? 'bg-primary-500 text-white'
                                   : 'bg-secondary-700 text-white [data-theme="light"]:bg-secondary-200 [data-theme="light"]:text-dark-500'
@@ -300,14 +302,14 @@ const ChatWidget = () => {
                     </div>
 
                     {/* Input */}
-                    <form onSubmit={handleSendMessage} className="p-4 border-t border-primary-500/20">
+                    <form onSubmit={handleSendMessage} className="p-3 sm:p-4 border-t border-primary-500/20 flex-shrink-0">
                       <div className="flex space-x-2">
                         <input
                           type="text"
                           value={message}
                           onChange={(e) => setMessage(e.target.value)}
                           placeholder="Tapez votre message..."
-                          className="flex-1 px-4 py-2 rounded-lg glass-effect border border-primary-500/20 focus:border-primary-500/50 focus:outline-none text-white [data-theme='light']:text-dark-500 placeholder:text-secondary-400"
+                          className="flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base rounded-lg glass-effect border border-primary-500/20 focus:border-primary-500/50 focus:outline-none text-white [data-theme='light']:text-dark-500 placeholder:text-secondary-400"
                           style={{
                             backgroundColor: isDark ? 'rgba(31, 41, 55, 0.5)' : 'rgba(255, 255, 255, 0.5)',
                           }}
@@ -316,12 +318,12 @@ const ChatWidget = () => {
                         <button
                           type="submit"
                           disabled={isSending || !message.trim()}
-                          className="btn-primary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="btn-primary px-3 sm:px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                         >
                           {isSending ? (
-                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                           ) : (
-                            <Send className="w-5 h-5" />
+                            <Send className="w-4 h-4 sm:w-5 sm:h-5" />
                           )}
                         </button>
                       </div>
