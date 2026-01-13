@@ -20,7 +20,10 @@
     RewriteRule ^ index.php [L]
 </IfModule>
 
-# Increase upload size limit for video uploads (120MB = 125829120 bytes)
-# This allows video files up to 100MB + overhead for form data
-LimitRequestBody 125829120
+# Increase upload size limit for video and project uploads
+# Set to 2GB (2147483648 bytes) to allow large video files
+LimitRequestBody 2147483648
+
+# Alternative: Comment the line below to remove size limit entirely (not recommended for production)
+# LimitRequestBody 0
 

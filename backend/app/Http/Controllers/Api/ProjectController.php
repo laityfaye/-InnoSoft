@@ -76,7 +76,7 @@ class ProjectController extends Controller
             'category' => 'required|string|in:web,mobile,design',
             'description' => 'required|string',
             'image' => 'nullable|string|max:500',
-            'image_file' => 'nullable|file|mimes:jpeg,jpg,png,gif,webp,mp4,webm,mov|max:10240', // 10MB max
+            'image_file' => 'nullable|file|mimes:jpeg,jpg,png,gif,webp,mp4,webm,mov', // No size limit
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
             'link' => 'nullable|string|max:500',
@@ -139,7 +139,7 @@ class ProjectController extends Controller
             'category' => 'sometimes|required|string|in:web,mobile,design',
             'description' => 'sometimes|required|string',
             'image' => 'nullable|string|max:500',
-            'image_file' => 'nullable|file|mimes:jpeg,jpg,png,gif,webp,mp4,webm,mov|max:10240', // 10MB max
+            'image_file' => 'nullable|file|mimes:jpeg,jpg,png,gif,webp,mp4,webm,mov', // No size limit
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
             'link' => 'nullable|string|max:500',

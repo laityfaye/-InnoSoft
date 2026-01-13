@@ -100,7 +100,7 @@ class VideoController extends Controller
             'description' => 'nullable|string|max:1000',
             'video_type' => 'required|string|in:youtube,vimeo,direct',
             'video_url' => 'nullable|string|max:500',
-            'video_file' => 'nullable|file|mimes:mp4,webm,quicktime|max:102400', // 100MB max
+            'video_file' => 'nullable|file|mimes:mp4,webm,quicktime', // No size limit
             'thumbnail' => 'nullable|string|max:500',
             'thumbnail_file' => 'nullable|file|mimes:jpeg,jpg,png,gif,webp|max:5120', // 5MB max
             'order' => 'nullable|integer',
@@ -194,7 +194,7 @@ class VideoController extends Controller
             'description' => 'nullable|string|max:1000',
             'video_type' => 'sometimes|required|string|in:youtube,vimeo,direct',
             'video_url' => 'nullable|string|max:500',
-            'video_file' => 'nullable|file|mimes:mp4,webm,quicktime|max:102400', // 100MB max
+            'video_file' => 'nullable|file|mimes:mp4,webm,quicktime', // No size limit
             'thumbnail' => 'nullable|string|max:500',
             'thumbnail_file' => 'nullable|file|mimes:jpeg,jpg,png,gif,webp|max:5120', // 5MB max
             'order' => 'nullable|integer',
