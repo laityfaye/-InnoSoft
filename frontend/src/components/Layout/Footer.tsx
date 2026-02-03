@@ -14,6 +14,7 @@ const Footer = () => {
   const company = [
     { name: 'À propos', path: '/about' },
     { name: 'Portfolio', path: '/portfolio' },
+    { name: 'Créer votre portfolio', path: '/p' },
     { name: 'Contact', path: '/contact' },
     { name: 'Blog', path: '/blog' },
   ]
@@ -25,18 +26,18 @@ const Footer = () => {
   ]
 
   return (
-    <footer className="bg-dark-600 [data-theme='light']:bg-secondary-50 border-t border-white/10 [data-theme='light']:border-secondary-200 transition-colors duration-300 w-full overflow-x-hidden">
-      <div className="container-custom py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+    <footer className="bg-dark-600 [data-theme='light']:bg-secondary-50 border-t border-white/10 [data-theme='light']:border-secondary-200 transition-colors duration-300 w-full overflow-x-hidden min-w-0">
+      <div className="container-custom py-10 sm:py-12 md:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12 w-full">
           {/* Brand */}
-          <div className="space-y-4">
+          <div className="space-y-4 min-w-0">
             <Link to="/" className="flex items-center space-x-2">
               <Zap className="w-8 h-8 text-primary-400" />
               <span className="text-xl font-display font-bold gradient-text">
                 InnoSoft Creation
               </span>
             </Link>
-            <p className="text-secondary-400 [data-theme='light']:text-secondary-600 text-sm leading-relaxed transition-colors">
+            <p className="text-secondary-400 [data-theme='light']:text-secondary-600 text-sm leading-relaxed transition-colors max-w-full">
               Solutions technologiques innovantes pour accompagner votre transformation numérique.
             </p>
             <div className="flex space-x-4">
@@ -93,19 +94,19 @@ const Footer = () => {
           </div>
 
           {/* Contact */}
-          <div>
+          <div className="min-w-0">
             <h3 className="text-white [data-theme='light']:text-dark-500 font-semibold mb-4 transition-colors">Contact</h3>
             <ul className="space-y-3">
-              <li className="flex items-start space-x-3">
+              <li className="flex items-start space-x-3 min-w-0">
                 <Mail className="w-5 h-5 text-primary-400 mt-0.5 flex-shrink-0" />
                 <a
                   href="mailto:innosoftcreation@gmail.com"
-                  className="text-secondary-400 [data-theme='light']:text-secondary-600 hover:text-primary-400 transition-colors text-sm"
+                  className="text-secondary-400 [data-theme='light']:text-secondary-600 hover:text-primary-400 transition-colors text-sm break-all"
                 >
                   innosoftcreation@gmail.com
                 </a>
               </li>
-              <li className="flex items-start space-x-3">
+              <li className="flex items-start space-x-3 min-w-0">
                 <Phone className="w-5 h-5 text-primary-400 mt-0.5 flex-shrink-0" />
                 <a
                   href="tel:+221000000000"
@@ -114,9 +115,9 @@ const Footer = () => {
                   +221 78 018 62 29
                 </a>
               </li>
-              <li className="flex items-start space-x-3">
+              <li className="flex items-start space-x-3 min-w-0">
                 <MapPin className="w-5 h-5 text-primary-400 mt-0.5 flex-shrink-0" />
-                <span className="text-secondary-400 text-sm">
+                <span className="text-secondary-400 text-sm break-words">
                   Ville verte, Thiès, Sénégal
                 </span>
               </li>
@@ -124,12 +125,12 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-white/10">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-secondary-500 [data-theme='light']:text-secondary-600 text-sm transition-colors">
+        <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-white/10 [data-theme='light']:border-secondary-200">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+            <p className="text-secondary-500 [data-theme='light']:text-secondary-600 text-sm transition-colors order-2 md:order-1">
               © {currentYear} InnoSoft Creation. Tous droits réservés.
             </p>
-            <div className="flex space-x-6 text-sm">
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-sm order-1 md:order-2">
               <Link
                 to="/privacy"
                 className="text-secondary-500 [data-theme='light']:text-secondary-600 hover:text-primary-400 transition-colors"

@@ -33,6 +33,7 @@ class SitemapController extends Controller
                 ['url' => '/services', 'priority' => '0.9', 'changefreq' => 'monthly'],
                 ['url' => '/about', 'priority' => '0.8', 'changefreq' => 'monthly'],
                 ['url' => '/portfolio', 'priority' => '0.9', 'changefreq' => 'weekly'],
+                ['url' => '/p/', 'priority' => '0.95', 'changefreq' => 'weekly'],
                 ['url' => '/products', 'priority' => '0.8', 'changefreq' => 'weekly'],
                 ['url' => '/blog', 'priority' => '0.9', 'changefreq' => 'daily'],
                 ['url' => '/contact', 'priority' => '0.7', 'changefreq' => 'monthly'],
