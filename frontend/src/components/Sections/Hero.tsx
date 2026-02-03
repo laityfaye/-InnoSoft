@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Sparkles, Code, Smartphone, ExternalLink, LayoutGrid } from 'lucide-react'
+import { ArrowRight, Sparkles, Code, Smartphone } from 'lucide-react'
 import { useInView } from 'react-intersection-observer'
 import BackgroundStars from './BackgroundStars'
 import SmallShootingStars from './SmallShootingStars'
@@ -392,26 +392,18 @@ const Hero = () => {
               </Link>
             </motion.div>
             <motion.div 
-              whileHover={{ y: -4, scale: 1.02 }} 
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ y: -4 }} 
+              whileTap={{ y: 0 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
-              className="w-full sm:w-auto max-w-xs sm:max-w-none group/btn"
+              className="w-full sm:w-auto max-w-xs sm:max-w-none"
             >
               <a
-                href="/p"
+                href="https://innosft.com/p/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="relative flex items-center justify-center space-x-2 sm:space-x-3 text-sm sm:text-base md:text-lg px-6 sm:px-8 md:px-10 lg:px-12 py-3 sm:py-4 md:py-5 lg:py-6 font-semibold w-full sm:w-auto overflow-hidden rounded-xl
-                  bg-gradient-to-r from-primary-500/20 via-accent-500/20 to-primary-500/20
-                  border border-primary-500/40 [data-theme='light']:border-primary-500/50
-                  text-primary-300 [data-theme='light']:text-primary-600
-                  hover:from-primary-500/30 hover:via-accent-500/30 hover:to-primary-500/30
-                  hover:border-primary-400/60 hover:shadow-lg hover:shadow-primary-500/25
-                  transition-all duration-300 ease-out"
+                className="btn-secondary text-sm sm:text-base md:text-lg px-6 sm:px-8 md:px-10 lg:px-12 py-3 sm:py-4 md:py-5 lg:py-6 font-semibold relative z-10 w-full sm:w-auto text-center block whitespace-nowrap"
               >
-                <LayoutGrid className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 group-hover/btn:rotate-12 transition-transform duration-300" />
-                <span className="whitespace-nowrap">Créer votre portfolio</span>
-                <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 opacity-70 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform duration-300" />
+                Créer votre portfolio
               </a>
             </motion.div>
           </motion.div>
