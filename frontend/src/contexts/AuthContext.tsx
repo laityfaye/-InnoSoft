@@ -24,12 +24,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Check for stored token
     const storedToken = localStorage.getItem('admin_token')
     if (storedToken) {
       setToken(storedToken)
       api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`
-      // Verify token by fetching user
+      // Vérifier le token en arrière-plan - ne pas bloquer l'affichage
       fetchUser()
     } else {
       setLoading(false)

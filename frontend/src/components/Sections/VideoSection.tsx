@@ -20,28 +20,33 @@ interface Video {
 const VideoSection = () => {
   const [ref, inView] = useInView({
     triggerOnce: true,
-    threshold: 0.2,
+    threshold: 0.1,
+    rootMargin: '100px', // Charger un peu avant que la section soit visible
   })
 
   const [isPlaying, setIsPlaying] = useState(false)
   const [video, setVideo] = useState<Video | null>(null)
   const [otherVideos, setOtherVideos] = useState<Video[]>([])
   const [loading, setLoading] = useState(true)
+  const [hasFetched, setHasFetched] = useState(false)
 
   useEffect(() => {
+    if (!inView || hasFetched) return
+
     const fetchVideos = async () => {
+      setHasFetched(true)
       try {
-        // Récupérer la vidéo featured
-        const featuredResponse = await videosApi.getFeatured()
+        const [featuredResponse, allVideosResponse] = await Promise.all([
+          videosApi.getFeatured(),
+          videosApi.getAll(),
+        ])
+
         if (featuredResponse.data.success && featuredResponse.data.data) {
           setVideo(featuredResponse.data.data)
         }
 
-        // Récupérer toutes les vidéos actives
-        const allVideosResponse = await videosApi.getAll()
         if (allVideosResponse.data.success && allVideosResponse.data.data) {
           const allVideos = allVideosResponse.data.data as Video[]
-          // Filtrer pour exclure la vidéo featured et ne garder que les actives
           const featuredId = featuredResponse.data.data?.id
           const other = allVideos
             .filter(v => v.is_active && v.id !== featuredId)
@@ -56,10 +61,21 @@ const VideoSection = () => {
     }
 
     fetchVideos()
-  }, [])
+  }, [inView, hasFetched])
 
-  if (loading) {
-    return null
+  // Skeleton pendant le chargement - évite le trou blanc
+  if (loading && !video) {
+    return (
+      <section ref={ref} className="section-padding relative overflow-hidden w-full">
+        <div className="container-custom">
+          <div className="max-w-5xl mx-auto">
+            <div className="aspect-video rounded-2xl bg-dark-600/50 animate-pulse flex items-center justify-center">
+              <div className="w-16 h-16 rounded-full bg-dark-500/50 animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </section>
+    )
   }
 
   if (!video) {

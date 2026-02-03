@@ -72,10 +72,12 @@ const Portfolio = () => {
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
+    rootMargin: '150px',
   })
 
   const [projects, setProjects] = useState<DisplayProject[]>([])
   const [loading, setLoading] = useState(true)
+  const [hasFetched, setHasFetched] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
   const autoPlayInterval = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -108,28 +110,21 @@ const Portfolio = () => {
   }
 
   useEffect(() => {
+    if (!inView || hasFetched) return
+
     const loadProjects = async () => {
+      setHasFetched(true)
       try {
-        setLoading(true)
         const response = await projectsApi.getAll()
         const realProjects: Project[] = response.data.data || []
-        
-        // Formater les projets réels
         const formattedRealProjects = formatRealProjects(realProjects)
-        
-        // Prendre les 4 premiers projets réels
         let displayProjects = formattedRealProjects.slice(0, 4)
-        
-        // Compléter avec des projets fictifs si nécessaire
         if (displayProjects.length < 4) {
-          const needed = 4 - displayProjects.length
-          displayProjects = [...displayProjects, ...fallbackProjects.slice(0, needed)]
+          displayProjects = [...displayProjects, ...fallbackProjects.slice(0, 4 - displayProjects.length)]
         }
-        
         setProjects(displayProjects)
       } catch (error) {
         console.error('Error loading projects:', error)
-        // En cas d'erreur, utiliser uniquement les projets fictifs
         setProjects(fallbackProjects.slice(0, 4))
       } finally {
         setLoading(false)
@@ -138,7 +133,7 @@ const Portfolio = () => {
 
     loadProjects()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [inView, hasFetched])
 
   // Auto-play carousel
   useEffect(() => {
